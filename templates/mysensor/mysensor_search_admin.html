@@ -1,0 +1,34 @@
+<!-- table mysensor search -->
+<div>
+ MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a> 
+</div>
+<div style="display:none" id='api_settings'>
+&nbsp;
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+<fieldset>
+<div class="form-group">
+ <label class="control-label"[#if ERR_MS_HOST#] style="color:red;font-weight:bold"[#endif#]>
+ Hostname:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_host" value="<#MS_HOST#>" class="input"></div>
+</div>
+
+<div class="form-group">
+ <label class="control-label"[#if ERR_MS_PORT#] style="color:red;font-weight:bold"[#endif#]>
+ Port:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_port" value="<#MS_PORT#>" class="input"></div>
+</div>
+
+<div class="form-actions">
+<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_UPDATE#></button>
+<input type="hidden" name="view_mode" value="update_settings">
+<input type="hidden" name="mode" value="update">
+</div>
+</fieldset>
+</form>
+</div>
+
+<br>
