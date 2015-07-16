@@ -1,4 +1,4 @@
-majormodo-mysensor
+#majormodo-mysensor
 MajorDomo MySensor gateway
 
 http://smartliving.ru/
