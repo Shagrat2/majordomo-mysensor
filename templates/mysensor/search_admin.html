@@ -1,0 +1,72 @@
+<!-- table mysensor search -->
+<div class="float-right">
+	<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about">About&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign icon-white"></span>
+	</button>
+</div>
+
+<div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="about1" aria-hidden="true">
+<!-- <div id="about" class="modal hide"> -->
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title">MySensor gateway. [#VER#]</h4>
+			</div>
+			<div class="modal-body">
+				<p> Module supported MySensor gateway.<br>
+				<a href="http://majordomo.smartliving.ru/forum/viewtopic.php?f=5&t=2404&p=23022#p23022" target="_blank">Forum</a>.<br>
+				</p>
+				<p class="float-left"></p>
+			</div>
+			
+			<div class="modal-footer">
+				<div class="pull-left">Best regards!<br>@S :)</div>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div>
+ MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a> 
+</div>
+<div style="display:none" id='api_settings'>
+&nbsp;
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+<fieldset>
+<div class="form-group">
+ <label class="control-label"[#if ERR_MS_HOST#] style="color:red;font-weight:bold"[#endif#]>
+ Hostname:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_host" value="<#MS_HOST#>" class="input"></div>
+</div>
+
+<div class="form-group">
+ <label class="control-label"[#if ERR_MS_PORT#] style="color:red;font-weight:bold"[#endif#]>
+ Port:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_port" value="<#MS_PORT#>" class="input"></div>
+</div>
+
+<div class="form-actions">
+<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_UPDATE#></button>
+<input type="hidden" name="view_mode" value="update_settings">
+<input type="hidden" name="mode" value="update">
+</div>
+</fieldset>
+</form>
+</div>
+
+<br>
+<ul class="nav nav-tabs">
+ <li [#if STATUS==""#] class="active"[#endif#]><a href="?">Nodes</a> </li>
+ <li [#if STATUS=="1"#] class="active"[#endif#]><a href="?status=1">Mash</a> </li> 
+</ul> 
+
+[#if STATUS=""#]
+  [#inc search_list.html#] 
+[#endif#] 
+[#if STATUS="1"#]
+  [#inc search_mesh.html#] 
+[#endif#] 
