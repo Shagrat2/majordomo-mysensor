@@ -16,6 +16,19 @@
    $out['TITLE']=$title;
   }
   
+  global $location_id;
+  if ($location_id) {
+   $qry.=" AND LOCATION_ID='".(int)$location_id."'";
+   $out['LOCATION_ID']=(int)$location_id;
+  }
+
+  if (IsSet($this->location_id)) {
+   $location_id=$this->location_id;
+   $qry.=" AND LOCATION_ID='".$this->location_id."'";
+  } else {
+   global $location_id;
+  }
+  
   // QUERY READY
   global $save_qry;
   if ($save_qry) {
@@ -45,11 +58,13 @@
   // SEARCH RESULTS  
   $res=SQLSelect("SELECT * FROM msnodes WHERE $qry ORDER BY ".$sortby_mysensor);
   if ($res[0]['ID']) {   
-   colorizeArray($res);
-   $total=count($res);
-   for($i=0;$i<$total;$i++) {
-    // some action for every record if required
-   }
-   $out['RESULT']=$res;
+    colorizeArray($res);
+    $total=count($res);
+    for($i=0;$i<$total;$i++) {
+     // some action for every record if required
+    }
+    $out['RESULT']=$res;
   }  
+  
+  $out['LOCATIONS']=SQLSelect("SELECT * FROM locations ORDER BY TITLE");
 ?>

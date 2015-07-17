@@ -156,12 +156,19 @@ function admin(&$out) {
   if ($this->view_mode=='' || $this->view_mode=='search_ms') {
    $this->search_ms($out);
   }
-  if ($this->view_mode=='edit_ms') {
+  if ($this->view_mode=='node_edit') {
    $this->edit_ms($out, $this->id);
   }
-  if ($this->view_mode=='delete_ms') {
+  if ($this->view_mode=='node_delete') {
    $this->delete_ms($this->id);
    $this->redirect("?");
+  }
+  if ($this->view_mode=='node_sensors') {
+   $this->node_sensors($out, $this->id);  
+  }
+  if ($this->view_mode=='sensor_delete') {
+    $this->delete_sensor($this->id);
+    $this->redirect("?");
   }
  }
 }
@@ -184,12 +191,42 @@ function search_ms(&$out) {
   require(DIR_MODULES.$this->name.'/ms_search.inc.php');
 }
 /**
+* Search sesnors
+*
+* @access public
+*/
+function node_sensors(&$out, $id) {
+  require(DIR_MODULES.$this->name.'/sensors_search.inc.php');
+}
+/**
 * Edit/add
 *
 * @access public
 */
 function edit_ms(&$out, $id) {
   require(DIR_MODULES.$this->name.'/ms_edit.inc.php');
+}
+/**
+* Delete node
+*
+* @access public
+*/
+function delete_ms($id) {
+  $rec=SQLSelectOne("SELECT * FROM msnodes WHERE ID='$id'");
+  // some action for related tables
+  SQLExec("DELETE FROM msnodesens WHERE NID='".$rec['NID']."'"); 
+  SQLExec("DELETE FROM msnodeval WHERE NID='".$rec['NID']."'"); 
+  SQLExec("DELETE FROM msnodes WHERE ID='".$rec['ID']."'"); 
+}
+/**
+* Delete sensor
+*
+* @access public
+*/
+function delete_sensor($id) {
+  $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE ID='$id'");
+  // some action for related tables
+  SQLExec("DELETE FROM msnodeval WHERE ID='".$rec['ID']."'");   
 }
 /**
 * Receive Presentation
@@ -368,6 +405,9 @@ function install($data='') {
   msnodes: BATTERY varchar(32) NOT NULL DEFAULT ''  
   msnodes: SKETCH varchar(32) NOT NULL DEFAULT ''  
   msnodes: VER varchar(32) NOT NULL DEFAULT ''  
+  msnodes: BAT_OBJECT varchar(255) NOT NULL DEFAULT ''
+  msnodes: BAT_PROPERTY varchar(255) NOT NULL DEFAULT ''
+  msnodes: LOCATION_ID int(10) NOT NULL DEFAULT '0' 
   
   msnodesens: ID int(10) unsigned NOT NULL auto_increment
   msnodesens: NID int(10) NOT NULL 
@@ -380,6 +420,8 @@ function install($data='') {
   msnodeval: SUBTYPE int(10) NOT NULL  
   msnodeval: VAL varchar(32) NOT NULL DEFAULT ''  
   msnodeval: UPDATED datetime
+  msnodeval: LINKED_OBJECT varchar(255) NOT NULL DEFAULT ''
+  msnodeval: LINKED_PROPERTY varchar(255) NOT NULL DEFAULT ''
 EOD;
   parent::dbInstall($data);
 

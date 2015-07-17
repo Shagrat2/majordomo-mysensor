@@ -31,6 +31,7 @@
 </div>
 <div style="display:none" id='api_settings'>
 &nbsp;
+
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
 <fieldset>
 <div class="form-group">
@@ -58,7 +59,11 @@
 </form>
 </div>
 
-<br>
+<br/>
+<p>
+<a href="?view_mode=node_edit" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
+</p>
+
 <ul class="nav nav-tabs">
  <li [#if STATUS==""#] class="active"[#endif#]><a href="?">Nodes</a> </li>
  <li [#if STATUS=="1"#] class="active"[#endif#]><a href="?status=1">Mash</a> </li> 

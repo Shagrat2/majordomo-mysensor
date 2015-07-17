@@ -1,3 +1,20 @@
+<br/>
+
+<form action="?" method="get" name="frmFilter">
+<table border="0">
+ <tr>
+  <td>
+  <select class="form-control" name="location_id" onChange="document.frmFilter.submit();">
+   <option value="0"><#LANG_FILTER_BY_LOCATION#> (<#LANG_ALL#>)
+   [#begin LOCATIONS#]
+   <option value="[#ID#]"[#if ID="<#LOCATION_ID#>"#] selected[#endif#]>[#TITLE#]
+   [#end LOCATIONS#]
+  </select>
+  </td>
+ </tr>
+</table>
+</form>
+
 <!-- results -->
 [#if RESULT#]
 <!-- paging -->
@@ -68,8 +85,9 @@
  </td>  
  <td width="1%" nowrap>
   [#if "<#ACTION#>"=="admin"#]
-   <a href="?view_mode=node_edit&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>
-    <a href="?view_mode=delete_node&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
+    <a href="?view_mode=node_edit&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>
+    <a href="?view_mode=node_sensors&id=[#ID#]" class="btn btn-default btn-sm" title="Sensors"><i class="glyphicon glyphicon-th"></i></a>
+    <a href="?view_mode=node_delete&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
   [#endif ACTION#]
  </td>
 </tr>

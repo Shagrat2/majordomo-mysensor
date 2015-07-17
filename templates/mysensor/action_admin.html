@@ -1,11 +1,11 @@
  <!-- action usual -->
  <!-- table mysensor search -->
- [#if VIEW_MODE="search_mqtt" || VIEW_MODE=""#]
+ [#if VIEW_MODE="search_ms" || VIEW_MODE=""#]
   [#inc search_admin.html#]
  [#endif VIEW_MODE#]
  <!-- / table mysensor search -->
- <!-- table node edit -->
- [#if VIEW_MODE="node_edit"#]
-   [#inc node_edit.html#]
+ <!-- table sensor sesrch -->
+ [#if VIEW_MODE="node_sensors"#]
+   [#inc search_sensors.html#]
  [#endif VIEW_MODE#]
- <!-- / table mqtt edit --> 
+ <!-- / table sensor sesrch --> 

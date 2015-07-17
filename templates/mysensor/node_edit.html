@@ -29,6 +29,21 @@
  </label>
  <div class="controls"><input  type="text" name="title" value="[#TITLE#]" class="form-control input"></div>
 </div>
+<!-- LOCATION_ID (select) -->
+[#if !IS_SET_LOCATION_ID#]
+<div class="form-group">
+ <label class="control-label"[#if ERR_LOCATION_ID#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_LOCATION#>:
+ </label>
+<div class="controls">
+ <select name="location_id"  class="form-control input">
+  <option value="">select
+  [#begin LOCATION_ID_OPTIONS#]<option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
+  [#end LOCATION_ID_OPTIONS#]
+ </select>
+</div>
+</div>
+[#endif IS_SET_LOCATION_ID#]
 <!-- Sketch (varchar) -->
 <div class="form-group">
  <label class="control-label">Sketch:</label>
@@ -45,20 +60,14 @@
 </div>
 
 
-<!-- LINKED_OBJECT (varchar) -->
+<!-- Battery (varchar) -->
 <div class="form-group">
- <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>
- <#LANG_LINKED_OBJECT#>:
- </label>
- <div class="controls"><input type="text" name="linked_object" id="linked_object" value="[#LINKED_OBJECT#]" class="input form-control"></div>
+ <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>Battery:</label>
+ <div class="controls">[#BATTERY#]</div><br/>
+ <div class="controls"><input type="text" name="bat_object" id="bat_object" value="[#BAT_OBJECT#]" class="input form-control"></div><br/>
+ <div class="controls"><input type="text" name="bat_property" id="bat_property" value="[#BAT_PROPERTY#]" class="input form-control"></div> 
 </div>
-<!-- LINKED_PROPERTY (varchar) -->
-<div class="form-group">
- <label class="control-label"[#if ERR_LINKED_PROPERTY#] style="color:red;font-weight:bold"[#endif#]>
- <#LANG_PROPERTY#>:
- </label>
- <div class="controls"><input type="text" name="linked_property" id="linked_property" value="[#LINKED_PROPERTY#]" class="input form-control"></div>
-</div>
+
 <div class="form-actions">
  [#if ID!=""#]
  <button type="submit" name="subm" value="<#LANG_SUBMIT#>" class="btn btn-defaul btn-primary"><#LANG_SUBMIT#></button>
@@ -73,4 +82,4 @@
 </div>
 </fieldset>
 </form>
-[#module name="linkedobject" object_field="linked_object" property_field="linked_property"#] 
+[#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
