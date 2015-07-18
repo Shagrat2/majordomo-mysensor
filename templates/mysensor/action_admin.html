@@ -4,6 +4,11 @@
   [#inc search_admin.html#]
  [#endif VIEW_MODE#]
  <!-- / table mysensor search -->
+ <!-- table node edit -->
+ [#if VIEW_MODE="node_edit"#]
+   [#inc node_edit.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table sensor sesrch --> 
  <!-- table sensor sesrch -->
  [#if VIEW_MODE="node_sensors"#]
    [#inc search_sensors.html#]

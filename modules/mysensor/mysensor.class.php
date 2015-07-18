@@ -287,6 +287,10 @@ function Set($arr){
   $sens['UPDATED']=date('Y-m-d H:i:s'); 
   $sens['VAL']=$val; 
   SQLUpdate('msnodeval', $sens);
+  
+  if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
+    setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $val, array($this->name=>'0'));
+  } 
 }
 /**
 * Receive req
@@ -341,6 +345,11 @@ function Internal($arr){
     case 0:
       $node['BATTERY'] = $val;
       SQLUpdate('msnodes', $node);
+      
+      if ($node['BAT_OBJECT'] && $node['BAT_PROPERTY']) {
+        setGlobal($node['BAT_OBJECT'].'.'.$node['BAT_PROPERTY'], $val, array($this->name=>'0'));
+      } 
+      
       break;
     // @@@ 1 -Time
     // @@@ 2 - Version
@@ -360,22 +369,6 @@ function Internal($arr){
       SQLUpdate('msnodes', $node);
       break;    
   }
-  
-/*  
-  // Sensor
-  $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
-  if (!$sens['ID']) {
-    $sens['NID'] = $NId;
-    $sens['SID'] = $SId;
-    $sens['SUBTYPE'] = $SubType;
-    $sens['ID']=SQLInsert('msnodeval', $sens);
-  }
-  
-  // Set
-  $sens['UPDATED']=date('Y-m-d H:i:s'); 
-  $sens['VAL']=$arr[5]; 
-  SQLUpdate('msnodeval', $sens);
-*/  
 }
 /**
 * Install

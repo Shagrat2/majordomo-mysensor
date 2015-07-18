@@ -6,8 +6,8 @@ if ($this->owner->name=='panel') {
 
 $table_name='msnodes';
 $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
-  
-if ($this->mode=='update') {
+ 
+if ($this->mode=='update') { 
   $ok=1;
    
   // NId
@@ -72,7 +72,8 @@ if ($this->mode=='update') {
     $this->setProperty($rec['ID'], $new_value, 1);
   }
 }
-  
+ 
+ 
 //options for 'LOCATION_ID' (select)
 $tmp=SQLSelect("SELECT ID, TITLE FROM locations ORDER BY TITLE");
 $locations_total=count($tmp);

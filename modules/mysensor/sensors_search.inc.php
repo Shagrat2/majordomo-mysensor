@@ -32,7 +32,34 @@
     $sensors=SQLSelect("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' ORDER BY SID");
     $presentation=SQLSelect("SELECT * FROM msnodesens WHERE NID='".$rec['NID']."' ORDER BY SID");
     
-    // print_r($presentation);
+    if ($this->mode=='update') {
+      $total=count($sensors);
+      for($i=0;$i<$total;$i++) {
+        global ${'linked_object'.$sensors[$i]['ID']};
+        global ${'linked_property'.$sensors[$i]['ID']};
+        
+        $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
+        $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
+        
+        if (${'linked_object'.$sensors[$i]['ID']} && ${'linked_property'.$sensors[$i]['ID']}) {
+          $sensors[$i]['LINKED_OBJECT']=${'linked_object'.$sensors[$i]['ID']};
+          $sensors[$i]['LINKED_PROPERTY']=${'linked_property'.$sensors[$i]['ID']};
+          SQLUpdate('msnodeval', $sensors[$i]);
+        } elseif ($sensors[$i]['LINKED_OBJECT'] || $sensors[$i]['LINKED_PROPERTY']) {
+          $sensors[$i]['LINKED_OBJECT']='';
+          $sensors[$i]['LINKED_PROPERTY']='';
+          SQLUpdate('msnodeval', $sensors[$i]);
+        }
+
+        if ($sensors[$i]['LINKED_OBJECT'] && $sensors[$i]['LINKED_PROPERTY']) {
+          addLinkedProperty($sensors[$i]['LINKED_OBJECT'], $sensors[$i]['LINKED_PROPERTY'], $this->name);          
+        }
+
+        if ($old_linked_object && $old_linked_object!=$sensors[$i]['LINKED_OBJECT'] && $old_linked_property && $old_linked_property!=$sensors[$i]['LINKED_PROPERTY']) {
+          removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
+        }
+      }
+    }
     
     if (is_array($sensors)) 
     {
@@ -53,8 +80,6 @@
         $sensors[$k]['SUBDESCR'] = $mysensor_property[ $subtype ][1];
       }
     }    
-    
-    //print_r($sensors);
     
     $out['SENSORS']=$sensors;
   }  
