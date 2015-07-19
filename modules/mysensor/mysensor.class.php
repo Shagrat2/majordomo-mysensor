@@ -44,6 +44,9 @@ function saveParams() {
  if (IsSet($this->edit_mode)) {
   $p["edit_mode"]=$this->edit_mode;
  }
+ if (IsSet($this->data_souce)) {
+  $p["data_source"]=$this->data_source;
+ }
  if (IsSet($this->tab)) {
   $p["tab"]=$this->tab;
  }
@@ -61,6 +64,7 @@ function getParams() {
   global $mode;
   global $view_mode;
   global $edit_mode;
+  global $data_source;
   global $tab;
   if (isset($id)) {
    $this->id=$id;
@@ -73,6 +77,9 @@ function getParams() {
   }
   if (isset($edit_mode)) {
    $this->edit_mode=$edit_mode;
+  }
+  if (isset($data_source)) {
+   $this->data_source=$data_source;
   }
   if (isset($tab)) {
    $this->tab=$tab;
@@ -103,6 +110,8 @@ function run() {
   $out['EDIT_MODE']=$this->edit_mode;
   $out['MODE']=$this->mode;
   $out['ACTION']=$this->action;
+  $out['DATA_SOURCE']=$this->data_source;
+  $out['TAB']=$this->tab;
   if ($this->single_rec) {
    $out['SINGLE_REC']=1;
   }
@@ -133,44 +142,44 @@ function admin(&$out) {
     $out['MS_PORT']='5003';
   } 
   
-  if ($this->view_mode=='update_settings') {
-    global $ms_host;
-    global $ms_port;
+  if ($this->data_source=='mysensors' || $this->data_source=='') {
+    if ($this->view_mode=='update_settings') {
+      global $ms_host;
+      global $ms_port;
    
-    $this->config['MS_HOST']=$ms_host;
-    $this->config['MS_PORT']=(int)$ms_port;   
-    $this->saveConfig();
-    $this->redirect("?");
-  }
+      $this->config['MS_HOST']=$ms_host;
+      $this->config['MS_PORT']=(int)$ms_port;   
+      $this->saveConfig();
+      $this->redirect("?");
+    }
 
-  if (!$this->config['MS_HOST']) {
-    $this->config['MS_HOST']='10.9.0.253';
-    $this->saveConfig();
-  }
-  if (!$this->config['MS_PORT']) {
-    $this->config['MS_PORT']='5003';
-    $this->saveConfig();
-  }  
+    if (!$this->config['MS_HOST']) {
+      $this->config['MS_HOST']='10.9.0.253';
+      $this->saveConfig();
+    }
+    if (!$this->config['MS_PORT']) {
+      $this->config['MS_PORT']='5003';
+      $this->saveConfig();
+    }  
   
-  if ($this->data_source=='ms' || $this->data_source=='') {
-  if ($this->view_mode=='' || $this->view_mode=='search_ms') {
-   $this->search_ms($out);
+    if ($this->view_mode=='' || $this->view_mode=='search_ms') {
+      $this->search_ms($out);
+    }
+    if ($this->view_mode=='node_edit') {
+      $this->edit_ms($out, $this->id);
+    }
+    if ($this->view_mode=='node_delete') {
+      $this->delete_ms($this->id);
+      $this->redirect("?");
+    }
+    if ($this->view_mode=='sensor_add'){
+      $this->add_sensor($out, $this->id);
+    }
+    if ($this->view_mode=='sensor_delete') {
+      $this->delete_sensor($this->id);
+      $this->redirect("?");
+    }     
   }
-  if ($this->view_mode=='node_edit') {
-   $this->edit_ms($out, $this->id);
-  }
-  if ($this->view_mode=='node_delete') {
-   $this->delete_ms($this->id);
-   $this->redirect("?");
-  }
-  if ($this->view_mode=='node_sensors') {
-   $this->node_sensors($out, $this->id);  
-  }
-  if ($this->view_mode=='sensor_delete') {
-    $this->delete_sensor($this->id);
-    $this->redirect("?");
-  }
- }
 }
 /**
 * FrontEnd
@@ -191,7 +200,7 @@ function search_ms(&$out) {
   require(DIR_MODULES.$this->name.'/ms_search.inc.php');
 }
 /**
-* Search sesnors
+* Search sensors
 *
 * @access public
 */
@@ -217,6 +226,14 @@ function delete_ms($id) {
   SQLExec("DELETE FROM msnodesens WHERE NID='".$rec['NID']."'"); 
   SQLExec("DELETE FROM msnodeval WHERE NID='".$rec['NID']."'"); 
   SQLExec("DELETE FROM msnodes WHERE ID='".$rec['ID']."'"); 
+}
+/**
+* Add sensor
+*
+* @access public
+*/
+function add_sensor($id) {
+  require(DIR_MODULES.$this->name.'/sensor_add.inc.php');
 }
 /**
 * Delete sensor
@@ -291,6 +308,26 @@ function Set($arr){
   if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
     setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $val, array($this->name=>'0'));
   } 
+}
+/**
+* Title
+*
+* Description
+*
+* @access public
+*/
+function setProperty($prop_id, $val) {
+  $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE ID='".$prop_id."'");
+  if (!$sens['ID']) {
+   return 0;
+  }
+
+  // Set
+  $sens['UPDATED']=date('Y-m-d H:i:s'); 
+  $sens['VAL']=$val; 
+  SQLUpdate('msnodeval', $sens);
+  
+  //@@@ Sens to device
 }
 /**
 * Receive req

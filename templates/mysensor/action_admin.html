@@ -1,16 +1,36 @@
  <!-- action usual -->
+ [#if DATA_SOURCE="mysensors" || DATA_SOURCE=""#]
  <!-- table mysensor search -->
- [#if VIEW_MODE="search_ms" || VIEW_MODE=""#]
+ [#if VIEW_MODE="search_mysensors" || VIEW_MODE=""#]
   [#inc search_admin.html#]
  [#endif VIEW_MODE#]
- <!-- / table mysensor search -->
+ 
  <!-- table node edit -->
  [#if VIEW_MODE="node_edit"#]
-   [#inc node_edit.html#]
+   [#if ID!=""#]
+   [#if TITLE!=""#]<h4>[#TITLE#]</h4>[#endif TITLE#]
+<ul class="nav nav-tabs">
+  <li[#if TAB=""#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab="><#LANG_GENERAL#></a>
+  </li>
+  <li[#if TAB="sensors"#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab=sensors">Sensors</a>
+  </li>
+  <li[#if TAB="presentation"#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab=presentation">Presentation</a>
+  </li>
+</ul>
+   [#endif ID#]   
+   [#if TAB=""#]
+    [#inc edit_node.html#]
+   [#endif TAB=""#]
+   [#if TAB="sensors"#]
+     [#inc edit_sensors.html#]
+   [#endif TAB="sensors"#]
  [#endif VIEW_MODE#]
- <!-- / table sensor sesrch --> 
- <!-- table sensor sesrch -->
- [#if VIEW_MODE="node_sensors"#]
-   [#inc search_sensors.html#]
- [#endif VIEW_MODE#]
- <!-- / table sensor sesrch --> 
+ <!-- / table node edit --> 
+ <!-- table node edit -->
+ [#if VIEW_MODE="sensor_add"#]
+   [#inc add_sensor.html#]
+ [#endif sensor_add#]
+[#endif DATA_SOURCE#]

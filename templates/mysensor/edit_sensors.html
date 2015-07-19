@@ -1,8 +1,3 @@
-<a href="?subm=" class="btn btn-default" title="<#LANG_BACK#>"> <#LANG_BACK#> </a>
-</div>
-<br/>
-</p>
-[#NID#] - [#TITLE#] [#if SKETCH!=""#]- [#SKETCH#][#endif#][#if VER!=""#]- [#VER#][#endif#]<br/>
 <br/>
 <p>
 <a href="?view_mode=sensor_add&nid=[#NID#]" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
@@ -30,7 +25,7 @@
  function setProperty(prop_id, current_value) {
   var new_value=prompt("Please enter new value", current_value);
   if (new_value!=null) {
-   var url="?id=<#ID#>&edit_mode=<#EDIT_MODE#>&view_mode=<#VIEW_MODE#>&mode=setvalue";
+   var url="?id=<#ID#>&edit_mode=<#EDIT_MODE#>&view_mode=<#VIEW_MODE#>&tab=<#TAB#>&mode=setvalue";
    window.location=url+'&prop_id='+prop_id+"&new_value="+new_value;
   }
   return false;
@@ -45,16 +40,18 @@
     <td valign="top"><b>SUBTYPE</b></td>
     <td valign="top"><b>Updated</b></td>   
     <td valign="top"><b><#LANG_VALUE#></b></td>
+	<td valign="top">&nbsp;</td>
     <td valign="top"><b><#LANG_LINKED_OBJECT#></b></td>
     <td valign="top"><b><#LANG_LINKED_PROPERTY#></b></td>
     <td valign="top">&nbsp;</td>
    </tr>
    [#begin SENSORS#]
    <tr>
-    <td valign="top" [#if SDESCR!=""#]title="[#SDESCR#]"[#endif#]><b>[#SID#][#if STITLE!=""#] : [#STITLE#][#endif#]</b></td>
-    <td valign="top" [#if SUBDESCR!=""#]title="[#SUBDESCR#]"[#endif#]>[#SUBTYPE#][#if SUBTITLE!=""#] : [#SUBTITLE#][#endif#]</td>
+    <td valign="top" [#if SDESCR!=""#]title="[#SDESCR#]"[#endif#]><b>[#SID#]</b>[#if STITLE!=""#]<br/>[#STITLE#][#endif#]</td>
+    <td valign="top" [#if SUBDESCR!=""#]title="[#SUBDESCR#]"[#endif#]>[#SUBTYPE#][#if SUBTITLE!=""#]<br/>[#SUBTITLE#][#endif#]</td>
     <td valign="top">[#UPDATED#]</td>
-    <td valign="top">[#VAL#]</td>    
+    <td valign="top">[#VAL#]</td>
+	<td valign="top"><a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SET#></a></td>
     <td valign="top"><input type="text" name="linked_object[#ID#]" id="linked_object[#ID#]" value="[#LINKED_OBJECT#]"></td>
     <td valign="top"><input type="text" name="linked_property[#ID#]" id="linked_property[#ID#]" value="[#LINKED_PROPERTY#]">
     [#module name="linkedobject" object_field="linked_object<#SENSORS.ID#>" property_field="linked_property<#SENSORS.ID#>"#]
@@ -80,6 +77,8 @@
 <input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
 <input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
 <input type="hidden" name="mode" value="update">
+<input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
+<input type="hidden" name="tab" value="<#TAB#>">
 </form>
 
 </p>
