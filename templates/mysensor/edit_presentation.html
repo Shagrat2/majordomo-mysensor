@@ -1,0 +1,39 @@
+<br/>
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit">
+<table border=0 align=center cellpadding=3>
+[#if OK#]
+<tr>
+ <td colspan=2 align=center>
+  <font color="green"><#LANG_DATA_SAVED#></font>
+ </td>
+</tr>
+[#endif OK#]
+[#if ERR#]
+<tr>
+ <td colspan=2 align=center>
+  <font color="red"><#LANG_FILLOUT_REQURED#></font>
+ </td>
+</tr>
+[#endif ERR#] 
+[#if PRESENTATIONS#]
+
+<tr> 
+ <td valign="top">
+  <table width="100%" border="1" cellpadding="2">
+   <tr>
+    <td valign="top"><b>Sensor</b></td>	
+    <td valign="top"><b>SUBTYPE</b></td>        
+   </tr>
+   [#begin PRESENTATIONS#]
+   <tr>
+    <td valign="top"><b>[#SID#]</b></td>
+    <td valign="top">[#TITLE#]</td>   
+   </tr>
+   [#end PRESENTATIONS#]
+  </table>
+ </td>
+</tr>
+[#endif PRESENTATIONS#]
+</form>
+
+</p>

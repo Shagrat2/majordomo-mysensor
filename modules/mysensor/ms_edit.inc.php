@@ -17,7 +17,7 @@ if ($this->owner->name=='panel') {
 $table_name='msnodes';
 $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 
-if ($this->tab=="sensors"){
+if (($this->tab=="sensors") || ($this->tab=="presentation")){
   if ($rec['ID']) {
     $sensors=SQLSelect("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' ORDER BY SID");
     $presentation=SQLSelect("SELECT * FROM msnodesens WHERE NID='".$rec['NID']."' ORDER BY SID");
@@ -169,6 +169,16 @@ if ($this->tab == "sensors"){
   }    
     
   $out['SENSORS']=$sensors;
+}
+if ($this->tab == "presentation"){
+  if (is_array($presentation)) {    
+    foreach($presentation as $k=>$v){      
+      $pres = $v['SUBTYPE'];
+      $presentation[$k]['TITLE'] = $mysensor_presentation[$pres][0];            
+    }    
+  }    
+    
+  $out['PRESENTATIONS']=$presentation;
 }
 
 ?>

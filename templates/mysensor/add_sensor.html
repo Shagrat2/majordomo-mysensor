@@ -13,32 +13,49 @@
  </label>
  <div class="controls">[#TITLE#]</div>
 </div>
+
 <div class="form-group">
- <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>
- Sensor:
- (*)
- </label>
+ <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>Sensor: (*)</label>
  <div class="controls">
- <select name="sid"  class="form-control input">
+ <select name="sid" class="form-control input">
   <option value="">select
-  [#begin SENSORS_PRES#]<option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
-  [#end SENSORS_PRES#]
+  [#begin SID_OPTIONS#]<option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
+  [#end SID_OPTIONS#]
+ </select> 
+ </div>
+</div>
+
+<div class="form-group">
+ <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>SubType: (*)</label>
+ <div class="controls">
+ <select name="subtype"  class="form-control input">
+  <option value="">select
+  [#begin SUBTYPE_OPTIONS#]<option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#] 
+  [#end SUBTYPE_OPTIONS#]
  </select>
  </div>
 </div>
-<div class="form-group">
- <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>
- SubType:
- (*)
- </label>
- <div class="controls"><input  type="text" name="sid" value="[#SUBTYPE#]" class="form-control input"></div>
-</div>
+
 <div class="form-group">
  <label class="control-label">
  Value:
  </label>
  <div class="controls"><input  type="text" name="value" class="form-control input"></div>
 </div>
+
+<div class="form-group">
+ <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_LINKED_OBJECT#>:
+ </label>
+ <div class="controls"><input type="text" name="linked_object" id="linked_object" value="[#LINKED_OBJECT#]" class="input form-control"></div>
+</div>
+<!-- LINKED_PROPERTY (varchar) -->
+<div class="form-group">
+ <label class="control-label"[#if ERR_LINKED_PROPERTY#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_PROPERTY#>:
+ </label>
+ <div class="controls"><input type="text" name="linked_property" id="linked_property" value="[#LINKED_PROPERTY#]" class="input form-control"></div>
+</div> 
 
 <div class="form-actions">
  <button type="submit" name="subm" value="<#LANG_ADD#>" class="btn btn-defaul btn-primary"><#LANG_ADD#></button>
@@ -51,3 +68,4 @@
 <input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
 <input type="hidden" name="tab" value="<#TAB#>">
 </form>
+[#module name="linkedobject" object_field="linked_object" property_field="linked_property"#]

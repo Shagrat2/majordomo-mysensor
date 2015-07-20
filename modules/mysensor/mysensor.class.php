@@ -424,10 +424,24 @@ function install($data='') {
 *
 * @access private
 */
- function dbInstall($data) { 
-  /*
-  msnodes
-  */  
+function dbInstall($data) { 
+ 
+  // Send message
+  SQLExec("DROP TABLE IF EXISTS `mssendstack`;");
+  
+  $sqlQuery = "CREATE TABLE IF NOT EXISTS `mssendstack`
+               (`MAKE` datetime  NOT NULL,
+                `NID` int(10) NOT NULL,
+                `SID` int(10) NOT NULL,
+                `MType` int(10) NOT NULL,
+                `ACK` int(10) NOT NULL,
+                `SUBTYPE` int(10) NOT NULL,
+                `MESSAGE` varchar(32) NOT NULL,
+                PRIMARY KEY (`MAKE`)
+               ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
+
+  SQLExec($sqlQuery);
+  
   $data = <<<EOD
   msnodes: ID int(10) unsigned NOT NULL auto_increment
   msnodes: NID int(10) NOT NULL
