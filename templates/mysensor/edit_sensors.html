@@ -1,6 +1,6 @@
 <br/>
 <p>
-<a href="?view_mode=sensor_add&nid=[#NID#]" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
+<a href="?view_mode=sensor_add&id=[#ID#]" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
 </p> 
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit">
 <table border=0 align=center cellpadding=3>
@@ -56,7 +56,7 @@
     <td valign="top"><input type="text" name="linked_property[#ID#]" id="linked_property[#ID#]" value="[#LINKED_PROPERTY#]">
     [#module name="linkedobject" object_field="linked_object<#SENSORS.ID#>" property_field="linked_property<#SENSORS.ID#>"#]
     </td>  
-    <td><a href="?view_mode=sensor_delete&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a></td>
+    <td><a href="?view_mode=sensor_delete&id=[#ID#]&pid=[#PID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a></td>
    </tr>
    [#end SENSORS#]
   </table>

@@ -173,12 +173,18 @@ function admin(&$out) {
       $this->redirect("?");
     }
     if ($this->view_mode=='sensor_add'){
-      $this->add_sensor($out, $this->id);
+      $this->add_sensor($out, $this->id);      
     }
     if ($this->view_mode=='sensor_delete') {
       $this->delete_sensor($this->id);
-      $this->redirect("?");
+      
+      global $pid;
+      $this->redirect("?data_source=$this->data_source&view_mode=node_edit&id=$pid&tab=sensors");
     }     
+    if ($this->view_mode=='presentation_clean'){
+      $this->clean_presentation($this->id);
+      $this->redirect("?data_source=$this->data_source&view_mode=node_edit&id=$this->id&tab=presentation");
+    }
   }
 }
 /**
@@ -232,7 +238,7 @@ function delete_ms($id) {
 *
 * @access public
 */
-function add_sensor($id) {
+function add_sensor(&$out, $id) {
   require(DIR_MODULES.$this->name.'/sensor_add.inc.php');
 }
 /**
@@ -244,6 +250,16 @@ function delete_sensor($id) {
   $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE ID='$id'");
   // some action for related tables
   SQLExec("DELETE FROM msnodeval WHERE ID='".$rec['ID']."'");   
+}
+/**
+* Clean presentation
+*
+* @access public
+*/
+function clean_presentation($id) {
+  global $nid;
+  
+  SQLExec("DELETE FROM msnodesens WHERE NID='".$nid."'");   
 }
 /**
 * Receive Presentation

@@ -151,7 +151,8 @@ if ($this->tab == ""){
 }
 if ($this->tab == "sensors"){  
   if (is_array($sensors)) {
-    foreach($sensors as $k=>$v) {       
+    foreach($sensors as $k=>$v) {           
+      $sensors[$k]['PID'] = $id;
         
       foreach($presentation as $itm){
         if (($itm['NID'] == $rec['NID']) && ($itm['SID'] == $v['SID'])){
