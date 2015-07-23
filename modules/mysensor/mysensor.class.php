@@ -135,6 +135,8 @@ function admin(&$out) {
   $out['MS_HOST']=$this->config['MS_HOST'];
   $out['MS_PORT']=$this->config['MS_PORT'];
   $out['MS_MEASURE']=$this->config['MS_MEASURE'];
+  $out['MS_AUTOID']=$this->config['MS_AUTOID'];
+  $out['MS_NEXTID']=$this->config['MS_NEXTID'];
  
   if (!$out['MS_HOSTHOST']) {
     $out['MS_HOST']='10.9.0.253';
@@ -148,10 +150,14 @@ function admin(&$out) {
       global $ms_host;
       global $ms_port;
       global $ms_measure;
+      global $ms_autoid;
+      global $ms_nextid;
    
       $this->config['MS_HOST']=$ms_host;
       $this->config['MS_PORT']=(int)$ms_port;   
       $this->config['MS_MEASURE']=$ms_measure;
+      $this->config['MS_AUTOID']=$ms_autoid;
+      $this->config['MS_NEXTID']=$ms_nextid;
       $this->saveConfig();
       $this->redirect("?");
     }
@@ -168,6 +174,14 @@ function admin(&$out) {
       $this->config['MS_MEASURE']='M';
       $this->saveConfig();
     }  
+    if (!$this->config['MS_AUTOID']) {
+      $this->config['MS_AUTOID']='1';
+      $this->saveConfig();
+    }  
+    if (!$this->config['MS_NEXTID']) {
+      $this->config['MS_NEXTID']='10';
+      $this->saveConfig();
+    }      
   
     if ($this->view_mode=='' || $this->view_mode=='search_ms') {
       if ($this->tab=='mesh'){
@@ -413,6 +427,7 @@ function req($arr){
   // Node
   $NId = $arr[0];
   $SId = $arr[1];
+  $mType = $arr[2];
   $SubType = $arr[4];
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
@@ -432,7 +447,8 @@ function req($arr){
   }
   
   // Req
-  return $sens['VAL'];  
+  $this->cmd( "$NId;$SId;$mType;".$sens['ACK'].";$SubType;".$sens['VAL']);
+  return false;
 }
 /**
 * Receive Set
@@ -467,6 +483,29 @@ function Internal($arr){
     case 1:
       $this->cmd( $node['NID'].";255;3;0;1;".time() );
       break;
+    // ID_REQUEST
+    case 3:    
+      $this->getConfig();
+      
+      if (($this->config['MS_AUTOID'] == '') || ($this->config['MS_AUTOID'] == 1)){
+        $nextid = $this->config['MS_NEXTID'];
+        
+        if ($nextid < 255){
+          // Send new id
+          $this->cmd( "255;255;3;0;4;".$nextid );
+          echo "Req new ID: $nextid\n";
+          
+          $nextid++;
+          $this->config['MS_NEXTID']=$nextid;
+          $this->saveConfig();        
+        } else {
+          echo "Req new ID: out of range\n";
+        }
+      } else {
+        echo "Req new ID: rejected\n";
+      }        
+      
+      break;
     // CONFIG
     case 6:
       $node['PID'] = $val;
@@ -488,8 +527,7 @@ function Internal($arr){
       SQLUpdate('msnodes', $node);
       break;
     
-    // @@@ 2 - Version
-    // @@@ 3 - ID_REQUEST    
+    // @@@ 2 - Version    
     // @@@ 5 - INCLUSION_MODE
     // @@@ 7 - FIND_PARENT
     // 9 - LOG_MESSAGE    

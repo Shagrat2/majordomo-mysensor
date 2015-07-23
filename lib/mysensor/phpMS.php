@@ -189,9 +189,13 @@ class MySensorMaster{
         case 2: 
           $val='';
           if(function_exists($this->subscribe['req'])){
-            $val=call_user_func($this->subscribe['req'],$arr);
-          }    
-          //@@@ Send to node
+            $val = call_user_func($this->subscribe['req'],$arr);
+            
+            if ($val !== false){
+              send($arr[0], $arr[1], $arr[2], 0, $arr[4], $val);
+            }
+          }                        
+          
           break;  
         case 3: 
           if(function_exists($this->subscribe['internal'])){

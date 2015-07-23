@@ -51,7 +51,7 @@
 </div>
 
 <div class="form-group">
- <label class="control-label"[#if ERR_MS_MEASURE#] style="color:red;font-weight:bold"[#endif#]>
+ <label class="control-label">
  Measure: 
  </label>
  <div class="controls">
@@ -60,6 +60,24 @@
     <option value="I"[#if MS_MEASURE=="I"#] selected[#endif#]>Imperial</option>   
    </select>
  </div>
+</div>
+
+<div class="form-group">
+ <label class="control-label">
+ Auto ID:
+ </label>
+ <div class="controls">
+   <label class="radio"><input type="radio" name="ms_autoid" value="1"[#if MS_AUTOID="1"#] checked[#endif#]>On</label>
+   <label class="radio"><input type="radio" name="ms_autoid" value="0"[#if MS_AUTOID!="1"#] checked[#endif#]>Off</label> 
+ </div>
+</div>
+
+<div class="form-group">
+ <label class="control-label"[#if ERR_MS_NEXTID#] style="color:red;font-weight:bold"[#endif#]>
+ Next Id:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_nextid" value="<#MS_NEXTID#>" class="input"></div>
 </div>
 
 <div class="form-actions">
