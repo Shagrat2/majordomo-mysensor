@@ -6,9 +6,15 @@ if ($this->mode=='setvalue') {
    global $prop_id;
    global $new_value;
    global $id;
-   $this->setProperty($prop_id, $new_value);
+   $this->setProperty($prop_id, $new_value, 1);
    $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 } 
+
+if ($this->mode=='cmd') {
+  global $data;
+  
+  $this->cmd($data);
+}
   
 if ($this->owner->name=='panel') {
   $out['CONTROLPANEL']=1;
@@ -27,15 +33,15 @@ if (($this->tab=="sensors") || ($this->tab=="presentation")){
 if ($this->mode=='update') { 
   $ok=1;
   if ($this->tab=='') {
-  	  
-    // NId
+
+    // NID
     global $nid;
     $rec['NID']=$nid;
     if ($rec['NID']=='') {
       $out['ERR_NID']=1;
       $ok=0;
     }
-  
+    
     // Title
     global $title;
     $rec['TITLE']=$title;
@@ -99,6 +105,14 @@ if ($this->mode=='update') {
         for($i=0;$i<$total;$i++) {
           global ${'linked_object'.$sensors[$i]['ID']};
           global ${'linked_property'.$sensors[$i]['ID']};
+          global ${'ack'.$sensors[$i]['ID']};
+          if (${'ack'.$sensors[$i]['ID']}) {
+            $sensors[$i]['ACK']=1;
+            SQLUpdate('msnodeval', $sensors[$i]);
+          } else {
+            $sensors[$i]['ACK']=0;
+            SQLUpdate('msnodeval', $sensors[$i]);
+          }          
           
           $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
           $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];

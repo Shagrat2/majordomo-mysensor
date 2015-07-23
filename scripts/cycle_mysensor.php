@@ -48,14 +48,24 @@ $params = array(
   "set" => "doSet",
   "req" => "doReq",
   "internal" => "doInternal",
+    
   //"stream" => "doStream"
 );
 $ms_client->subscribe($params);
 
 $previousMillis = 0;
 while ($ms_client->proc()){
-   $currentMillis = round(microtime(true) * 10000);
-   
+   // Send
+   $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
+   if ($rec['ID']) {     
+      // Send
+      $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
+      
+      // Del stack
+      SQLExec("DELETE FROM mssendstack WHERE ID='".$rec['ID']."'"); 
+   }
+  
+   $currentMillis = round(microtime(true) * 10000);   
    if ($currentMillis - $previousMillis > 10000)
    {
       $previousMillis = $currentMillis;

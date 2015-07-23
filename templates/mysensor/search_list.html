@@ -45,8 +45,8 @@
  [#if SORTBY="TITLE"#](+)[#endif#]
  [#if SORTBY="TITLE DESC"#](-)[#endif#]</nobr> 
  </th>
- <th>Sketch</th>
- <th>Ver</th>
+ <th>Parent</th>
+ <th>Sketch</th> 
  <th>Battery</th>
  <th>&nbsp;</th>
 </tr>
@@ -63,15 +63,20 @@
   [#endif#]
  </td>
  <td>
+  [#if PID!=""#]
+   [#PID#]
+  [#else#]
+   &nbsp;
+  [#endif#]
+ </td>  
+ <td>
   [#if SKETCH!=""#]
    [#SKETCH#]
   [#else#]
    &nbsp;
   [#endif#]
- </td>
- <td>
   [#if VER!=""#]
-   [#VER#]
+   &nbsp;[#VER#]
   [#else#]
    &nbsp;
   [#endif#]

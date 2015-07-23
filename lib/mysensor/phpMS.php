@@ -108,8 +108,11 @@ class MySensorMaster{
     } else {
         throw new Exception("Unknown socket protocol, should be 'TCP' or 'UDP'");
     }
+    
     // Socket settings
     socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
+    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 500000));
+    
     // Connect the socket
     $result = @socket_connect($this->sock, $this->host, $this->port);
     if ($result === false) {
@@ -137,33 +140,38 @@ class MySensorMaster{
   function subscribe($params){
     $this->subscribe = $params;
   }
- 
-  /* read: reads in so many bytes */
-  function read($int = 8192 ){    
-    $string="";
-    $togo = $int;
-    while (!feof($this->socket) && $togo>0) {
-      $togo = $int - strlen($string);
-      if($togo) $string .= fread($this->socket, $togo);
-        if (!$string) {
-          if (!$this->socket) {
-            echo "Trying to reconnect...";
-            @$this->disconnect();
-            sleep(2);
-            @$this->connect();
-          }
-        }
-    }
-
-    return $string;
+  
+  private function Read(){
+    $data = "";
+    while (true){
+      $c = socket_read($this->sock, 1);
+      
+      if ($c === false) return "";
+      if ($c == "\n") return $data;
+      $data .= $c;
+    }    
   }
   
+  function send($nid, $sid, $mtype, $ack, $subtype, $msg){
+    $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
+    $ret = socket_write($this->sock, $data);
+    echo "Send: $data";
+    return $ret;
+  }
+ 
    /* proc: the processing loop for an "allways on" client */      
-  function proc(){     
-    //if($this->debug) echo "start wait\n";
-    $read_data = socket_read( $this->sock, 32, PHP_NORMAL_READ);
+  function proc(){  
+    //---- Send ----
+    if(function_exists($this->subscribe['sendproc'])){
+      call_user_func($this->subscribe['sendproc'],$arr);
+    }    
+    
+    //---- Read ----
+    //if($this->debug) echo "start wait\n";    
+    $read_data = $this->Read();
+    
     if ($read_data != ''){      
-      $arr = explode(';', trim($read_data, PHP_EOL), 6);
+      $arr = explode(';', $read_data, 6);
       //if($this->debug) echo "Receive: Node:$arr[0]; Sensor:$arr[1]; Type:$arr[2]; Ack:$arr[3]; Sub:$arr[4]; Msg:$arr[5]\n";
       
       $mType = $arr[2];

@@ -17,7 +17,12 @@
  NId:
  (*)
  </label>
- <div class="controls"><input  type="text" name="nid" value="[#NID#]" class="form-control input"></div>
+ <div class="controls"><input  type="text" name="nid" value="[#NID#]" class="form-control input" [#if NID!=""#]disabled[#endif !NID#]></div>
+</div>
+<!-- PId (varchar) -->
+<div class="form-group">
+ <label class="control-label">Parent:</label>
+ <div class="controls">[#PID#]</div>
 </div>
 <!-- TITLE (varchar) -->
 <div class="form-group">
@@ -45,19 +50,18 @@
 <!-- Sketch (varchar) -->
 <div class="form-group">
  <label class="control-label">Sketch:</label>
- <div class="controls">
- [#SKETCH#]
- </div>
+ <div class="controls">[#SKETCH#]</div>
 </div>
 <!-- Ver (varchar) -->
 <div class="form-group">
  <label class="control-label">Version:</label>
- <div class="controls">
- [#VER#]
- </div>
+ <div class="controls">[#VER#]</div>
 </div>
-
-
+<!-- Prot (varchar) -->
+<div class="form-group">
+ <label class="control-label">Protocol:</label>
+ <div class="lontrols">[#PROT#]</div>
+</div>
 <!-- Battery (varchar) -->
 <div class="form-group">
  <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>Battery:</label>
@@ -83,3 +87,5 @@
 </fieldset>
 </form>
 [#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
+<hr/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default">Reboot</a> - Reboot node (Only not sleep node)<br/>
