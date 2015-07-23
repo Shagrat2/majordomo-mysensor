@@ -386,19 +386,6 @@ function setProperty($prop_id, $value, $set_linked=0) {
   $data['SUBTYPE'] = $rec['SUBTYPE'];
   $data['MESSAGE'] = $value;
   SQLInsert('mssendstack', $data);
-  
-/*
-  // Set
-  $rec['UPDATED']=date('Y-m-d H:i:s'); 
-  $rec['VAL']=$value; 
-  SQLUpdate('msnodeval', $rec);
-  
-  //@@@ Sens to device
-  
-  if ($set_linked && $rec['LINKED_OBJECT'] && $rec['LINKED_PROPERTY']) {
-   setGlobal($rec['LINKED_OBJECT'].'.'.$rec['LINKED_PROPERTY'], $value, array($this->name=>'0'));
-  } 
-*/  
 }
 /**
 * Title
