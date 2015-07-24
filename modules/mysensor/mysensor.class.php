@@ -12,6 +12,9 @@
 //
 
 class mysensor extends module {
+  
+  public $tryTimeout = 2;
+
 /**
 * mySensor
 *
@@ -93,7 +96,8 @@ function getParams() {
 * @access public
 */
 function run() {
- global $session;
+  global $session;
+  
   $out=array();
   if ($this->action=='admin') {
    $this->admin($out);
@@ -285,6 +289,20 @@ function delete_sensor($id) {
   SQLExec("DELETE FROM msnodeval WHERE ID='".$rec['ID']."'");   
 }
 /**
+* Handle property object
+*
+* @access public
+*/
+function propertySetHandle($object, $property, $value) {
+  $properties=SQLSelect("SELECT ID FROM msnodeval WHERE LINKED_OBJECT LIKE '".DBSafe($object)."' AND LINKED_PROPERTY LIKE '".DBSafe($property)."'");
+  $total=count($properties);
+  if ($total) {
+    for($i=0;$i<$total;$i++) {
+      $this->setProperty($properties[$i]['ID'], $value);
+    }
+  }  
+}
+/**
 * Clean presentation
 *
 * @access public
@@ -357,6 +375,11 @@ function Set($arr){
     $sens['ID']=SQLInsert('msnodeval', $sens);
   }
   
+  // Delete ACK
+  if ($arr[3] == "1"){    
+    SQLExec("DELETE FROM mssendstack WHERE NID='".$NID."' AND SID='".$SID."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
+  }
+  
   // Set
   $sens['UPDATED']=date('Y-m-d H:i:s'); 
   $sens['VAL']=$val; 
@@ -385,6 +408,7 @@ function setProperty($prop_id, $value, $set_linked=0) {
   $data['ACK'] = $rec['ACK'];
   $data['SUBTYPE'] = $rec['SUBTYPE'];
   $data['MESSAGE'] = $value;
+  $data['EXPIRE'] = time()+$this->tryTimeout;
   SQLInsert('mssendstack', $data);
 }
 /**
@@ -403,6 +427,7 @@ function cmd($str) {
   $data['ACK'] = $arr[3];
   $data['SUBTYPE'] = $arr[4];
   $data['MESSAGE'] = $arr[5];
+  $data['EXPIRE'] = time()+$this->tryTimeout;
   SQLInsert('mssendstack', $data);
 }
 /**
@@ -550,6 +575,7 @@ function dbInstall($data) {
                 `ACK` int(10) NOT NULL,
                 `SUBTYPE` int(10) NOT NULL,
                 `MESSAGE` varchar(32) NOT NULL,
+                `EXPIRE` BIGINT NOT NULL,
                 PRIMARY KEY (`ID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 

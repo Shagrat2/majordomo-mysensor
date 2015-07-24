@@ -58,11 +58,24 @@ while ($ms_client->proc()){
    // Send
    $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
    if ($rec['ID']) {     
-      // Send
-      $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
+      $expire = $rec['EXPIRE'] < time();
       
-      // Del stack
-      SQLExec("DELETE FROM mssendstack WHERE ID='".$rec['ID']."'"); 
+      // Del not ACK packet
+      if (($rec['ACK'] == 0) || $expire){        
+        SQLExec("DELETE FROM mssendstack WHERE ID='".$rec['ID']."'");
+      };      
+      
+      if ($expire){
+        $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
+        if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
+          echo "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']."\n";
+          // Rollback value if not comin
+          setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($ms->name=>'0'));
+        }
+      } else {        
+        // Send
+        $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
+      }
    }
   
    $currentMillis = round(microtime(true) * 10000);   
