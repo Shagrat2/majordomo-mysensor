@@ -376,8 +376,8 @@ function Set($arr){
   }
   
   // Delete ACK
-  if ($arr[3] == "1"){    
-    SQLExec("DELETE FROM mssendstack WHERE NID='".$NID."' AND SID='".$SID."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
+  if ($arr[3] == 1){            
+    SQLExec("DELETE FROM mssendstack WHERE NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
   }
   
   // Set
