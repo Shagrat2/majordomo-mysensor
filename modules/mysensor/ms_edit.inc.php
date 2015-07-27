@@ -35,7 +35,7 @@ if ($this->mode=='update') {
   if ($this->tab=='') {
 
     // NID
-    global $nid;
+    global $nid;    
     $rec['NID']=$nid;
     if ($rec['NID']=='') {
       $out['ERR_NID']=1;

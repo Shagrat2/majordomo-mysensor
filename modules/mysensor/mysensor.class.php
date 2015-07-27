@@ -142,13 +142,32 @@ function admin(&$out) {
   $out['MS_AUTOID']=$this->config['MS_AUTOID'];
   $out['MS_NEXTID']=$this->config['MS_NEXTID'];
  
-  if (!$out['MS_HOSTHOST']) {
-    $out['MS_HOST']='10.9.0.253';
+  if (!$out['MS_HOST']) {    
+    $out['MS_HOST']='10.9.0.253';    
+    $this->config['MS_HOST']=$out['MS_HOST'];
+    $this->saveConfig();
   }
   if (!$out['MS_PORT']) {
-    $out['MS_PORT']='5003';
-  } 
-  
+    $out['MS_PORT']='5003';    
+    $this->config['MS_PORT']=$out['MS_PORT'];
+    $this->saveConfig();
+  }  
+  if (!$out['MS_MEASURE']) {
+    $out['MS_MEASURE']='M';
+    $this->config['MS_MEASURE']=$out['MS_MEASURE'];
+    $this->saveConfig();    
+  }
+  if (!$out['MS_AUTOID']) {
+    $out['MS_AUTOID']=1;
+    $this->config['MS_AUTOID']=$out['MS_AUTOID'];
+    $this->saveConfig();    
+  }
+  if (!$out['MS_NEXTID']) {
+    $out['MS_NEXTID']=10;
+    $this->config['MS_NEXTID']=$out['MS_NEXTID'];
+    $this->saveConfig();    
+  }
+    
   if ($this->data_source=='mysensors' || $this->data_source=='') {
     if ($this->view_mode=='update_settings') {
       global $ms_host;
@@ -165,27 +184,6 @@ function admin(&$out) {
       $this->saveConfig();
       $this->redirect("?");
     }
-
-    if (!$this->config['MS_HOST']) {
-      $this->config['MS_HOST']='10.9.0.253';
-      $this->saveConfig();
-    }
-    if (!$this->config['MS_PORT']) {
-      $this->config['MS_PORT']='5003';
-      $this->saveConfig();
-    }  
-    if (!$this->config['MS_MEASURE']) {
-      $this->config['MS_MEASURE']='M';
-      $this->saveConfig();
-    }  
-    if (!$this->config['MS_AUTOID']) {
-      $this->config['MS_AUTOID']='1';
-      $this->saveConfig();
-    }  
-    if (!$this->config['MS_NEXTID']) {
-      $this->config['MS_NEXTID']='10';
-      $this->saveConfig();
-    }      
   
     if ($this->view_mode=='' || $this->view_mode=='search_ms') {
       if ($this->tab=='mesh'){
