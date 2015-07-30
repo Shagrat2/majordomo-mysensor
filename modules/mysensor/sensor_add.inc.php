@@ -1,6 +1,6 @@
 <?php
 
-require("./lib/mysensor/phpMS.php");
+require("phpMS.php");
 
 if ($this->owner->name=='panel') {
   $out['CONTROLPANEL']=1;

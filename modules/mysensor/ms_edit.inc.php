@@ -1,12 +1,12 @@
 <?php
 
-require("./lib/mysensor/phpMS.php");
+require("phpMS.php");
 
 if ($this->mode=='setvalue') {
    global $prop_id;
    global $new_value;
    global $id;
-   $this->setProperty($prop_id, $new_value, 1);
+   $this->setProperty($prop_id, $new_value, 1);   
    $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 } 
 

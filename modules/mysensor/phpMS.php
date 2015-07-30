@@ -78,20 +78,9 @@ $mysensor_property = array(
   39 => Array("V_CURRENT", "Current level")
 );
 
-class MySensorMaster{
-  private $sock;
-  public $host = "192.168.1.2";
-  public $port = "5003";  
-  //public $timeout_sec = 5; // Timeout 5 sec
-  public $socket_protocol = "TCP";   
-  public $debug = true;          /* should output debug messages */ 
+abstract class MySensorMaster{    
+  public $debug = true;            /* should output debug messages */ 
   public $subscribe = [];
-
-  function __construct($host, $port){
-    $this->host = $host; 
-	$this->port = $port;
-	$this->socket_protocol = "TCP";
-  }
 
   /**
    * connect
@@ -100,40 +89,29 @@ class MySensorMaster{
    *
    * @return bool
    */
-  function connect(){
-    // Create a protocol specific socket 
-    if ($this->socket_protocol == "TCP"){ 
-        // TCP socket
-        $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);          
-    } else {
-        throw new Exception("Unknown socket protocol, should be 'TCP' or 'UDP'");
-    }
-    
-    // Socket settings
-    socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
-    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 500000));
-    
-    // Connect the socket
-    $result = @socket_connect($this->sock, $this->host, $this->port);
-    if ($result === false) {
-        throw new Exception("socket_connect() failed.</br>Reason: ($result)".
-            socket_strerror(socket_last_error($this->sock)));
-    } else {
-		if($this->debug) echo "Connected\n";        
-        return true;        
-    }    
-  }   
+  abstract function connect();
   
   /**
    * disconnect
    *
    * Disconnect the socket
    */
-  function disconnect(){    
-    socket_close($this->sock);
-	if($this->debug) echo "Disconnected\n";
-  }   
+  abstract function disconnect();
+  
+  /**
+   * Read
+   *
+   * Read the socket
+   */
+  abstract function read();
 
+  /**
+   * Send
+   *
+   * Send the socket
+   */
+  abstract function send($nid, $sid, $mtype, $ack, $subtype, $msg);
+  
   /**
   * subscribe
   */
@@ -141,23 +119,6 @@ class MySensorMaster{
     $this->subscribe = $params;
   }
   
-  private function Read(){
-    $data = "";
-    while (true){
-      $c = socket_read($this->sock, 1);
-      
-      if ($c === false) return "";
-      if ($c == "\n") return $data;
-      $data .= $c;
-    }    
-  }
-  
-  function send($nid, $sid, $mtype, $ack, $subtype, $msg){
-    $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
-    $ret = socket_write($this->sock, $data);
-    echo "Send: $data";
-    return $ret;
-  }
  
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
@@ -168,7 +129,7 @@ class MySensorMaster{
     
     //---- Read ----
     //if($this->debug) echo "start wait\n";    
-    $read_data = $this->Read();
+    $read_data = $this->read();
     
     if ($read_data != ''){      
       $arr = explode(';', $read_data, 6);

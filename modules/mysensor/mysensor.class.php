@@ -317,29 +317,29 @@ function clean_presentation($id) {
 */
 function Presentation($arr){
   // Node
-  $nid = $arr[0];
-  if ($nid == "") return;
+  $NId = $arr[0];
+  if ($NId == "") return;
   
-  $sid = $arr[1];
+  $SId = $arr[1];
   $SubType = $arr[4];
   
-  $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($nid)."';"); 
+  $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
-    $node['NID']=$nid;
-    $node['TITLE']=$nid;
-    $node['ID']=SQLInsert('msnodes', $node);
-  }
+    $node['NID']=$NId;
+    $node['TITLE']=$NId;
+    $node['ID']=SQLInsert('msnodes', $node);    
+  }  
   
   // Arduino Node
-  if ($sid == 255){
+  if ($SId == 255){
     $node['PROT'] = $arr[5]; 
     SQLUpdate('msnodes', $node);
   } else {
     // Sensor
-    $sens=SQLSelectOne("SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($nid)."' AND SID LIKE '".DBSafe($sid)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
+    $sens=SQLSelectOne("SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($sid)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
     if (!$sens['ID']) {
-      $sens['NID'] = $nid;
-      $sens['SID'] = $sid;
+      $sens['NID'] = $NId;
+      $sens['SID'] = $SId;
       $sens['SUBTYPE'] = $SubType;
       $sens['ID']=SQLInsert('msnodesens', $sens);
     }  
@@ -471,28 +471,35 @@ function Internal($arr){
   $SubType = $arr[4];
   $val = $arr[5];
 
-  $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
-  if (!$node['ID']) {
-    $node['NID']=$NId;
-    $node['TITLE']=$NId;
-    $node['ID']=SQLInsert('msnodes', $node);
+  if (($NId == 0) || ($NId == 255)){
+    $node = false;
+  } else {
+    $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
+    if (!$node['ID']) {
+      $node['NID']=$NId;
+      $node['TITLE']=$NId;
+      $node['ID']=SQLInsert('msnodes', $node);
+    }
   }
   
   switch ($SubType){
     // Battery
     case 0:
-      $node['BATTERY'] = $val;
-      SQLUpdate('msnodes', $node);
+      if ($node){
+        $node['BATTERY'] = $val;
+        SQLUpdate('msnodes', $node);
       
-      if ($node['BAT_OBJECT'] && $node['BAT_PROPERTY']) {
-        setGlobal($node['BAT_OBJECT'].'.'.$node['BAT_PROPERTY'], $val, array($this->name=>'0'));
-      } 
-      
+        if ($node['BAT_OBJECT'] && $node['BAT_PROPERTY']) {
+          setGlobal($node['BAT_OBJECT'].'.'.$node['BAT_PROPERTY'], $val, array($this->name=>'0'));
+        } 
+      }      
       break;    
+      
     // Time
     case 1:
-      $this->cmd( $node['NID'].";255;3;0;1;".time() );
+      $this->cmd( $NId.";255;3;0;1;".time() );
       break;
+      
     // ID_REQUEST
     case 3:    
       $this->getConfig();
@@ -513,32 +520,46 @@ function Internal($arr){
         }
       } else {
         echo "Req new ID: rejected\n";
-      }        
-      
+      }              
       break;
+      
+    // INCLUSION_MODE  
+    case 5:
+      $this->getConfig();
+      $this->config['MS_INCLUSION_MODE']=$val;
+      $this->saveConfig();
+      break;      
+      
     // CONFIG
     case 6:
-      $node['PID'] = $val;
-      SQLUpdate('msnodes', $node);
+      if ($node){
+        $node['PID'] = $val;
+        SQLUpdate('msnodes', $node);
+      }
       
       // Send ansver - metric
       $this->getConfig();
-      $this->cmd( $node['NID'].";255;3;0;6;".$this->config['MS_MEASURE'] );
-      
+      $this->cmd( $NId.";255;3;0;6;".$this->config['MS_MEASURE'] );
       break;
+      
     // SKETCH_NAME
     case 11:
-      $node['SKETCH'] = $val;
-      SQLUpdate('msnodes', $node);
+      if ($node){
+        $node['SKETCH'] = $val;
+        SQLUpdate('msnodes', $node);
+      }      
       break;
+      
     // SKETCH_VERSION
     case 12:
-      $node['VER'] = $val;
-      SQLUpdate('msnodes', $node);
+      if ($node){
+        $node['VER'] = $val;
+        SQLUpdate('msnodes', $node);
+      }
+      
       break;
     
-    // @@@ 2 - Version    
-    // @@@ 5 - INCLUSION_MODE
+    // @@@ 2 - Version        
     // @@@ 7 - FIND_PARENT
     // 9 - LOG_MESSAGE    
   }

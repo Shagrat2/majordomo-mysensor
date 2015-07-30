@@ -16,7 +16,7 @@ include_once(DIR_MODULES . "control_modules/control_modules.class.php");
 
 set_time_limit(0);
 
-require("./lib/mysensor/phpMS.php");
+require("./modules/mysensor/phpMSTcp.php");
 include_once(DIR_MODULES . 'mysensor/mysensor.class.php');
 
 $ms = new mysensor();
@@ -37,7 +37,7 @@ if ($ms->config['MS_PORT'])
    $port = 5003;
 } 
 
-$ms_client = new MySensorMaster($host, $port);
+$ms_client = new MySensorMasterTcp($host, $port);
 if (!$ms_client->connect())
 {
    exit(1);
@@ -58,6 +58,7 @@ while ($ms_client->proc()){
    // Send
    $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
    if ($rec['ID']) {     
+      //echo "Send: ".print_r($rec, true)."\n";
       $expire = $rec['EXPIRE'] < time();
       
       // Del not ACK packet
@@ -85,7 +86,7 @@ while ($ms_client->proc()){
    
       setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
   
-      if (file_exists('./reboot') || $_GET['onetime'])
+      if (file_exists('./reboot') || file_exists('./stop_mysensor') || $_GET['onetime'])
       {
          $db->Disconnect();
          exit;
