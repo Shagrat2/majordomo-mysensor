@@ -189,7 +189,7 @@ if ($this->tab == "presentation"){
   if (is_array($presentation)) {    
     foreach($presentation as $k=>$v){      
       $pres = $v['SUBTYPE'];
-      $presentation[$k]['TITLE'] = $mysensor_presentation[$pres][0];            
+      $presentation[$k]['TITLE'] = $mysensor_presentation[$pres][0];
     }    
   }    
     

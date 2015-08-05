@@ -142,27 +142,27 @@ function admin(&$out) {
   $out['MS_AUTOID']=$this->config['MS_AUTOID'];
   $out['MS_NEXTID']=$this->config['MS_NEXTID'];
  
-  if (!$out['MS_HOST']) {    
+  if ($out['MS_HOST']=="") {
     $out['MS_HOST']='10.9.0.253';    
     $this->config['MS_HOST']=$out['MS_HOST'];
     $this->saveConfig();
   }
-  if (!$out['MS_PORT']) {
+  if ($out['MS_PORT']=="") {
     $out['MS_PORT']='5003';    
     $this->config['MS_PORT']=$out['MS_PORT'];
     $this->saveConfig();
   }  
-  if (!$out['MS_MEASURE']) {
+  if ($out['MS_MEASURE']=="") {
     $out['MS_MEASURE']='M';
     $this->config['MS_MEASURE']=$out['MS_MEASURE'];
     $this->saveConfig();    
   }
-  if (!$out['MS_AUTOID']) {
+  if ($out['MS_AUTOID']=="") {
     $out['MS_AUTOID']=1;
     $this->config['MS_AUTOID']=$out['MS_AUTOID'];
-    $this->saveConfig();    
+    $this->saveConfig();        
   }
-  if (!$out['MS_NEXTID']) {
+  if ($out['MS_NEXTID']=="") {
     $out['MS_NEXTID']=10;
     $this->config['MS_NEXTID']=$out['MS_NEXTID'];
     $this->saveConfig();    
@@ -182,7 +182,7 @@ function admin(&$out) {
       $this->config['MS_AUTOID']=$ms_autoid;
       $this->config['MS_NEXTID']=$ms_nextid;
       $this->saveConfig();
-      $this->redirect("?");
+      $this->redirect("?");      
     }
   
     if ($this->view_mode=='' || $this->view_mode=='search_ms') {
@@ -322,6 +322,7 @@ function Presentation($arr){
   
   $SId = $arr[1];
   $SubType = $arr[4];
+  $info = $arr[5];
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
@@ -336,11 +337,12 @@ function Presentation($arr){
     SQLUpdate('msnodes', $node);
   } else {
     // Sensor
-    $sens=SQLSelectOne("SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($sid)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
+    $sens=SQLSelectOne("SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
     if (!$sens['ID']) {
       $sens['NID'] = $NId;
       $sens['SID'] = $SId;
       $sens['SUBTYPE'] = $SubType;
+      $sens['INFO'] = $info;
       $sens['ID']=SQLInsert('msnodesens', $sens);
     }  
   }
@@ -562,6 +564,7 @@ function Internal($arr){
     // @@@ 2 - Version        
     // @@@ 7 - FIND_PARENT
     // 9 - LOG_MESSAGE    
+    // @@@ 14 - GATEWAY_READY
   }
 }
 /**
@@ -617,6 +620,7 @@ function dbInstall($data) {
   msnodesens: NID int(10) NOT NULL 
   msnodesens: SID int(10) NOT NULL    
   msnodesens: SUBTYPE int(10) NOT NULL
+  msnodesens: INFO varchar(255) NOT NULL DEFAULT ''
   
   msnodeval: ID int(10) unsigned NOT NULL auto_increment
   msnodeval: NID int(10) NOT NULL  

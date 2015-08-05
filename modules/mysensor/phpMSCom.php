@@ -28,10 +28,11 @@ class MySensorMasterCom extends MySensorMaster {
     
     if ($result === false) {
         throw new Exception("serrial.open() failed");
-    } else {
-      if($this->debug) echo "Connected\n";
-      return true;        
-    }            
+    } 
+      
+    if($this->debug) echo "Connected\n";
+        
+    return true;            
   }
   
   /**

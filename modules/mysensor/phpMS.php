@@ -7,32 +7,42 @@ VERSION: 2015.07.08 - 11:01
 // Constants for the MySensor class
 
 $mysensor_presentation = array(
-  0 => Array("S_DOOR",              "Door and window sensors"),
-  1 => Array("S_MOTION",            "Motion sensors"),
-  2 => Array("S_SMOKE",             "Smoke sensor"),
-  3 => Array("S_LIGHT",             "Light Actuator (on/off)"),
-  4 => Array("S_DIMMER",            "Dimmable device of some kind"),
-  5 => Array("S_COVER",             "Window covers or shades"),
-  6 => Array("S_TEMP",              "Temperature sensor"),
-  7 => Array("S_HUM",               "Humidity sensor"),
-  8 => Array("S_BARO",              "Barometer sensor (Pressure)"),
-  9 => Array("S_WIND",              "Wind sensor"),
-  10 => Array("S_RAIN",             "Rain sensor"),
-  11 => Array("S_UV",               "UV sensor"),
-  12 => Array("S_WEIGHT",           "Weight sensor for scales etc."),
-  13 => Array("S_POWER",            "Power measuring device, like power meters"),
-  14 => Array("S_HEATER",           "Heater device"),
-  15 => Array("S_DISTANCE",         "Distance sensor"),
-  16 => Array("S_LIGHT_LEVEL",      "Light sensor"),
-  17 => Array("S_ARDUINO_NODE",     "Arduino node device"),
-  18 => Array("S_ARDUINO_RELAY",    "Arduino repeating node device"),
-  19 => Array("S_LOCK",             "Lock device"),
-  20 => Array("S_IR",               "Ir sender/receiver device"),
-  21 => Array("S_WATER",            "Water meter"),
-  22 => Array("S_AIR_QUALITY",      "Air quality sensor e.g. MQ-2"),
-  23 => Array("S_CUSTOM",           "Use this for custom sensors where no other fits"),
-  24 => Array("S_DUST",             "Dust level sensor"),
-  25 => Array("S_SCENE_CONTROLLER", "Scene controller device")
+  0 => Array("S_DOOR",              "Door and window sensors",                              'V_TRIPPED, V_ARMED'),
+  1 => Array("S_MOTION",            "Motion sensors",                                       'V_TRIPPED, V_ARMED'),
+  2 => Array("S_SMOKE",             "Smoke sensor",                                         'V_TRIPPED, V_ARMED'),
+  3 => Array("S_LIGHT",             "Light Actuator (on/off)",                              'V_STATUS (or V_LIGHT), V_WATT'),
+  4 => Array("S_DIMMER",            "Dimmable device of some kind",                         'V_STATUS (on/off), V_DIMMER (dimmer level 0-100), V_WATT'),
+  5 => Array("S_COVER",             "Window covers or shades",                              'V_UP, V_DOWN, V_STOP, V_PERCENTAGE'),
+  6 => Array("S_TEMP",              "Temperature sensor",                                   'V_TEMP, V_ID'),
+  7 => Array("S_HUM",               "Humidity sensor",                                      'V_HUM'),
+  8 => Array("S_BARO",              "Barometer sensor (Pressure)",                          'V_PRESSURE, V_FORECAST'),
+  9 => Array("S_WIND",              "Wind sensor",                                          'V_WIND, V_GUST'),
+  10 => Array("S_RAIN",             "Rain sensor",                                          'V_RAIN, V_RAINRATE'),
+  11 => Array("S_UV",               "UV sensor",                                            'V_UV'),
+  12 => Array("S_WEIGHT",           "Weight sensor for scales etc.",                        'V_WEIGHT, V_IMPEDANCE'),
+  13 => Array("S_POWER",            "Power measuring device, like power meters",            'V_WATT, V_KWH'),
+  14 => Array("S_HEATER",           "Heater device",                                        'V_HVAC_SETPOINT_HEAT, V_HVAC_FLOW_STATE, V_TEMP'),
+  15 => Array("S_DISTANCE",         "Distance sensor",                                      'V_DISTANCE, V_UNIT_PREFIX'),
+  16 => Array("S_LIGHT_LEVEL",      "Light sensor",                                         'V_LIGHT_LEVEL (uncalibrated percentage), V_LEVEL (light level in lux)'),
+  17 => Array("S_ARDUINO_NODE",     "Arduino node device",                                  ''),
+  18 => Array("S_ARDUINO_RELAY",    "Arduino repeating node device",                        ''),
+  19 => Array("S_LOCK",             "Lock device",                                          'V_LOCK_STATUS'),
+  20 => Array("S_IR",               "Ir sender/receiver device",                            'V_IR_SEND, V_IR_RECEIVE'),
+  21 => Array("S_WATER",            "Water meter",                                          'V_FLOW, V_VOLUME'),
+  22 => Array("S_AIR_QUALITY",      "Air quality sensor e.g. MQ-2",                         'V_LEVEL, V_UNIT_PREFIX'),
+  23 => Array("S_CUSTOM",           "Use this for custom sensors where no other fits",      ''),
+  24 => Array("S_DUST",             "Dust level sensor",                                    'V_LEVEL, V_UNIT_PREFIX'),
+  25 => Array("S_SCENE_CONTROLLER", "Scene controller device",                              'V_SCENE_ON, V_SCENE_OFF'),
+  26 => Array("S_RGB_LIGHT",        "RGB light",                                            'V_RGB, V_WATT'),
+  27 => Array("S_RGBW_LIGHT",       "RGBW light (with separate white component)",           'V_RGBW, V_WATT'),
+  28 => Array("S_COLOR_SENSOR",     "Color sensor",                                         'V_RGB'),
+  29 => Array("S_HVAC",             "Thermostat/HVAC device",                               'V_HVAC_SETPOINT_HEAT, V_HVAC_SETPOINT_COLD, V_HVAC_FLOW_STATE, V_HVAC_FLOW_MODE, V_HVAC_SPEED'),
+  30 => Array("S_MULTIMETER",       "Multimeter device",                                    'V_VOLTAGE, V_CURRENT, V_IMPEDANCE'),
+  31 => Array("S_SPRINKLER",        "Sprinkler device",                                     'V_STATUS (turn on/off), V_TRIPPED (if fire detecting device)'),
+  32 => Array("S_WATER_LEAK",       "Water leak sensor",                                    'V_TRIPPED, V_ARMED'),
+  33 => Array("S_SOUND",            "Sound sensor",                                         'V_LEVEL (in dB), V_TRIPPED, V_ARMED'),
+  34 => Array("S_VIBRATION",        "Vibration sensor",                                     'V_LEVEL (vibration in Hz), V_TRIPPED, V_ARMED'),
+  35 => Array("S_MOISTURE",         "Moisture sensor",                                      'V_LEVEL (water content or moisture in percentage?), V_TRIPPED, V_ARMED')
 ); 
 
 $mysensor_property = array(
@@ -57,8 +67,8 @@ $mysensor_property = array(
   18 => Array("V_KWH", "Accumulated number of KWH for a power meter"),
   19 => Array("V_SCENE_ON", "Turn on a scene"),
   20 => Array("V_SCENE_OFF", "Turn of a scene"),
-  21 => Array("V_HEATER", "Mode of header. One of \"Off\", \"HeatOn\", \"CoolOn\", or \"AutoChangeOver\""),
-  22 => Array("V_HEATER_SW", "Heater switch power. 1=On, 0=Off"),
+  21 => Array("V_HVAC_FLOW_STATE", 'Mode of header. One of "Off", "HeatOn", "CoolOn", or "AutoChangeOver"'),
+  22 => Array("V_HVAC_SPEED", 'HVAC/Heater fan speed ("Min", "Normal", "Max", "Auto")'),
   23 => Array("V_LIGHT_LEVEL", "Light level. 0-100%"),
   24 => Array("V_VAR1", "Custom value"),
   25 => Array("V_VAR2", "Custom value"),
@@ -73,14 +83,21 @@ $mysensor_property = array(
   34 => Array("V_FLOW", "Flow of water (in meter)"),
   35 => Array("V_VOLUME", "Water volume"),
   36 => Array("V_LOCK_STATUS", "Set or get lock status. 1=Locked, 0=Unlocked"),
-  37 => Array("V_DUST_LEVEL", "Dust level"),
+  37 => Array("V_LEVEL", "Used for sending level-value"),
   38 => Array("V_VOLTAGE", "Voltage level"),
-  39 => Array("V_CURRENT", "Current level")
+  39 => Array("V_CURRENT", "Current level"),
+  40 => Array("V_RGB", 'RGB value transmitted as ASCII hex string (I.e "ff0000" for red)'),
+  41 => Array("V_RGBW", 'RGBW value transmitted as ASCII hex string (I.e "ff0000ff" for red + full white)'),
+  42 => Array("V_ID", 'Optional unique sensor id (e.g. OneWire DS1820b ids)'),
+  43 => Array("V_UNIT_PREFIX", 'Allows sensors to send in a string representing the unit prefix to be displayed in GUI. This is not parsed by controller! E.g. cm, m, km, inch.'),
+  44 => Array("V_HVAC_SETPOINT_COOL", 'HVAC cold setpoint (Integer between 0-100)'),
+  45 => Array("V_HVAC_SETPOINT_HEAT", 'HVAC/Heater setpoint (Integer between 0-100)'),
+  46 => Array("V_HVAC_FLOW_MODE", 'Flow mode for HVAC ("Auto", "ContinuousOn", "PeriodicOn")'),
 );
 
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
-  public $subscribe = [];
+  public $subscribe = [];  
 
   /**
    * connect
@@ -90,6 +107,7 @@ abstract class MySensorMaster{
    * @return bool
    */
   abstract function connect();
+  // $this->send(0, 0, 3, 0, 14, 'Gateway startup complete');  
   
   /**
    * disconnect
@@ -118,8 +136,7 @@ abstract class MySensorMaster{
   function subscribe($params){
     $this->subscribe = $params;
   }
-  
- 
+    
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
     //---- Send ----

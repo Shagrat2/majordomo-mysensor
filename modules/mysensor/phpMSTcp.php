@@ -38,6 +38,7 @@ class MySensorMasterTCP extends MySensorMaster {
     } 
         
     if($this->debug) echo "Connected\n";        
+    
     return true;        
   }
   
