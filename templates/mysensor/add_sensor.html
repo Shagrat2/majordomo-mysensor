@@ -9,13 +9,13 @@
 [#endif ERR#]
 <div class="form-group">
 <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>
- Node:
+ <#LANG_NODE#>:
  </label>
  <div class="controls">[#TITLE#]</div>
 </div>
 
 <div class="form-group">
- <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]>Sensor: (*)</label>
+ <label class="control-label"[#if ERR_SID#] style="color:red;font-weight:bold"[#endif#]><#LANG_SENSOR#>: (*)</label>
  <div class="controls">
  <select name="sid" class="form-control input">
   <option value="">select
@@ -26,7 +26,7 @@
 </div>
 
 <div class="form-group">
- <label class="control-label"[#if ERR_SUSBTYPE#] style="color:red;font-weight:bold"[#endif#]>SubType: (*)</label>
+ <label class="control-label"[#if ERR_SUSBTYPE#] style="color:red;font-weight:bold"[#endif#]><#LANG_TYPE#>: (*)</label>
  <div class="controls">
  <select name="subtype"  class="form-control input">
   <option value="">select
@@ -38,7 +38,7 @@
 
 <div class="form-group">
  <label class="control-label">
- Value:
+ <#LANG_VALUE#>:
  </label>
  <div class="controls"><input  type="text" name="val" value="[#VAL#]" class="form-control input"></div>
 </div>

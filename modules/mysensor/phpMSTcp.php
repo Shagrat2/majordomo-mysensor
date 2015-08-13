@@ -28,7 +28,7 @@ class MySensorMasterTCP extends MySensorMaster {
     $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
       
     socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
-    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 1, 'usec' => 0)); //"usec" => 500000));
+    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));
     
     // Connect the socket
     $result = @socket_connect($this->sock, $this->host, $this->port);
@@ -38,6 +38,8 @@ class MySensorMasterTCP extends MySensorMaster {
     } 
         
     if($this->debug) echo "Connected\n";        
+    
+    MySensorMaster::connect();
     
     return true;        
   }

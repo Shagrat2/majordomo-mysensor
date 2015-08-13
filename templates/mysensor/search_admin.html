@@ -31,28 +31,58 @@
 </div>
 <div style="display:none" id='api_settings'>
 &nbsp;
-
+<script type="text/javascript">
+	function OnSelectConType (select) {    
+    var fDiv1 = document.getElementById('ms_ethernet');
+		var fDiv2 = document.getElementById('ms_serial');
+		
+		fDiv1.style.display = (select.selectedIndex == 0) ? 'block' : 'none';
+		fDiv2.style.display = (select.selectedIndex == 1) ? 'block' : 'none';
+  }
+</script>
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
 <fieldset>
+
+<div class="form-group">
+ <label class="control-label">
+ <#LANG_CONNECTION_TYPE#>: 
+ </label>
+ <div class="controls">
+   <select name="ms_contype" class="input" id="ms_contype" onchange="OnSelectConType(this)">
+    <option value="0"[#if MS_CONTYPE=="0"#] selected[#endif#]>Ethernet TCP</option>
+    <option value="1"[#if MS_CONTYPE=="1"#] selected[#endif#]>Serial</option>   
+   </select>
+ </div>
+</div>
+<div id="ms_ethernet">
 <div class="form-group">
  <label class="control-label"[#if ERR_MS_HOST#] style="color:red;font-weight:bold"[#endif#]>
- Hostname:
+ <#LANG_HOSTNAME#>:
  (*)
  </label>
  <div class="controls"><input type="text" name="ms_host" value="<#MS_HOST#>" class="input"></div>
 </div>
-
 <div class="form-group">
  <label class="control-label"[#if ERR_MS_PORT#] style="color:red;font-weight:bold"[#endif#]>
- Port:
+ <#LANG_PORT#>:
  (*)
  </label>
  <div class="controls"><input type="text" name="ms_port" value="<#MS_PORT#>" class="input"></div>
 </div>
-
+</div>
+<div class="form-group" id="ms_serial">
+ <label class="control-label"[#if ERR_MS_SERIAL#] style="color:red;font-weight:bold"[#endif#]>
+ Serial:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="ms_serial" value="<#MS_SERIAL#>" class="input"></div>
+</div>
+<script type="text/javascript">  
+	OnSelectConType ( document.getElementById('ms_contype') );
+</script>
 <div class="form-group">
  <label class="control-label">
- Measure: 
+ <#LANG_MEASURE#>:
  </label>
  <div class="controls">
    <select name="ms_measure" class="input">    
@@ -64,7 +94,7 @@
 
 <div class="form-group">
  <label class="control-label">
- Auto ID:
+ <#LANG_AUTOID#>:
  </label>
  <div class="controls">
    <label class="radio"><input type="radio" name="ms_autoid" value="1"[#if MS_AUTOID="1"#] checked[#endif#]>On</label>
@@ -74,7 +104,7 @@
 
 <div class="form-group">
  <label class="control-label"[#if ERR_MS_NEXTID#] style="color:red;font-weight:bold"[#endif#]>
- Next Id:
+ <#LANG_NEXTID#>:
  (*)
  </label>
  <div class="controls"><input type="text" name="ms_nextid" value="<#MS_NEXTID#>" class="input"></div>
@@ -95,8 +125,8 @@
 </p>
 
 <ul class="nav nav-tabs">
- <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes">Nodes</a> </li>
- <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh">Mesh</a> </li> 
+ <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes"><#LANG_NODES#></a> </li>
+ <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh"><#LANG_MESH#></a> </li> 
 </ul> 
 
 [#if TAB="nodes" || TAB=""#]

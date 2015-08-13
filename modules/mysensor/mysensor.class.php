@@ -135,13 +135,20 @@ function admin(&$out) {
     $out['SET_DATASOURCE']=1;
   }
 
-  $this->getConfig();
+  $this->getConfig();	
+	$out['MS_CONTYPE']=$this->config['MS_CONTYPE'];
   $out['MS_HOST']=$this->config['MS_HOST'];
   $out['MS_PORT']=$this->config['MS_PORT'];
+	$out['MS_SERIAL']=$this->config['MS_SERIAL'];	
   $out['MS_MEASURE']=$this->config['MS_MEASURE'];
   $out['MS_AUTOID']=$this->config['MS_AUTOID'];
   $out['MS_NEXTID']=$this->config['MS_NEXTID'];
  
+	if ($out['MS_CONTYPE']=="") {
+    $out['MS_CONTYPE']=0;    
+    $this->config['MS_CONTYPE']=$out['MS_CONTYPE'];
+    $this->saveConfig();
+  }
   if ($out['MS_HOST']=="") {
     $out['MS_HOST']='10.9.0.253';    
     $this->config['MS_HOST']=$out['MS_HOST'];
@@ -152,6 +159,11 @@ function admin(&$out) {
     $this->config['MS_PORT']=$out['MS_PORT'];
     $this->saveConfig();
   }  
+	if ($out['MS_SERIAL']=="") {
+    $out['MS_SERIAL']='/dev/ttyMySensorsGateway';    
+    $this->config['MS_SERIAL']=$out['MS_SERIAL'];
+    $this->saveConfig();
+  }
   if ($out['MS_MEASURE']=="") {
     $out['MS_MEASURE']='M';
     $this->config['MS_MEASURE']=$out['MS_MEASURE'];
@@ -170,14 +182,18 @@ function admin(&$out) {
     
   if ($this->data_source=='mysensors' || $this->data_source=='') {
     if ($this->view_mode=='update_settings') {
+			global $ms_contype;
       global $ms_host;
       global $ms_port;
+			global $ms_serial;
       global $ms_measure;
       global $ms_autoid;
       global $ms_nextid;
    
+	    $this->config['MS_CONTYPE']=$ms_contype;
       $this->config['MS_HOST']=$ms_host;
       $this->config['MS_PORT']=(int)$ms_port;   
+			$this->config['MS_SERIAL']=$ms_serial;   
       $this->config['MS_MEASURE']=$ms_measure;
       $this->config['MS_AUTOID']=$ms_autoid;
       $this->config['MS_NEXTID']=$ms_nextid;
@@ -344,7 +360,10 @@ function Presentation($arr){
       $sens['SUBTYPE'] = $SubType;
       $sens['INFO'] = $info;
       $sens['ID']=SQLInsert('msnodesens', $sens);
-    }  
+    } else {
+      $sens['INFO'] = $info;
+      SQLUpdate('msnodesens', $sens);
+    }      
   }
 }
 /**
@@ -405,7 +424,7 @@ function setProperty($prop_id, $value, $set_linked=0) {
   $data['NID'] = $rec['NID'];
   $data['SID'] = $rec['SID'];
   $data['MType'] = 1; // 
-  $data['ACK'] = $rec['ACK'];
+  $data['ACK'] = $rec['ACK'];	
   $data['SUBTYPE'] = $rec['SUBTYPE'];
   $data['MESSAGE'] = $value;
   $data['EXPIRE'] = time()+$this->tryTimeout;
@@ -536,6 +555,7 @@ function Internal($arr){
     case 6:
       if ($node){
         $node['PID'] = $val;
+				$node['LASTREBOOT'] = date('Y-m-d H:i:s');
         SQLUpdate('msnodes', $node);
       }
       
@@ -615,6 +635,7 @@ function dbInstall($data) {
   msnodes: BAT_OBJECT varchar(255) NOT NULL DEFAULT ''
   msnodes: BAT_PROPERTY varchar(255) NOT NULL DEFAULT ''
   msnodes: LOCATION_ID int(10) NOT NULL DEFAULT '0' 
+	msnodes: LASTREBOOT datetime
   
   msnodesens: ID int(10) unsigned NOT NULL auto_increment
   msnodesens: NID int(10) NOT NULL 
@@ -631,6 +652,7 @@ function dbInstall($data) {
   msnodeval: LINKED_OBJECT varchar(255) NOT NULL DEFAULT ''
   msnodeval: LINKED_PROPERTY varchar(255) NOT NULL DEFAULT ''
   msnodeval: ACK int(3) unsigned NOT NULL DEFAULT '0'
+	msnodeval: REQ int(3) unsigned NOT NULL DEFAULT '0'
 EOD;
   parent::dbInstall($data);
 

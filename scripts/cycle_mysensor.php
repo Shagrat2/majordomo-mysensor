@@ -13,31 +13,44 @@ $db = new mysql(DB_HOST, '', DB_USER, DB_PASSWORD, DB_NAME);
  
 include_once("./load_settings.php");
 include_once(DIR_MODULES . "control_modules/control_modules.class.php");
+include_once(DIR_MODULES . 'mysensor/mysensor.class.php');
 
 set_time_limit(0);
-
-require("./modules/mysensor/phpMSTcp.php");
-include_once(DIR_MODULES . 'mysensor/mysensor.class.php');
 
 $ms = new mysensor();
 $ms->getConfig();
 
 echo date("H:i:s") . " running " . basename(__FILE__) . PHP_EOL;
 
-$host = 'localhost';
-if ($ms->config['MS_HOST'])
-{
-   $host = $ms->config['MS_HOST'];
-}
-
-if ($ms->config['MS_PORT'])
-{
-   $port = $ms->config['MS_PORT'];
+if ($ms->config['MS_CONTYPE'] == 1){
+  require("./modules/mysensor/phpMSCom.php");
+	
+	$ser = '/dev/ttyMySensorsGateway';
+	if ($ms->config['MS_SERIAL'])
+	{
+		 $ser = $ms->config['MS_SERIAL'];
+	}
+	
+	$ms_client = new MySensorMasterCom($ser);
 } else {
-   $port = 5003;
-} 
+	require("./modules/mysensor/phpMSTcp.php");
+	
+	$host = 'localhost';
+	if ($ms->config['MS_HOST'])
+	{
+		 $host = $ms->config['MS_HOST'];
+	}
 
-$ms_client = new MySensorMasterTcp($host, $port);
+	if ($ms->config['MS_PORT'])
+	{
+		 $port = $ms->config['MS_PORT'];
+	} else {
+		 $port = 5003;
+	} 	
+	
+	$ms_client = new MySensorMasterTcp($host, $port);
+}	
+
 if (!$ms_client->connect())
 {
    exit(1);
@@ -53,6 +66,16 @@ $params = array(
 );
 $ms_client->subscribe($params);
 
+//=== Req values ===
+$rec=SQLSelect("SELECT * FROM msnodeval WHERE req=1;");   
+$total=count($rec);
+if ($total) {
+	for($i=0;$i<$total;$i++) {
+		$ms->cmd($rec[$i]['NID'].";".$rec[$i]['SID'].";2;".$rec[$i]['ACK'].";".$rec[$i]['SUBTYPE'].";");		
+	}
+}   
+
+//== Cycle ===
 $previousMillis = 0;
 while ($ms_client->proc()){
    // Send
@@ -89,6 +112,7 @@ while ($ms_client->proc()){
       if (file_exists('./reboot') || file_exists('./stop_mysensor') || $_GET['onetime'])
       {
          $db->Disconnect();
+				 echo "Stop cycle\n";
          exit;
       }
    } 

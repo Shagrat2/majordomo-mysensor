@@ -2,7 +2,7 @@
 
 require_once 'phpMS.php'; 
 
-include_once('/scripts/php_serial.class.php');
+include_once('PhpSerial.php');
 
 /**
  * MySensorTCP
@@ -11,9 +11,17 @@ include_once('/scripts/php_serial.class.php');
 class MySensorMasterCom extends MySensorMaster {
   public $Serial;
     
-  function MySensorMasterCom($serrial){
-    $this->Serial = new phpSerial();
-    $this->Serial->deviceSet($serial);
+  function MySensorMasterCom($device){
+    $serial = new phpSerial;
+    $serial->deviceSet($device);        
+
+    $serial->confBaudRate(115200);   
+    $serial ->confCharacterLength(8);
+    $serial->confParity("even");    
+    $serial->confStopBits(1);
+    $serial->confFlowControl("none");
+
+    $this->Serial = $serial;
   }
   
   /**
@@ -23,14 +31,18 @@ class MySensorMasterCom extends MySensorMaster {
   *
   * @return bool
   */
-  function connect(){
-    $result = $this->Serial->deviceOpen();
+  function connect(){    
+    $result = $this->Serial->deviceOpen("w+b");
     
     if ($result === false) {
         throw new Exception("serrial.open() failed");
     } 
       
     if($this->debug) echo "Connected\n";
+    
+    stream_set_timeout($this->Serial->_dHandle, 0, 250000);    
+		
+    MySensorMaster::connect();
         
     return true;            
   }
@@ -50,17 +62,24 @@ class MySensorMasterCom extends MySensorMaster {
    *
    * Read the socket
    */
-  function read(){
-    /*
+  function read(){    
+    //echo "Start read ".time()." \n";
+    $lastTime = round(microtime(true) * 10000);
     $data = "";
     while (true){
-      $c = socket_read($this->sock, 1);
-      
+      $c = fread($this->Serial->_dHandle, 1);
       if ($c === false) return "";
+
+      $currentMillis = round(microtime(true) * 10000);
+      if ($currentMillis - $lastTime > 500){ 
+        return "";
+      }
+
+      if ($c == "") continue;
       if ($c == "\n") return $data;
       $data .= $c;
-    }    
-    */
+      $lastTime = $currentMillis;
+    }        
   }
   
   /**

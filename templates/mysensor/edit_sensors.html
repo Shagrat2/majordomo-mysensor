@@ -36,14 +36,15 @@
  <td valign="top">
   <table width="100%" border="1" cellpadding="2">
    <tr>
-    <td valign="top"><b>Sensor</b></td>	
-    <td valign="top"><b>SUBTYPE</b></td>
-    <td valign="top"><b>Updated</b></td>   
+    <td valign="top"><b><#LANG_SENSOR#></b></td>	
+    <td valign="top"><b><#LANG_TYPE#></b></td>
+    <td valign="top"><b><#LANG_UPDATED#></b></td>   
     <td valign="top"><b><#LANG_VALUE#></b></td>
 	<td valign="top">&nbsp;</td>
     <td valign="top"><b><#LANG_LINKED_OBJECT#></b></td>
     <td valign="top"><b><#LANG_LINKED_PROPERTY#></b></td>
-    <td valign="top"><b>ACK</b></td> 
+    <td valign="top"><b>ACK</b></td>
+		<td valign="top"><b>REQ</b></td>
     <td valign="top">&nbsp;</td>
    </tr>
    [#begin SENSORS#]
@@ -55,7 +56,8 @@
 	  <td valign="top"><a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SET#></a></td>
     <td valign="top"><input type="text" name="linked_object[#ID#]" id="linked_object[#ID#]" value="[#LINKED_OBJECT#]"></td>
     <td valign="top"><input type="text" name="linked_property[#ID#]" id="linked_property[#ID#]" value="[#LINKED_PROPERTY#]">
-    <td valign="top"><input type="checkbox" name="ack[#ID#]" value="1"[#if ACK="1"#] checked[#endif#]></td>     
+    <td valign="top"><input type="checkbox" name="ack[#ID#]" value="1"[#if ACK="1"#] checked[#endif#]></td>
+		<td valign="top"><input type="checkbox" name="req[#ID#]" value="1"[#if REQ="1"#] checked[#endif#]></td>
     [#module name="linkedobject" object_field="linked_object<#SENSORS.ID#>" property_field="linked_property<#SENSORS.ID#>"#]
     </td>  
     <td><a href="?view_mode=sensor_delete&id=[#ID#]&pid=[#PID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a></td>
@@ -82,5 +84,9 @@
 <input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
 <input type="hidden" name="tab" value="<#TAB#>">
 </form>
-
 </p>
+
+<ul>
+<li><#LANG_ACK_INFO#></li>
+<li><#LANG_REQ_INFO#></li>
+</ul>

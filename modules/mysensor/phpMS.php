@@ -97,7 +97,8 @@ $mysensor_property = array(
 
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
-  public $subscribe = [];  
+  public $subscribe = [];
+  private $lastTime = -1;  
 
   /**
    * connect
@@ -106,8 +107,10 @@ abstract class MySensorMaster{
    *
    * @return bool
    */
-  abstract function connect();
-  // $this->send(0, 0, 3, 0, 14, 'Gateway startup complete');  
+  function connect(){
+    // Set time out    
+    $this->lastTime = round(microtime(true) * 10000);    
+  }
   
   /**
    * disconnect
@@ -139,6 +142,14 @@ abstract class MySensorMaster{
     
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
+    // Test reconnect    
+    $currentMillis = round(microtime(true) * 10000);
+    if ($currentMillis - $this->lastTime > 15*60*1000){
+      $this->disconnect();
+      if($this->debug) echo "Reconnect\n";
+      $this->connect();
+    }    
+  
     //---- Send ----
     if(function_exists($this->subscribe['sendproc'])){
       call_user_func($this->subscribe['sendproc'],$arr);
@@ -149,6 +160,9 @@ abstract class MySensorMaster{
     $read_data = $this->read();
     
     if ($read_data != ''){      
+      // Reset timer
+      $this->lastTime = $currentMillis;
+      
       $arr = explode(';', $read_data, 6);
       //if($this->debug) echo "Receive: Node:$arr[0]; Sensor:$arr[1]; Type:$arr[2]; Ack:$arr[3]; Sub:$arr[4]; Msg:$arr[5]\n";
       

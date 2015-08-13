@@ -27,7 +27,7 @@
 </div>
 <!-- PId (varchar) -->
 <div class="form-group">
- <label class="control-label">Parent:</label>
+ <label class="control-label"><#LANG_PARENT#>:</label>
  <div class="controls">[#PID#]</div>
 </div>
 <!-- TITLE (varchar) -->
@@ -60,17 +60,22 @@
 </div>
 <!-- Ver (varchar) -->
 <div class="form-group">
- <label class="control-label">Version:</label>
+ <label class="control-label"><#LANG_VERSION#>:</label>
  <div class="controls">[#VER#]</div>
 </div>
 <!-- Prot (varchar) -->
 <div class="form-group">
- <label class="control-label">Protocol:</label>
+ <label class="control-label"><#LANG_PROTOCOL#>:</label>
  <div class="controls">[#PROT#]</div>
+</div>
+<!-- LastReboot (varchar) -->
+<div class="form-group">
+ <label class="control-label"><#LANG_LASTREBOOT#>:</label>
+ <div class="controls">[#LASTREBOOT#]</div>
 </div>
 <!-- Battery (varchar) -->
 <div class="form-group">
- <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>Battery:</label>
+ <label class="control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]><#LANG_BATTERY_LEVEL#>:</label>
  <div class="controls">[#BATTERY#]</div><br/>
  <div class="controls"><input type="text" name="bat_object" id="bat_object" value="[#BAT_OBJECT#]" class="input form-control"></div><br/>
  <div class="controls"><input type="text" name="bat_property" id="bat_property" value="[#BAT_PROPERTY#]" class="input form-control"></div> 
@@ -97,4 +102,4 @@
 </form>
 [#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
 <hr/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default">Reboot</a> - Reboot node (Only not sleep node)<br/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#><br/>

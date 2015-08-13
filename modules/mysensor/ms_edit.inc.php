@@ -105,14 +105,21 @@ if ($this->mode=='update') {
         for($i=0;$i<$total;$i++) {
           global ${'linked_object'.$sensors[$i]['ID']};
           global ${'linked_property'.$sensors[$i]['ID']};
-          global ${'ack'.$sensors[$i]['ID']};
+          
+					global ${'ack'.$sensors[$i]['ID']};					
           if (${'ack'.$sensors[$i]['ID']}) {
-            $sensors[$i]['ACK']=1;
-            SQLUpdate('msnodeval', $sensors[$i]);
+            $sensors[$i]['ACK']=1;            
           } else {
-            $sensors[$i]['ACK']=0;
-            SQLUpdate('msnodeval', $sensors[$i]);
-          }          
+            $sensors[$i]['ACK']=0;            
+          } 
+					
+					global ${'req'.$sensors[$i]['ID']};
+					if (${'req'.$sensors[$i]['ID']}) {
+            $sensors[$i]['REQ']=1;            
+          } else {
+            $sensors[$i]['REQ']=0;            
+          } 
+					SQLUpdate('msnodeval', $sensors[$i]);					
           
           $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
           $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
