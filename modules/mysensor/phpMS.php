@@ -109,7 +109,8 @@ abstract class MySensorMaster{
    */
   function connect(){
     // Set time out    
-    $this->lastTime = round(microtime(true) * 10000);    
+    $this->lastTime = round(microtime(true) * 1000);
+    $this->send(0, 0, 3, 0, 14, 'Gateway startup complete');
   }
   
   /**
@@ -143,7 +144,7 @@ abstract class MySensorMaster{
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
     // Test reconnect    
-    $currentMillis = round(microtime(true) * 10000);
+    $currentMillis = round(microtime(true) * 1000);
     if ($currentMillis - $this->lastTime > 15*60*1000){
       $this->disconnect();
       if($this->debug) echo "Reconnect\n";

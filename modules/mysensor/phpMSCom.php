@@ -15,9 +15,9 @@ class MySensorMasterCom extends MySensorMaster {
     $serial = new phpSerial;
     $serial->deviceSet($device);        
 
-    $serial->confBaudRate(115200);   
+    $serial->confBaudRate(115200);
     $serial ->confCharacterLength(8);
-    $serial->confParity("even");    
+    $serial->confParity("none");
     $serial->confStopBits(1);
     $serial->confFlowControl("none");
 
@@ -64,13 +64,13 @@ class MySensorMasterCom extends MySensorMaster {
    */
   function read(){    
     //echo "Start read ".time()." \n";
-    $lastTime = round(microtime(true) * 10000);
+    $lastTime = round(microtime(true) * 1000);
     $data = "";
     while (true){
       $c = fread($this->Serial->_dHandle, 1);
       if ($c === false) return "";
 
-      $currentMillis = round(microtime(true) * 10000);
+      $currentMillis = round(microtime(true) * 1000);
       if ($currentMillis - $lastTime > 500){ 
         return "";
       }
