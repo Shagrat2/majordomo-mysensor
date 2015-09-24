@@ -42,7 +42,10 @@ $mysensor_presentation = array(
   32 => Array("S_WATER_LEAK",       "Water leak sensor",                                    'V_TRIPPED, V_ARMED'),
   33 => Array("S_SOUND",            "Sound sensor",                                         'V_LEVEL (in dB), V_TRIPPED, V_ARMED'),
   34 => Array("S_VIBRATION",        "Vibration sensor",                                     'V_LEVEL (vibration in Hz), V_TRIPPED, V_ARMED'),
-  35 => Array("S_MOISTURE",         "Moisture sensor",                                      'V_LEVEL (water content or moisture in percentage?), V_TRIPPED, V_ARMED')
+  35 => Array("S_MOISTURE",         "Moisture sensor",                                      'V_LEVEL (water content or moisture in percentage?), V_TRIPPED, V_ARMED'),
+  36 => Array("S_INFO",             "LCD text device",                                      'V_TEXT'),
+  37 => Array("S_GAS",              "Gas meter",                                      	    'V_FLOW, V_VOLUME')
+
 ); 
 
 $mysensor_property = array(
@@ -93,6 +96,7 @@ $mysensor_property = array(
   44 => Array("V_HVAC_SETPOINT_COOL", 'HVAC cold setpoint (Integer between 0-100)'),
   45 => Array("V_HVAC_SETPOINT_HEAT", 'HVAC/Heater setpoint (Integer between 0-100)'),
   46 => Array("V_HVAC_FLOW_MODE", 'Flow mode for HVAC ("Auto", "ContinuousOn", "PeriodicOn")'),
+  47 => Array("V_TEXT", 'S_INFO. Text message to display on LCD or controller device'),
 );
 
 abstract class MySensorMaster{    
