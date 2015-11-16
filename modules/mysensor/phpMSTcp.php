@@ -24,6 +24,8 @@ class MySensorMasterTCP extends MySensorMaster {
   * @return bool
   */
   function connect(){
+		if($this->debug) echo date("Y-m-d H:i:s")." Connecting TCP\n";
+		
     // TCP socket
     $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
       
@@ -37,7 +39,7 @@ class MySensorMasterTCP extends MySensorMaster {
             socket_strerror(socket_last_error($this->sock)));
     } 
         
-    if($this->debug) echo "Connected\n";        
+    if($this->debug) echo date("Y-m-d H:i:s")." Connected\n";        
     
     MySensorMaster::connect();
     
@@ -51,7 +53,7 @@ class MySensorMasterTCP extends MySensorMaster {
    */
   function disconnect(){    
     socket_close($this->sock);
-	  if($this->debug) echo "Disconnected\n";
+	  if($this->debug) echo  date("Y-m-d H:i:s")."Disconnected\n";
   }   
   
   /**
@@ -81,7 +83,7 @@ class MySensorMasterTCP extends MySensorMaster {
   function send($nid, $sid, $mtype, $ack, $subtype, $msg){
     $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
     $ret = socket_write($this->sock, $data);
-    echo "Send: $data";
+    echo  date("Y-m-d H:i:s")." Send: $data";
     return $ret;
   }
 } 

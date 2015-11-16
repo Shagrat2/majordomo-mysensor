@@ -44,8 +44,7 @@ $mysensor_presentation = array(
   34 => Array("S_VIBRATION",        "Vibration sensor",                                     'V_LEVEL (vibration in Hz), V_TRIPPED, V_ARMED'),
   35 => Array("S_MOISTURE",         "Moisture sensor",                                      'V_LEVEL (water content or moisture in percentage?), V_TRIPPED, V_ARMED'),
   36 => Array("S_INFO",             "LCD text device",                                      'V_TEXT'),
-  37 => Array("S_GAS",              "Gas meter",                                      	    'V_FLOW, V_VOLUME')
-
+  37 => Array("S_GAS",              "Gas meter",                                      	    'V_FLOW, V_VOLUME'),
 ); 
 
 $mysensor_property = array(
@@ -112,6 +111,8 @@ abstract class MySensorMaster{
    * @return bool
    */
   function connect(){
+		if($this->debug) echo date("Y-m-d H:i:s")." Connecting main\n";
+		
     // Set time out    
     $this->lastTime = round(microtime(true) * 1000);
     $this->send(0, 0, 3, 0, 14, 'Gateway startup complete');
@@ -151,7 +152,7 @@ abstract class MySensorMaster{
     $currentMillis = round(microtime(true) * 1000);
     if ($currentMillis - $this->lastTime > 15*60*1000){
       $this->disconnect();
-      if($this->debug) echo "Reconnect\n";
+      if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
       $this->connect();
     }    
   
@@ -161,7 +162,7 @@ abstract class MySensorMaster{
     }    
     
     //---- Read ----
-    //if($this->debug) echo "start wait\n";    
+    //if($this->debug) echo  date("Y-m-d H:i:s")." start wait\n";    
     $read_data = $this->read();
     
     if ($read_data != ''){      
@@ -169,7 +170,7 @@ abstract class MySensorMaster{
       $this->lastTime = $currentMillis;
       
       $arr = explode(';', $read_data, 6);
-      //if($this->debug) echo "Receive: Node:$arr[0]; Sensor:$arr[1]; Type:$arr[2]; Ack:$arr[3]; Sub:$arr[4]; Msg:$arr[5]\n";
+      //if($this->debug) echo  date("Y-m-d H:i:s")." Receive: Node:$arr[0]; Sensor:$arr[1]; Type:$arr[2]; Ack:$arr[3]; Sub:$arr[4]; Msg:$arr[5]\n";
       
       $mType = $arr[2];
       switch ($mType){

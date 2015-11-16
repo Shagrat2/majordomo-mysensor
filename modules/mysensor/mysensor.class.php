@@ -377,6 +377,7 @@ function Set($arr){
   $SId = $arr[1];
   $SubType = $arr[4];
   $val = $arr[5];
+	if ($NId == "") return;
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
@@ -460,6 +461,7 @@ function req($arr){
   $SId = $arr[1];
   $mType = $arr[2];
   $SubType = $arr[4];
+	if ($NId == "") return;
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
@@ -491,6 +493,7 @@ function Internal($arr){
   $NId = $arr[0];  
   $SubType = $arr[4];
   $val = $arr[5];
+	if ($NId == "") return;
 
   if (($NId == 0) || ($NId == 255)){
     $node = false;
