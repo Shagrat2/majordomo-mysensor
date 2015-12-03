@@ -77,45 +77,52 @@ if ($total) {
 
 //== Cycle ===
 $previousMillis = 0;
-while ($ms_client->proc()){
-   // Send
-   $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
-   if ($rec['ID']) {     
-      //echo "Send: ".print_r($rec, true)."\n";
-      $expire = $rec['EXPIRE'] < time();
+while (true){
+	
+  $ret = $ms_client->proc();
+	if ($ret === false)
+	{
+		sleep(5);	// Sleep 5 seconds
+		continue;
+	}
+	 
+  // Send
+  $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
+  if ($rec['ID']) {     
+    //echo "Send: ".print_r($rec, true)."\n";
+    $expire = $rec['EXPIRE'] < time();
       
-      // Del not ACK packet
-      if (($rec['ACK'] == 0) || $expire){        
-        SQLExec("DELETE FROM mssendstack WHERE ID='".$rec['ID']."'");
-      };      
+    // Del not ACK packet
+    if (($rec['ACK'] == 0) || $expire)        
+      SQLExec("DELETE FROM mssendstack WHERE ID='".$rec['ID']."'");
       
-      if ($expire){
-        $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
-        if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
-          echo "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']."\n";
-          // Rollback value if not comin
-          setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($ms->name=>'0'));
-        }
-      } else {        
-        // Send
-        $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
+    if ($expire){
+      $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
+      if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
+        echo "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']."\n";
+        // Rollback value if not comin
+        setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($ms->name=>'0'));
       }
-   }
+    } else {        
+      // Send
+      $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
+    }
+  }
   
-   $currentMillis = round(microtime(true) * 10000);   
-   if ($currentMillis - $previousMillis > 10000)
-   {
-      $previousMillis = $currentMillis;
+  $currentMillis = round(microtime(true) * 10000);   
+  if ($currentMillis - $previousMillis > 10000)
+  {
+    $previousMillis = $currentMillis;
    
-      setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
+    setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
   
-      if (file_exists('./reboot') || file_exists('./stop_mysensor') || $_GET['onetime'])
-      {
-         $db->Disconnect();
-				 echo "Stop cycle\n";
-         exit;
-      }
-   } 
+    if (file_exists('./reboot') || file_exists('./stop_mysensor') || $_GET['onetime'])
+    {
+      $db->Disconnect();
+	    echo "Stop cycle\n";
+      exit;
+    }
+  } 
 }
 
 /**

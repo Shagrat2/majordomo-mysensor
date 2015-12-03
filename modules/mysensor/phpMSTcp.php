@@ -31,12 +31,14 @@ class MySensorMasterTCP extends MySensorMaster {
       
     socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
     socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));
+		
+		socket_set_option($this->sock, SOL_SOCKET, SO_KEEPALIVE, 1);
     
     // Connect the socket
     $result = @socket_connect($this->sock, $this->host, $this->port);
     if ($result === false) {
-        throw new Exception("socket_connect() failed.</br>Reason: ($result)".
-            socket_strerror(socket_last_error($this->sock)));
+			  echo "socket_connect() failed. Reason: ".socket_strerror(socket_last_error($this->sock))."\n";
+				return $result;
     } 
         
     if($this->debug) echo date("Y-m-d H:i:s")." Connected\n";        
@@ -53,7 +55,7 @@ class MySensorMasterTCP extends MySensorMaster {
    */
   function disconnect(){    
     socket_close($this->sock);
-	  if($this->debug) echo  date("Y-m-d H:i:s")."Disconnected\n";
+	  if($this->debug) echo date("Y-m-d H:i:s")."Disconnected\n";
   }   
   
   /**

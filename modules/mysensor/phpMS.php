@@ -101,7 +101,9 @@ $mysensor_property = array(
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
   public $subscribe = [];
-  private $lastTime = -1;  
+  private $lastTime = -1;
+	//public $alivetime = 15*60*1000;
+	public $alivetime = 30*1000;
 
   /**
    * connect
@@ -149,11 +151,15 @@ abstract class MySensorMaster{
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
     // Test reconnect    
-    $currentMillis = round(microtime(true) * 1000);
-    if ($currentMillis - $this->lastTime > 15*60*1000){
+    $currentMillis = round(microtime(true) * 1000);		
+    if ($currentMillis - $this->lastTime > $this->alivetime){
       $this->disconnect();
-      if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
-      $this->connect();
+      
+			if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
+      
+			$result = $this->connect();
+			if ($result === false)
+				return false;			
     }    
   
     //---- Send ----
