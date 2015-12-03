@@ -102,8 +102,7 @@ abstract class MySensorMaster{
   public $debug = true;            /* should output debug messages */ 
   public $subscribe = [];
   private $lastTime = -1;
-	//public $alivetime = 15*60*1000;
-	public $alivetime = 30*1000;
+	public $alivetime = 900000; // 15 min
 
   /**
    * connect
