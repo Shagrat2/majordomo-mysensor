@@ -26,9 +26,33 @@
 		</div>
 	</div>
 </div>
+
 <div>
- MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a> 
+ MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a>   
+ &nbsp;
+ <a id="bincmode" href="?view_mode=inc_mode&tab=<#TAB#>" class="btn btn-default [#if MS_INCLUSION_MODE=="1"#]active[#endif#]">Inclusion mode</a>
 </div>
+<script language="javascript">
+  var checkIncTimer;
+	
+  function checkIncStates() {
+	  clearTimeout(checkIncTimer);
+	  var url="?ajax=1&atype=incmode";
+		$.ajax({
+      url: url,
+    }).done(function(data) {       
+			$('#bincmode').removeClass("active");
+			if (data == "1")
+			{
+				$('#bincmode').addClass("active");
+			}
+      checkIncTimer=setTimeout('checkIncStates()', 5000);
+    });
+    return false;
+  }
+ 
+  checkIncStates();
+</script>
 <div style="display:none" id='api_settings'>
 &nbsp;
 <script type="text/javascript">
@@ -118,15 +142,12 @@
 </fieldset>
 </form>
 </div>
-
 <br/>
-<p>
-<a href="?view_mode=node_edit" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
-</p>
 
 <ul class="nav nav-tabs">
  <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes"><#LANG_NODES#></a> </li>
  <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh"><#LANG_MESH#></a> </li> 
+ <li [#if TAB=="log"#] class="active"[#endif#]><a href="?tab=log"><#LANG_GENERAL_EVENTS_LOG#></a> </li> 
 </ul> 
 
 [#if TAB="nodes" || TAB=""#]
@@ -134,4 +155,7 @@
 [#endif#] 
 [#if TAB="mesh"#]
   [#inc search_mesh.html#] 
+[#endif#] 
+[#if TAB="log"#]
+  [#inc search_log.html#] 
 [#endif#] 

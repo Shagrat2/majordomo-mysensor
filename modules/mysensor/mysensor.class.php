@@ -131,6 +131,62 @@ function run() {
 * @access public
 */
 function admin(&$out) {
+	global $ajax; 
+	global $filter;
+	global $atype;
+	
+	if ($ajax) {
+		header ("HTTP/1.0: 200 OK\n");
+		header ('Content-Type: text/html; charset=utf-8');
+		
+		if ($atype == "incmode")
+		{			
+			$this->getConfig();
+			echo $this->config['MS_INCLUSION_MODE'];
+			exit;
+		}
+		
+		$limit=50;
+		
+    // Find last midifed
+    $filename=ROOT.'debmes/log_*-cycle_mysensor.php.txt';
+    foreach(glob($filename) as $file) {      
+      $LastModified[] = filemtime($file);
+      $FileName[] = $file;
+    }    
+    $files = array_multisort($LastModified, SORT_NUMERIC, SORT_ASC, $FileName);
+    $lastIndex = count($LastModified) - 1;
+    
+    // Open file
+		$data=LoadFile( $FileName[$lastIndex] );    
+    
+		$lines=explode("\n", $data);
+     $lines=array_reverse($lines);
+     $res_lines=array();
+     $total=count($lines);
+     $added=0;
+     for($i=0;$i<$total;$i++) {
+
+      if (trim($lines[$i])=='') {
+       continue;
+      }
+
+      if ($filter && preg_match('/'.preg_quote($filter).'/is', $lines[$i])) {
+       $res_lines[]=$lines[$i];
+       $added++;
+      } elseif (!$filter) {
+       $res_lines[]=$lines[$i];
+       $added++;
+      }
+
+      if ($added>=$limit) {
+       break;
+      }
+     }
+
+    echo implode("<br/>", $res_lines);
+		exit;
+	}
   if (isset($this->data_source) && !$_GET['data_source'] && !$_POST['data_source']) {
     $out['SET_DATASOURCE']=1;
   }
@@ -142,7 +198,8 @@ function admin(&$out) {
 	$out['MS_SERIAL']=$this->config['MS_SERIAL'];	
   $out['MS_MEASURE']=$this->config['MS_MEASURE'];
   $out['MS_AUTOID']=$this->config['MS_AUTOID'];
-  $out['MS_NEXTID']=$this->config['MS_NEXTID'];
+  $out['MS_NEXTID']=$this->config['MS_NEXTID'];	
+	$out['MS_INCLUSION_MODE'] = $this->config['MS_INCLUSION_MODE'];
  
 	if ($out['MS_CONTYPE']=="") {
     $out['MS_CONTYPE']=0;    
@@ -204,12 +261,31 @@ function admin(&$out) {
     if ($this->view_mode=='' || $this->view_mode=='search_ms') {
       if ($this->tab=='mesh'){
         $this->search_mesh($out);
+      } else if ($this->tab=='log'){
+        $this->search_log($out);
       } else {
         $this->search_ms($out);
       }
     }
     if ($this->view_mode=='node_edit') {
       $this->edit_ms($out, $this->id);
+    }
+		if ($this->view_mode=='inc_mode') {
+			$NId = 0;
+			$SId = 0;
+			$mType = 3;
+			$ack = 0;
+			$SubType = 5;
+			
+			if ($this->config['MS_INCLUSION_MODE'] == 0)			
+				$val = 1;
+			else			
+				$val = 0;			
+			$this->config['MS_INCLUSION_MODE'] = $val;
+			$this->saveConfig();
+			
+			$this->cmd( "$NId;$SId;$mType;$ack;$SubType;".$val);
+			$this->redirect("?");
     }
     if ($this->view_mode=='node_delete') {
       $this->delete_ms($this->id);
@@ -255,6 +331,14 @@ function search_ms(&$out) {
 */
 function search_mesh(&$out) {
   require(DIR_MODULES.$this->name.'/ms_mesh.inc.php');
+}
+/**
+* Search log
+*
+* @access public
+*/
+function search_log(&$out) {
+  require(DIR_MODULES.$this->name.'/ms_log.inc.php');
 }
 /**
 * Search sensors
@@ -378,14 +462,14 @@ function Set($arr){
   $SubType = $arr[4];
   $val = $arr[5];
 	if ($NId == "") return;
-  
+	
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
     $node['NID']=$NId;
     $node['TITLE']=$NId;
     $node['ID']=SQLInsert('msnodes', $node);
   }
-    
+	
   // Sensor
   $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
   if (!$sens['ID']) {
@@ -400,14 +484,23 @@ function Set($arr){
     SQLExec("DELETE FROM mssendstack WHERE NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
   }
   
+	//echo  date("Y-m-d H:i:s u")." Proc 3\n";
+	//echo print_r($sens, true)."\n";
+	
   // Set
   $sens['UPDATED']=date('Y-m-d H:i:s'); 
   $sens['VAL']=$val; 
   SQLUpdate('msnodeval', $sens);
+	
+	//echo "set:".print_r($sens)."\n";	
+	//echo  date("Y-m-d H:i:s u")." Proc 4\n";
   
-  if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
-    setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $val, array($this->name=>'0'));
-  } 
+  if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {		
+		//echo  date("Y-m-d H:i:s u")." Start set\n";
+		//echo "Set ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$val."\n";		
+    setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $val, array($this->name=>'0'));		
+		//echo  date("Y-m-d H:i:s u")." End set\n";
+  } 	
 }
 /**
 * Title
@@ -418,9 +511,12 @@ function Set($arr){
 */
 function setProperty($prop_id, $value, $set_linked=0) {
   $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE ID='".$prop_id."'");
-  if (!$rec['ID']) {
-   return 0;
-  }
+  if (!$rec['ID']) 
+    return 0;  
+	
+	// Set to node value
+	if ($rec['VAL'] != $value)
+		SQLUpdate('msnodeval', $rec);
     
   $data['NID'] = $rec['NID'];
   $data['SID'] = $rec['SID'];
@@ -459,9 +555,9 @@ function req($arr){
   // Node
   $NId = $arr[0];
   $SId = $arr[1];
-  $mType = $arr[2];
+  $mType = 1; // $arr[2];
   $SubType = $arr[4];
-	if ($NId == "") return;
+  if ($NId == "") return;
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
@@ -480,7 +576,14 @@ function req($arr){
   }
   
   // Req
-  $this->cmd( "$NId;$SId;$mType;".$sens['ACK'].";$SubType;".$sens['VAL']);
+	$val = $sens['VAL'];
+	if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {		
+    $val = getGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']);		
+		//echo "Get from: ".$sens['LINKED_OBJECT'].".".$sens['LINKED_PROPERTY']." = ".$val."\n";
+  } 	
+	//echo "Set: ".$val."\n";
+	
+  $this->cmd( "$NId;$SId;$mType;".$sens['ACK'].";$SubType;".$val);
   return false;
 }
 /**
@@ -494,8 +597,9 @@ function Internal($arr){
   $SubType = $arr[4];
   $val = $arr[5];
 	if ($NId == "") return;
-
-  if (($NId == 0) || ($NId == 255)){
+  
+  // Skip tester present
+  if ($NId == 255){ // ($NId == 0) ||
     $node = false;
   } else {
     $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
@@ -523,6 +627,14 @@ function Internal($arr){
     case 1:
       $this->cmd( $NId.";255;3;0;1;".time() );
       break;
+			
+		// Version
+		case 2:
+			if ($node){
+        $node['VER'] = $val;
+        SQLUpdate('msnodes', $node);       
+      }      
+      break;    
       
     // ID_REQUEST
     case 3:    
@@ -583,8 +695,7 @@ function Internal($arr){
       }
       
       break;
-    
-    // @@@ 2 - Version        
+         
     // @@@ 7 - FIND_PARENT
     // 9 - LOG_MESSAGE    
     // @@@ 14 - GATEWAY_READY

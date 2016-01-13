@@ -4,12 +4,16 @@
 <table border="0">
  <tr>
   <td>
+		<a href="?view_mode=node_edit" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
+	</td>	
+	<td>&nbsp;</td>
+  <td>	
   <select class="form-control" name="location_id" onChange="document.frmFilter.submit();">
    <option value="0"><#LANG_FILTER_BY_LOCATION#> (<#LANG_ALL#>)
    [#begin LOCATIONS#]
    <option value="[#ID#]"[#if ID="<#LOCATION_ID#>"#] selected[#endif#]>[#TITLE#]
    [#end LOCATIONS#]
-  </select>
+  </select>	
   </td>
  </tr>
 </table>

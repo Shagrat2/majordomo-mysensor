@@ -102,7 +102,8 @@ abstract class MySensorMaster{
   public $debug = true;            /* should output debug messages */ 
   public $subscribe = [];
   private $lastTime = -1;
-	public $alivetime = 900000; // 15 min
+	public $alivetime = 16000; // 16 sec
+  public $testtime = 5000; // 5 sec
 
   /**
    * connect
@@ -138,7 +139,7 @@ abstract class MySensorMaster{
    *
    * Send the socket
    */
-  abstract function send($nid, $sid, $mtype, $ack, $subtype, $msg);
+  abstract function send($nid, $sid, $mtype, $ack, $subtype, $msg, $log = true);
   
   /**
   * subscribe
@@ -150,33 +151,21 @@ abstract class MySensorMaster{
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
     // Test reconnect    
-    $currentMillis = round(microtime(true) * 1000);		
-    if ($currentMillis - $this->lastTime > $this->alivetime){
-      $this->disconnect();
-      
-			if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
-      
-			$result = $this->connect();
-			if ($result === false)
-				return false;			
-    }    
-  
+    $currentMillis = round(microtime(true) * 1000);		    
+    
     //---- Send ----
     if(function_exists($this->subscribe['sendproc'])){
       call_user_func($this->subscribe['sendproc'],$arr);
     }    
-    
+		
     //---- Read ----
-    //if($this->debug) echo  date("Y-m-d H:i:s")." start wait\n";    
     $read_data = $this->read();
-    
+
     if ($read_data != ''){      
       // Reset timer
       $this->lastTime = $currentMillis;
-      
       $arr = explode(';', $read_data, 6);
-      //if($this->debug) echo  date("Y-m-d H:i:s")." Receive: Node:$arr[0]; Sensor:$arr[1]; Type:$arr[2]; Ack:$arr[3]; Sub:$arr[4]; Msg:$arr[5]\n";
-      
+			
       $mType = $arr[2];
       switch ($mType){
         case 0:          
@@ -195,12 +184,15 @@ abstract class MySensorMaster{
             $val = call_user_func($this->subscribe['req'],$arr);
             
             if ($val !== false){
-              send($arr[0], $arr[1], $arr[2], 0, $arr[4], $val);
+              $this->send($arr[0], $arr[1], $arr[2], 0, $arr[4], $val);
             }
           }                        
           
           break;  
         case 3: 
+          // Tester present
+          if (($arr[0] == 0) && ($arr[4] == 2)) break;
+            
           if(function_exists($this->subscribe['internal'])){
             call_user_func($this->subscribe['internal'],$arr);
           }    
@@ -212,6 +204,23 @@ abstract class MySensorMaster{
           break; 
       }                                 
     }
+    
+    // Tester present
+    if ($currentMillis - $this->lastTime > $this->testtime){
+      $this->send(0, 0, 3, 0, 2, "Tester present", false);
+    }
+
+    // Reconnect
+    if ($currentMillis - $this->lastTime > $this->alivetime){
+      $this->disconnect();
+      
+			if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
+      
+			$result = $this->connect();
+			if ($result === false)
+				return false;			
+    }    
+      
     return true;     
   }   
 }

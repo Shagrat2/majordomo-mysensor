@@ -29,7 +29,7 @@ class MySensorMasterTCP extends MySensorMaster {
     // TCP socket
     $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
       
-    socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 0));
+    socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
     socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));
 		
 		socket_set_option($this->sock, SOL_SOCKET, SO_KEEPALIVE, 1);
@@ -63,13 +63,10 @@ class MySensorMasterTCP extends MySensorMaster {
    *
    * Read the socket
    */
-  function read(){
-   // $ret = socket_write($this->sock, "0;255;3;0;1;".time()."\n");
-   // echo "Send:$ret\n";    
-      
+  function read(){      
     $data = "";
-    while (true){
-      $c = socket_read($this->sock, 1);
+    while (true){			
+      $c = socket_read($this->sock, 1);			
       
       if ($c === false) return "";
       if ($c == "\n") return $data;
@@ -82,10 +79,11 @@ class MySensorMasterTCP extends MySensorMaster {
    *
    * Send the socket
    */
-  function send($nid, $sid, $mtype, $ack, $subtype, $msg){
+  function send($nid, $sid, $mtype, $ack, $subtype, $msg, $log = true){
     $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
     $ret = socket_write($this->sock, $data);
-    echo  date("Y-m-d H:i:s")." Send: $data";
+    if ($log)
+      echo date("Y-m-d H:i:s")." Send: $data";
     return $ret;
   }
 } 

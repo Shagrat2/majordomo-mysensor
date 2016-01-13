@@ -3,8 +3,9 @@
 global $session;
 
 function tree($a,$i,$p,$r=0,$c='children'){
-  if (!is_array($a)) return false;
-  // ¬нутренн€€ рекурсивна€ функци€
+  if (!is_array($a)) return false;		
+  
+	// Внутренн€€ рекурсивна€ функци€
   function tree_node($index,$root,$cn) {
     $_ret = array();
     foreach ($index[$root] as $k => $v) {
@@ -14,15 +15,15 @@ function tree($a,$i,$p,$r=0,$c='children'){
     return $_ret;
   }
 
-  $ids = array(); // ¬ременный индексный массив
+  $ids = array(); // Временный индексный массив
   // —оздаЄм временные массивы на корректные элементы
   foreach ($a as $k => $v) {
-    if (is_array($v)) {
-      if ((isset($v[$i]) || ($i === false)) && isset($v[$p])) {
-        $key = ($i === false)?$k:$v[$i];
-        $parent = $v[$p];
-        $ids[$parent][$key] = $v;
-      }
+    if (is_array($v) && ($k != 0)) {
+			if ((isset($v[$i]) || ($i === false)) && isset($v[$p])) {
+				$key = ($i === false)?$k:$v[$i];
+				$parent = $v[$p];
+				$ids[$parent][$key] = $v;
+			}
     }
   }
 

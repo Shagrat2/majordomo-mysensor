@@ -78,15 +78,22 @@ if ($total) {
 //== Cycle ===
 $previousMillis = 0;
 while (true){
+	//echo "Process\n";
 	
-  $ret = $ms_client->proc();
+//	echo  date("Y-m-d H:i:s u")." Proc start\n";
+	
+	$ret = $ms_client->proc();
 	if ($ret === false)
 	{
+		echo "Error process\n";
+		
 		sleep(5);	// Sleep 5 seconds
 		continue;
 	}
-	 
-  // Send
+	
+//	echo  date("Y-m-d H:i:s u")." Send\n";
+	
+	// Send
   $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
   if ($rec['ID']) {     
     //echo "Send: ".print_r($rec, true)."\n";
@@ -108,8 +115,10 @@ while (true){
       $ms_client->send($rec['NID'], $rec['SID'], $rec['MType'], $rec['ACK'], $rec['SUBTYPE'], $rec['MESSAGE']);
     }
   }
-  
-  $currentMillis = round(microtime(true) * 10000);   
+	
+//	echo  date("Y-m-d H:i:s u")." system\n";
+	
+	$currentMillis = round(microtime(true) * 10000);   
   if ($currentMillis - $previousMillis > 10000)
   {
     $previousMillis = $currentMillis;
@@ -123,6 +132,8 @@ while (true){
       exit;
     }
   } 
+	
+//	echo  date("Y-m-d H:i:s u")." End\n";
 }
 
 /**

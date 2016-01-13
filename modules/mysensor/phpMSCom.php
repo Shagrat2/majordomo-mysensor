@@ -89,10 +89,11 @@ class MySensorMasterCom extends MySensorMaster {
    *
    * Send the socket
    */
-  function send($nid, $sid, $mtype, $ack, $subtype, $msg){
+  function send($nid, $sid, $mtype, $ack, $subtype, $msg, $log = true){
     $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
     $this->Serial->sendMessage($data);
-    echo  date("Y-m-d H:i:s")." Send: $data";
+    if ($log)
+      echo date("Y-m-d H:i:s")." Send: $data";
     return true;
   }
 } 
