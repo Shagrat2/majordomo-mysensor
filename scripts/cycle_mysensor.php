@@ -132,7 +132,7 @@ while (true){
       exit;
     }
   } 
-	
+  usleep(50000);	
 //	echo  date("Y-m-d H:i:s u")." End\n";
 }
 
