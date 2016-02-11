@@ -77,7 +77,7 @@ class MySensorMasterCom extends MySensorMaster {
         return "";
       }
 
-      if ($c == "") continue;
+      if ($c == "") return "";
       if ($c == "\n") return $data;
       $data .= $c;
       $lastTime = $currentMillis;
