@@ -100,7 +100,7 @@ $mysensor_property = array(
 
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
-  public $subscribe = [];
+  public $subscribe = array();
   private $lastTime = -1;
 	public $alivetime = 16000; // 16 sec
   public $testtime = 5000; // 5 sec
