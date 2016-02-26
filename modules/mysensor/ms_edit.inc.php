@@ -88,7 +88,7 @@ if ($this->mode=='update') {
       if ($rec['BAT_OBJECT'] && $rec['BAT_PROPERTY']) {
         addLinkedProperty($rec['BAT_OBJECT'], $rec['BAT_PROPERTY'], $this->name);
       }
-      if ($old_bat_object && $old_bat_object!=$rec['BAT_OBJECT'] && $old_bat_property && $old_bat_property!=$rec['BAT_PROPERTY']) {
+      if ($old_bat_object && $old_bat_property && ($old_bat_object!=$rec['BAT_OBJECT']  || $old_bat_property!=$rec['BAT_PROPERTY'])) {
         removeLinkedProperty($old_bat_object, $old_bat_property, $this->name);
       }
 
