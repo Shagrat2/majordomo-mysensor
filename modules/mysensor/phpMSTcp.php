@@ -68,7 +68,7 @@ class MySensorMasterTCP extends MySensorMaster {
     while (true){			
       $c = socket_read($this->sock, 1);			
       
-      if ($c === false) return "";
+      if ($c === false || $c == "") return "";
       if ($c == "\n") return $data;
       $data .= $c;
     }     
