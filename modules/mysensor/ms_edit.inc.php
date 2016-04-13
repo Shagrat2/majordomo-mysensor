@@ -15,6 +15,15 @@ if ($this->mode=='cmd') {
   
   $this->cmd($data);
 }
+
+if ($this->mode=='resetbat'){
+	global $data;
+	
+	$table_name='msnodes';
+	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE NID='$data'");
+	$rec['BATTERY'] = "";
+	SQLUpdate($table_name, $rec); // update
+}
   
 if ($this->owner->name=='panel') {
   $out['CONTROLPANEL']=1;
@@ -147,6 +156,7 @@ if ($this->mode=='update') {
   }
 }
 
+$rec['TITLE'] = "[".$rec['NID']."] ".$rec['TITLE'];
 outHash($rec, $out);
   
 if ($this->tab == ""){    

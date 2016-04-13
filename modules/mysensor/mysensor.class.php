@@ -415,7 +415,7 @@ function clean_presentation($id) {
 *
 * @access public
 */
-function Presentation($arr){
+function Presentation($arr){	
   // Node
   $NId = $arr[0];
   if ($NId == "") return;
@@ -426,6 +426,10 @@ function Presentation($arr){
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
+		$ms_autoid = $this->config['MS_AUTOID'];
+		if ($ms_autoid == "0")
+			return;
+		
     $node['NID']=$NId;
     $node['TITLE']=$NId;
     $node['ID']=SQLInsert('msnodes', $node);    
@@ -465,6 +469,10 @@ function Set($arr){
 	
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
+		$ms_autoid = $this->config['MS_AUTOID'];
+		if ($ms_autoid == "0")
+			return;
+		
     $node['NID']=$NId;
     $node['TITLE']=$NId;
     $node['ID']=SQLInsert('msnodes', $node);
@@ -551,7 +559,8 @@ function cmd($str) {
 *
 * @access public
 */
-function req($arr){
+function req($arr){	
+	
   // Node
   $NId = $arr[0];
   $SId = $arr[1];
@@ -561,6 +570,10 @@ function req($arr){
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
   if (!$node['ID']) {
+		$ms_autoid = $this->config['MS_AUTOID'];
+		if ($ms_autoid == "0")
+			return;
+		
     $node['NID']=$NId;
     $node['TITLE']=$NId;
     $node['ID']=SQLInsert('msnodes', $node);
@@ -591,7 +604,8 @@ function req($arr){
 *
 * @access public
 */
-function Internal($arr){
+function Internal($arr){	
+	
   // Node
   $NId = $arr[0];  
   $SubType = $arr[4];
@@ -604,6 +618,10 @@ function Internal($arr){
   } else {
     $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
     if (!$node['ID']) {
+			$ms_autoid = $this->config['MS_AUTOID'];			
+			if ($ms_autoid == "0")
+		  	return;
+		
       $node['NID']=$NId;
       $node['TITLE']=$NId;
       $node['ID']=SQLInsert('msnodes', $node);

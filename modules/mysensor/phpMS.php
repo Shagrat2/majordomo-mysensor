@@ -100,7 +100,7 @@ $mysensor_property = array(
 
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
-  public $subscribe = [];
+  public $subscribe = array();
   private $lastTime = -1;
 	public $alivetime = 16000; // 16 sec
   public $testtime = 5000; // 5 sec
@@ -161,10 +161,21 @@ abstract class MySensorMaster{
     //---- Read ----
     $read_data = $this->read();
 
-    if ($read_data != ''){      
+    if ($read_data != ''){
+		  // Original data
+			// echo date("Y-m-d H:i:s").">>> $read_data\n";
+		
       // Reset timer
       $this->lastTime = $currentMillis;
       $arr = explode(';', $read_data, 6);
+			
+			// Check data format
+			for ($i=0; $i<5; $i++)			
+				if ((is_numeric($arr[$i]) === false) || (is_float($arr[$i]) !== false))
+				{	
+					echo date("Y-m-d H:i:s")."### $read_data\n";					
+					return true;
+				}
 			
       $mType = $arr[2];
       switch ($mType){

@@ -24,7 +24,9 @@ $dictionary=array(
 'CLEAN'=>'Clean',
 'ACK_INFO'=>'ACK - Set this to true if you want destination node to send ack back to this node.',
 'REQ_INFO'=>'REQ - Get value from node when module start.',
-'MESH_INFO'=>'This tree make only when node reboot'
+'MESH_INFO'=>'This tree make only when node reboot',
+'RESETBAT'=>'Reset battery',
+'RESETBAT_INFO'=>'Reset battery info'
 
 /* end module names */
 
