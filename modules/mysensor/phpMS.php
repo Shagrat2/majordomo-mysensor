@@ -104,6 +104,7 @@ abstract class MySensorMaster{
   private $lastTime = -1;
 	public $alivetime = 16000; // 16 sec
   public $testtime = 5000; // 5 sec
+  private $testsend = false;
 
   /**
    * connect
@@ -167,6 +168,8 @@ abstract class MySensorMaster{
 		
       // Reset timer
       $this->lastTime = $currentMillis;
+      $this->testsend = false;
+
       $arr = explode(';', $read_data, 6);
 			
 			// Check data format
@@ -217,8 +220,9 @@ abstract class MySensorMaster{
     }
     
     // Tester present
-    if ($currentMillis - $this->lastTime > $this->testtime){
+    if ($currentMillis - $this->lastTime > $this->testtime && !$testsend){
       $this->send(0, 0, 3, 0, 2, "Tester present", false);
+      $this->testsend = true;
     }
 
     // Reconnect
