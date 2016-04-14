@@ -37,15 +37,17 @@ $tree = tree($res, 'NID', 'PID');
 
 function Display($arr){
   $res = "<ul>";
-  foreach ($arr as $k=>$v){
-    $res .= "<li>";
-    $res .= "<a href=\"?view_mode=node_edit&id=".$v['ID']."\">".$v['NID']." : ".$v['TITLE']."</a>";
-    if ($v['children']){
-      $res .= Display($v['children']);
-    }
-    $res .= "</li>";
-  }
-  
+	if (is_array($arr))
+	{
+		foreach ($arr as $k=>$v){
+			$res .= "<li>";
+			$res .= "<a href=\"?view_mode=node_edit&id=".$v['ID']."\">".$v['NID']." : ".$v['TITLE']."</a>";
+			if ($v['children']){
+				$res .= Display($v['children']);
+			}
+			$res .= "</li>";
+		}
+	}		
   $res .= "</ul>";
   
   return $res;
