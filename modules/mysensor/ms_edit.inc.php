@@ -88,7 +88,7 @@ if ($this->mode=='update') {
       if ($rec['BAT_OBJECT'] && $rec['BAT_PROPERTY']) {
         addLinkedProperty($rec['BAT_OBJECT'], $rec['BAT_PROPERTY'], $this->name);
       }
-      if ($old_bat_object && $old_bat_object!=$rec['BAT_OBJECT'] && $old_bat_property && $old_bat_property!=$rec['BAT_PROPERTY']) {
+      if ($old_bat_object && $old_bat_property && ($old_bat_object!=$rec['BAT_OBJECT'] || $old_bat_property!=$rec['BAT_PROPERTY'])) {
         removeLinkedProperty($old_bat_object, $old_bat_property, $this->name);
       }
 
@@ -147,7 +147,7 @@ if ($this->mode=='update') {
             addLinkedProperty($sensors[$i]['LINKED_OBJECT'], $sensors[$i]['LINKED_PROPERTY'], $this->name);          
           }
 
-          if ($old_linked_object && $old_linked_object!=$sensors[$i]['LINKED_OBJECT'] && $old_linked_property && $old_linked_property!=$sensors[$i]['LINKED_PROPERTY']) {
+          if ($old_linked_object&& $old_linked_property && ($old_linked_object!=$sensors[$i]['LINKED_OBJECT']  || $old_linked_property!=$sensors[$i]['LINKED_PROPERTY'])) {
             removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
           }
         }
@@ -156,7 +156,9 @@ if ($this->mode=='update') {
   }
 }
 
-$rec['TITLE'] = "[".$rec['NID']."] ".$rec['TITLE'];
+
+$rec['TITLE'] = (empty($rec['TITLE']))?"[".$rec['NID']."] ".$rec['TITLE']:$rec['TITLE'];
+
 outHash($rec, $out);
   
 if ($this->tab == ""){    
