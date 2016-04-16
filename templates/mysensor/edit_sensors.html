@@ -38,6 +38,7 @@
    <tr>
     <td valign="top"><b><#LANG_SENSOR#></b></td>	
     <td valign="top"><b><#LANG_TYPE#></b></td>
+		<td valign="top"><b><#LANG_MORE_INFO#></b></td>
     <td valign="top"><b><#LANG_UPDATED#></b></td>   
     <td valign="top"><b><#LANG_VALUE#></b></td>
 	<td valign="top">&nbsp;</td>
@@ -51,6 +52,7 @@
    <tr>
     <td valign="top" [#if SDESCR!=""#]title="[#SDESCR#]"[#endif#]><b>[#SID#]</b>[#if STITLE!=""#]<br/>[#STITLE#][#endif#]</td>
     <td valign="top" [#if SUBDESCR!=""#]title="[#SUBDESCR#]"[#endif#]>[#SUBTYPE#][#if SUBTITLE!=""#]<br/>[#SUBTITLE#][#endif#]</td>
+		<td valign="top">[#NOTE#]</td>
     <td valign="top">[#UPDATED#]</td>
     <td valign="top">[#VAL#]</td>
 	  <td valign="top"><a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SET#></a></td>

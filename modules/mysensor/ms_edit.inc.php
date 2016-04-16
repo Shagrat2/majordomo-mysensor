@@ -191,7 +191,8 @@ if ($this->tab == "sensors"){
         if (($itm['NID'] == $rec['NID']) && ($itm['SID'] == $v['SID'])){
           $pres = $itm['SUBTYPE'];
           $sensors[$k]['STITLE'] = $mysensor_presentation[$pres][0];
-          $sensors[$k]['SDESCR'] = $mysensor_presentation[$pres][1];  
+          $sensors[$k]['SDESCR'] = $mysensor_presentation[$pres][1];
+					$sensors[$k]['NOTE'] = $itm['INFO'];
           break;
         }
       }
