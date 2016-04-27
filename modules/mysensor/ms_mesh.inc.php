@@ -16,7 +16,7 @@ function tree($a,$i,$p,$r=0,$c='children'){
   }
 
   $ids = array(); // Временный индексный массив
-  // —оздаЄм временные массивы на корректные элементы
+  // Создаём временные массивы на корректные элементы
   foreach ($a as $k => $v) {
     if (is_array($v) && ($k != 0)) {
 			if ((isset($v[$i]) || ($i === false)) && isset($v[$p])) {
@@ -31,28 +31,44 @@ function tree($a,$i,$p,$r=0,$c='children'){
 }
 
 // SEARCH RESULTS  
-$res=SQLSelect("SELECT * FROM msnodes ORDER BY nid");
+$res=SQLSelect("SELECT msnodes.*, max(msnodeval.UPDATED) as UPDATED FROM msnodes, msnodeval WHERE msnodes.nid=msnodeval.nid GROUP BY NID ORDER BY NID");
+//$res=SQLSelect("SELECT * FROM msnodes ORDER BY nid");
   
 $tree = tree($res, 'NID', 'PID');
 
-function Display($arr){
-  $res = "<ul>";
+function Display($arr, $level = 0){  
 	if (is_array($arr))
 	{
 		foreach ($arr as $k=>$v){
-			$res .= "<li>";
-			$res .= "<a href=\"?view_mode=node_edit&id=".$v['ID']."\">".$v['NID']." : ".$v['TITLE']."</a>";
-			if ($v['children']){
-				$res .= Display($v['children']);
-			}
-			$res .= "</li>";
+			if ((time()-strtotime($v['UPDATED'])) > 3*60*60)			
+				$res .= "<tr style=\"color: red\">";
+			else
+				$res .= "<tr>";
+			
+			$res .= "<td>";
+			
+			for ($i=0;$i<$level;$i++) $res .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"; 			
+			// Title
+			$res .= "<a href=\"?view_mode=node_edit&id=".$v['ID']."\">".$v['NID']." : ".$v['TITLE']."</a></td>";
+			
+			// Updated
+			$res .= "<td>".$v['UPDATED']."<td>";
+			
+			// Start time
+			$res .= "<td>".$v['LASTREBOOT']."<td>";		
+			
+			$res .= "</tr>";
+			
+			if ($v['children'])
+				$res .= Display($v['children'], $level+1);			
 		}
 	}		
-  $res .= "</ul>";
   
   return $res;
 }
-
-$out['TREE'] = Display($tree);
+	
+	
+$out['TREE'] = 
+	'<table class="table table-stripped"><thead><tr><th><#LANG_TITLE#></th><th><#LANG_UPDATED#></th><th><#LANG_LASTREBOOT#></th></tr>'.Display($tree)."</table>";
 
 ?>

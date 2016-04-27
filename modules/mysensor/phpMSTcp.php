@@ -55,7 +55,7 @@ class MySensorMasterTCP extends MySensorMaster {
    */
   function disconnect(){    
     socket_close($this->sock);
-	  if($this->debug) echo date("Y-m-d H:i:s")."Disconnected\n";
+	  if($this->debug) echo date("Y-m-d H:i:s")." Disconnected\n";
   }   
   
   /**
