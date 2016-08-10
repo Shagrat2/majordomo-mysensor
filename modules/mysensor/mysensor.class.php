@@ -492,7 +492,7 @@ function Set($arr){
     SQLExec("DELETE FROM mssendstack WHERE NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
   }
   
-	//echo  date("Y-m-d H:i:s u")." Proc 3\n";
+	//echo  date("Y-m-d H:i:s")." Proc 3\n";
 	//echo print_r($sens, true)."\n";
 	
   // Set
@@ -501,13 +501,13 @@ function Set($arr){
   SQLUpdate('msnodeval', $sens);
 	
 	//echo "set:".print_r($sens)."\n";	
-	//echo  date("Y-m-d H:i:s u")." Proc 4\n";
+	//echo  date("Y-m-d H:i:s")." Proc 4\n";
   
   if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {		
-		//echo  date("Y-m-d H:i:s u")." Start set\n";
+		//echo  date("Y-m-d H:i:s")." Start set\n";
 		//echo "Set ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$val."\n";		
     setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $val, array($this->name=>'0'));		
-		//echo  date("Y-m-d H:i:s u")." End set\n";
+		//echo  date("Y-m-d H:i:s")." End set\n";
   } 	
 }
 /**

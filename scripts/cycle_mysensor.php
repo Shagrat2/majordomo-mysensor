@@ -80,7 +80,7 @@ $previousMillis = 0;
 while (true){
 	//echo "Process\n";
 	
-//	echo  date("Y-m-d H:i:s u")." Proc start\n";
+//	echo  date("Y-m-d H:i:s")." Proc start\n";
 	
 	$ret = $ms_client->proc();
 	if ($ret === false)
@@ -91,7 +91,7 @@ while (true){
 		continue;
 	}
 	
-//	echo  date("Y-m-d H:i:s u")." Send\n";
+//	echo  date("Y-m-d H:i:s")." Send\n";
 	
 	// Send
   $rec=SQLSelectOne("SELECT * FROM mssendstack;");   
@@ -116,7 +116,7 @@ while (true){
     }
   }
 	
-//	echo  date("Y-m-d H:i:s u")." system\n";
+//	echo  date("Y-m-d H:i:s")." system\n";
 	
 	$currentMillis = round(microtime(true) * 10000);   
   if ($currentMillis - $previousMillis > 10000)
@@ -133,7 +133,7 @@ while (true){
     }
   } 
   usleep(50000);	
-//	echo  date("Y-m-d H:i:s u")." End\n";
+//	echo  date("Y-m-d H:i:s")." End\n";
 }
 
 /**
