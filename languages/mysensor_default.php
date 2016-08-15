@@ -26,7 +26,11 @@ $dictionary=array(
 'REQ_INFO'=>'REQ - Get value from node when module start.',
 'MESH_INFO'=>'This tree make only when node reboot',
 'RESETBAT'=>'Reset battery',
-'RESETBAT_INFO'=>'Reset battery info'
+'RESETBAT_INFO'=>'Reset battery info',
+'PRESENTATION'=>'Presentation',
+'PRESENTATION_INFO'=>'Get node Presentation',
+'HEARTBEAT'=>'HeartBeat',
+'HEARTBEAT_INFO'=>'Get HeartBeat'
 
 /* end module names */
 

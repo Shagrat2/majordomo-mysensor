@@ -13,7 +13,9 @@
 
 class mysensor extends module {
   
-  public $tryTimeout = 2;
+  public $tryTimeout = 2; // 2 second
+  public $RxExpireTimeout = 6*60*60; // 6 hours
+	public $MY_CORE_MIN_VERSION = 2;
 
 /**
 * mySensor
@@ -489,7 +491,7 @@ function Set($arr){
   
   // Delete ACK
   if ($arr[3] == 1){            
-    SQLExec("DELETE FROM mssendstack WHERE NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."'");
+    SQLExec("DELETE FROM mssendstack WHERE NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."' AND SENDRX=0");
   }
   
 	//echo  date("Y-m-d H:i:s")." Proc 3\n";
@@ -518,22 +520,18 @@ function Set($arr){
 * @access public
 */
 function setProperty($prop_id, $value, $set_linked=0) {
-  $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE ID='".$prop_id."'");
+  $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE msnodeval.id=$prop_id");	
   if (!$rec['ID']) 
     return 0;  
 	
 	// Set to node value
 	if ($rec['VAL'] != $value)
+  {
+    // Not set for rollback --- $rec['VAL'] = $value;
 		SQLUpdate('msnodeval', $rec);
-    
-  $data['NID'] = $rec['NID'];
-  $data['SID'] = $rec['SID'];
-  $data['MType'] = 1; // 
-  $data['ACK'] = $rec['ACK'];	
-  $data['SUBTYPE'] = $rec['SUBTYPE'];
-  $data['MESSAGE'] = $value;
-  $data['EXPIRE'] = time()+$this->tryTimeout;
-  SQLInsert('mssendstack', $data);
+  }
+  
+  $this->cmd($rec['NID'].";".$rec['SID'].";1;".$rec['ACK'].";".$rec['SUBTYPE'].";".$value);
 }
 /**
 * Title
@@ -544,6 +542,21 @@ function setProperty($prop_id, $value, $set_linked=0) {
 */
 function cmd($str) {
   $arr = explode(';', $str, 6);
+	
+	// For sleep node
+	$sendrx = 0;
+	$rec=SQLSelectOne("SELECT devtype FROM msnodes WHERE nid=".$arr[0]);
+  
+  if ($rec['devtype'] == 1)
+  {
+    $sendrx = 1;
+    $expire = time()+$this->RxExpireTimeout;
+  }
+  else
+  {
+    $sendrx = 0;
+    $expire = time()+$this->tryTimeout;
+  }	   
   
   $data['NID'] = $arr[0];
   $data['SID'] = $arr[1];
@@ -551,8 +564,11 @@ function cmd($str) {
   $data['ACK'] = $arr[3];
   $data['SUBTYPE'] = $arr[4];
   $data['MESSAGE'] = $arr[5];
-  $data['EXPIRE'] = time()+$this->tryTimeout;
+  $data['EXPIRE'] = $expire;
+	$data['SENDRX'] = $sendrx;
   SQLInsert('mssendstack', $data);
+  
+  //DebMes("Prepare send: ".print_r($data, true));
 }
 /**
 * Receive req
@@ -630,7 +646,7 @@ function Internal($arr){
   
   switch ($SubType){
     // Battery
-    case 0:
+    case I_BATTERY_LEVEL:
       if ($node){
         $node['BATTERY'] = $val;
         SQLUpdate('msnodes', $node);
@@ -642,28 +658,39 @@ function Internal($arr){
       break;    
       
     // Time
-    case 1:
-      $this->cmd( $NId.";255;3;0;1;".time() );
+    case I_TIME:
+      $this->cmd( $NId.";255;3;0;".I_TIME.";".time() );
       break;
 			
 		// Version
-		case 2:
+		case I_VERSION:
 			if ($node){
         $node['VER'] = $val;
         SQLUpdate('msnodes', $node);       
       }      
       break;    
       
-    // ID_REQUEST
-    case 3:    
+    // Request data
+    case I_ID_REQUEST:    
       $this->getConfig();
       
       if (($this->config['MS_AUTOID'] == '') || ($this->config['MS_AUTOID'] == 1)){
         $nextid = $this->config['MS_NEXTID'];
+				
+				// Check ready has
+				while (true)
+				{
+					$node = SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($nextid)."';");
+					if ($node['ID']) {
+						$nextid++;
+						continue;
+					}					
+					break;
+				}				
         
         if ($nextid < 255){
           // Send new id
-          $this->cmd( "255;255;3;0;4;".$nextid );
+          $this->cmd( "255;255;3;0;".I_ID_RESPONSE.";".$nextid );
           echo "Req new ID: $nextid\n";
           
           $nextid++;
@@ -677,15 +704,15 @@ function Internal($arr){
       }              
       break;
       
-    // INCLUSION_MODE  
-    case 5:
+    // INCLUSION MODE
+    case I_INCLUSION_MODE:
       $this->getConfig();
       $this->config['MS_INCLUSION_MODE']=$val;
       $this->saveConfig();
       break;      
       
     // CONFIG
-    case 6:
+    case I_CONFIG:
       if ($node){
         $node['PID'] = $val;
 				$node['LASTREBOOT'] = date('Y-m-d H:i:s');
@@ -694,11 +721,11 @@ function Internal($arr){
       
       // Send ansver - metric
       $this->getConfig();
-      $this->cmd( $NId.";255;3;0;6;".$this->config['MS_MEASURE'] );
+      $this->cmd( $NId.";255;3;0;".I_CONFIG.";".$this->config['MS_MEASURE'] );
       break;
       
     // SKETCH_NAME
-    case 11:
+    case I_SKETCH_NAME:
       if ($node){
         $node['SKETCH'] = $val;
         SQLUpdate('msnodes', $node);
@@ -706,13 +733,64 @@ function Internal($arr){
       break;
       
     // SKETCH_VERSION
-    case 12:
+    case I_SKETCH_VERSION:
       if ($node){
         $node['VER'] = $val;
         SQLUpdate('msnodes', $node);
       }
       
       break;
+			
+		// I_GATEWAY_READY
+		case I_GATEWAY_READY:
+			break;
+			
+	  // I_REQUEST_SIGNING
+		case I_SIGNING_PRESENTATION:
+			switch ($val)
+			{
+				case -1:
+					break;
+					
+				default:
+					echo  date("Y-m-d H:i:s")." Unknow SIGNING_PRESENTATION ID:".$NId." Sub:".$SubType." Val:".$val."\n";
+					break;
+			}
+			
+			break;
+			
+		// I_HEARTBEAT_RESPONSE
+		case I_HEARTBEAT_RESPONSE:
+			if ($node){
+        $node['HEARTBEAT'] = date('Y-m-d H:i:s');
+        SQLUpdate('msnodes', $node);
+      
+        if ($node['HEARTBEAT_OBJECT'] && $node['HEARTBEAT_PROPERTY']) {
+          setGlobal($node['HEARTBEAT_OBJECT'].'.'.$node['HEARTBEAT_PROPERTY'], $val, array($this->name=>'0'));
+        } 
+      }      
+      break;
+			
+		// I_PING
+		case I_PING:
+		  // Send I_PONG
+			$this->cmd( $NId.";255;3;0;".I_PONG.";".$val);
+      break;
+			
+	  // I_REGISTRATION_REQUEST
+		case I_REGISTRATION_REQUEST:
+			// Register request to GW
+			if ($val >= $MY_CORE_MIN_VERSION)
+				$val = 0;
+			else
+				$val = 1;
+			
+			$this->cmd( $NId.";255;3;0;".I_REGISTRATION_RESPONSE.";".$val);
+			break;
+			
+	  default:
+			echo  date("Y-m-d H:i:s")." Unknow internal command: ID:".$NId." Sub:".$SubType." Val:".$val."\n";
+			break;					
          
     // @@@ 7 - FIND_PARENT
     // 9 - LOG_MESSAGE    
@@ -750,6 +828,7 @@ function dbInstall($data) {
                 `SUBTYPE` int(10) NOT NULL,
                 `MESSAGE` varchar(32) NOT NULL,
                 `EXPIRE` BIGINT NOT NULL,
+                `SENDRX` int(10) NOT NULL,
                 PRIMARY KEY (`ID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 
@@ -761,13 +840,17 @@ function dbInstall($data) {
   msnodes: PID int(10) NOT NULL
   msnodes: TITLE varchar(255) NOT NULL DEFAULT ''    
   msnodes: BATTERY varchar(32) NOT NULL DEFAULT ''  
+	msnodes: HEARTBEAT datetime
   msnodes: SKETCH varchar(32) NOT NULL DEFAULT ''  
   msnodes: VER varchar(32) NOT NULL DEFAULT ''  
   msnodes: PROT varchar(32) NOT NULL DEFAULT ''  
   msnodes: BAT_OBJECT varchar(255) NOT NULL DEFAULT ''
   msnodes: BAT_PROPERTY varchar(255) NOT NULL DEFAULT ''
+	msnodes: HEARTBEAT_OBJECT varchar(255) NOT NULL DEFAULT ''
+  msnodes: HEARTBEAT_PROPERTY varchar(255) NOT NULL DEFAULT ''
   msnodes: LOCATION_ID int(10) NOT NULL DEFAULT '0' 
-	msnodes: LASTREBOOT datetime
+  msnodes: LASTREBOOT datetime
+  msnodes: DEVTYPE int(10) DEFAULT '0'
   
   msnodesens: ID int(10) unsigned NOT NULL auto_increment
   msnodesens: NID int(10) NOT NULL 
@@ -784,7 +867,7 @@ function dbInstall($data) {
   msnodeval: LINKED_OBJECT varchar(255) NOT NULL DEFAULT ''
   msnodeval: LINKED_PROPERTY varchar(255) NOT NULL DEFAULT ''
   msnodeval: ACK int(3) unsigned NOT NULL DEFAULT '0'
-	msnodeval: REQ int(3) unsigned NOT NULL DEFAULT '0'
+  msnodeval: REQ int(3) unsigned NOT NULL DEFAULT '0'
 EOD;
   parent::dbInstall($data);
 

@@ -26,7 +26,11 @@ $dictionary=array(
 'REQ_INFO'=>'REQ - Запрашивает данные при старте модуля.',
 'MESH_INFO'=>'Это дерево обновляется когда узел перезагрузится',
 'RESETBAT'=>'Сброс батареи',
-'RESETBAT_INFO'=>'Сброс информации о батареи'
+'PRESENTATION_INFO'=>'Запросить информацию о ноде (ver 2.0)',
+'HEARTBEAT'=>'HeartBeat',
+'HEARTBEAT_INFO'=>'Проверить жив ли (ver 2.0)',
+'RESETBAT_INFO'=>'Сброс информации о батареи',
+'PRESENTATION'=>'Презентация',
 
 /* end module names */
 

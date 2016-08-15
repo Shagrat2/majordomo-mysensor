@@ -28,6 +28,8 @@ class MySensorMasterTCP extends MySensorMaster {
 		
     // TCP socket
     $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
+		if ($this->sock === FALSE)
+			return false;
       
     socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
     socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));

@@ -6,13 +6,12 @@ if ($this->mode=='setvalue') {
    global $prop_id;
    global $new_value;
    global $id;
-   $this->setProperty($prop_id, $new_value, 1);   
+   $this->setProperty($prop_id, $new_value, 1);
    $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 } 
 
 if ($this->mode=='cmd') {
   global $data;
-  
   $this->cmd($data);
 }
 
@@ -66,7 +65,12 @@ if ($this->mode=='update') {
       global $location_id;
       $rec['LOCATION_ID']=$location_id;
     }
+		
+		// Dev type
+		global $devtype;
+		$rec['DEVTYPE'] = $devtype;		
 
+		// Battery
     $old_bat_object=$rec['BAT_OBJECT'];
     $old_bat_property=$rec['BAT_PROPERTY'];
 
@@ -75,6 +79,16 @@ if ($this->mode=='update') {
 
     global $bat_property;
     $rec['BAT_PROPERTY']=$bat_property;
+		
+		// Heartbeat
+		$old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
+    $old_heartbeat_property=$rec['HEARTBEAT_PROPERTY'];
+
+    global $heartbeat_object;
+    $rec['HEARTBEAT_OBJECT']=$heartbeat_object;
+
+    global $heartbeat_property;
+    $rec['HEARTBEAT_PROPERTY']=$heartbeat_property;
 
     //UPDATING RECORD
     if ($ok) {
@@ -85,11 +99,20 @@ if ($this->mode=='update') {
         $rec['ID']=SQLInsert($table_name, $rec); // adding new record
       }
 
+			// Battery
       if ($rec['BAT_OBJECT'] && $rec['BAT_PROPERTY']) {
         addLinkedProperty($rec['BAT_OBJECT'], $rec['BAT_PROPERTY'], $this->name);
       }
       if ($old_bat_object && $old_bat_property && ($old_bat_object!=$rec['BAT_OBJECT'] || $old_bat_property!=$rec['BAT_PROPERTY'])) {
         removeLinkedProperty($old_bat_object, $old_bat_property, $this->name);
+      }
+			
+			// Hearbeat
+			if ($rec['HEARTBEAT_OBJECT'] && $rec['HEARTBEAT_PROPERTY']) {
+        addLinkedProperty($rec['HEARTBEAT_OBJECT'], $rec['HEARTBEAT_PROPERTY'], $this->name);
+      }
+      if ($old_heartbeat_object && $old_heartbeat_property && ($old_heartbeat_object!=$rec['HEARTBEAT_OBJECT'] || $old_heartbeat_property!=$rec['HEARTBEAT_PROPERTY'])) {
+        removeLinkedProperty($old_heartbeat_object, $old_heartbeat_property, $this->name);
       }
 
       $out['OK']=1;
@@ -130,6 +153,7 @@ if ($this->mode=='update') {
           } 
 					SQLUpdate('msnodeval', $sensors[$i]);					
           
+					// Battery
           $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
           $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
           
@@ -150,12 +174,33 @@ if ($this->mode=='update') {
           if ($old_linked_object&& $old_linked_property && ($old_linked_object!=$sensors[$i]['LINKED_OBJECT']  || $old_linked_property!=$sensors[$i]['LINKED_PROPERTY'])) {
             removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
           }
+					
+					// Heartheat
+          $old_linked_object=$sensors[$i]['HEARTBEAT_OBJECT'];
+          $old_linked_property=$sensors[$i]['HEARTBEAT_PROPERTY'];
+          
+          if (${'heartbeat_object'.$sensors[$i]['ID']} && ${'heartbeat_property'.$sensors[$i]['ID']}) {
+            $sensors[$i]['HEARTBEAT_OBJECT']=${'heartbeat_object'.$sensors[$i]['ID']};
+            $sensors[$i]['HEARTBEAT_PROPERTY']=${'heartbeat_property'.$sensors[$i]['ID']};
+            SQLUpdate('msnodeval', $sensors[$i]);
+          } elseif ($sensors[$i]['HEARTBEAT_OBJECT'] || $sensors[$i]['HEARTBEAT_PROPERTY']) {
+            $sensors[$i]['HEARTBEAT_OBJECT']='';
+            $sensors[$i]['HEARTBEAT_PROPERTY']='';
+            SQLUpdate('msnodeval', $sensors[$i]);
+          }
+
+          if ($sensors[$i]['HEARTBEAT_OBJECT'] && $sensors[$i]['HEARTBEAT_PROPERTY']) {
+            addLinkedProperty($sensors[$i]['HEARTBEAT_OBJECT'], $sensors[$i]['HEARTBEAT_PROPERTY'], $this->name);          
+          }
+
+          if ($old_linked_object&& $old_linked_property && ($old_linked_object!=$sensors[$i]['HEARTBEAT_OBJECT']  || $old_linked_property!=$sensors[$i]['HEARTBEAT_PROPERTY'])) {
+            removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
+          }
         }
       }
     }
   }
 }
-
 
 $rec['TITLE'] = (empty($rec['TITLE']))?"[".$rec['NID']."] ".$rec['TITLE']:$rec['TITLE'];
 

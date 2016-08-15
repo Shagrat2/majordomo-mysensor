@@ -61,7 +61,11 @@
     colorizeArray($res);
     $total=count($res);
     for($i=0;$i<$total;$i++) {
-     // some action for every record if required
+      // some action for every record if required		 
+		  if ($res[$i]['DEVTYPE'] == 1)
+				$res[$i]['DEVTYPE'] = "Battery";
+			else
+				$res[$i]['DEVTYPE'] = "Power";
     }
     $out['RESULT']=$res;
   }  

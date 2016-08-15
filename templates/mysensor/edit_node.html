@@ -53,6 +53,16 @@
 </div>
 </div>
 [#endif IS_SET_LOCATION_ID#]
+<!-- DevType -->
+<div class="form-group">
+	<label class="control-label"><#LANG_TYPE#>:</label>
+	<div class="controls">
+		<select name="devtype" class="form-control input">
+			<option value="0"[#if DEVTYPE="0"#] selected[#endif#]>Powered node
+			<option value="1"[#if DEVTYPE="1"#] selected[#endif#]>Battery node
+		</select>
+  </div>
+</div>
 <!-- Sketch (varchar) -->
 <div class="form-group">
  <label class="control-label">Sketch:</label>
@@ -80,6 +90,13 @@
  <div class="controls"><input type="text" name="bat_object" id="bat_object" value="[#BAT_OBJECT#]" class="input form-control"></div><br/>
  <div class="controls"><input type="text" name="bat_property" id="bat_property" value="[#BAT_PROPERTY#]" class="input form-control"></div> 
 </div>
+<!-- HEARTBEAT (varchar) -->
+<div class="form-group">
+ <label class="control-label"[#if ERR_LINKED_HEARTBEAT#] style="color:red;font-weight:bold"[#endif#]>HEARTBEAT:</label>
+ <div class="controls">[#HEARTBEAT#]</div><br/>
+ <div class="controls"><input type="text" name="heartbeat_object" id="heartbeat_object" value="[#HEARTBEAT_OBJECT#]" class="input form-control"></div><br/>
+ <div class="controls"><input type="text" name="heartbeat_property" id="heartbeat_property" value="[#HEARTBEAT_PROPERTY#]" class="input form-control"></div> 
+</div>
 
 <div class="form-actions">
  [#if ID!=""#]
@@ -101,7 +118,9 @@
 </fieldset>
 </form>
 [#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
+[#module name="linkedobject" object_field="heartbeat_object" property_field="heartbeat_property"#] 
 <hr/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=resetbat&data=[#NID#]" class="btn btn-default"><#LANG_RESETBAT#></a> - <#LANG_RESETBAT_INFO#><br/>
-<br/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=resetbat&data=[#NID#]" class="btn btn-default"><#LANG_RESETBAT#></a> - <#LANG_RESETBAT_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;18;0" class="btn btn-default"><#LANG_HEARTBEAT#></a> - <#LANG_HEARTBEAT_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;19;0" class="btn btn-default"><#LANG_PRESENTATION#></a> - <#LANG_PRESENTATION_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#><br/>

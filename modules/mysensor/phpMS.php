@@ -98,6 +98,36 @@ $mysensor_property = array(
   47 => Array("V_TEXT", 'S_INFO. Text message to display on LCD or controller device'),
 );
 
+const I_BATTERY_LEVEL				= 0;	// Battery level
+const	I_TIME								= 1;	// Time
+const	I_VERSION							= 2;	// Version
+const	I_ID_REQUEST					= 3;	// ID request
+const	I_ID_RESPONSE					= 4;	// ID response
+const	I_INCLUSION_MODE			= 5;	// Inclusion mode
+const	I_CONFIG							= 6;	// Config
+const	I_FIND_PARENT					= 7;	// Find parent
+const I_FIND_PARENT_RESPONSE = 8;	// Find parent response
+const	I_LOG_MESSAGE					= 9;	// Log message
+const	I_CHILDREN						= 10;	// Children
+const	I_SKETCH_NAME					= 11;	// Sketch name
+const I_SKETCH_VERSION			= 12;	// Sketch version
+const	I_REBOOT							= 13;	// Reboot request
+const	I_GATEWAY_READY				= 14;	// Gateway ready
+const	I_SIGNING_PRESENTATION	= 15;	// Provides signing related preferences (first byte is preference version)
+const	I_NONCE_REQUEST				= 16;	// Request for a nonce
+const	I_NONCE_RESPONSE			= 17;	// Payload is nonce data
+const	I_HEARTBEAT						= 18;	// Heartbeat request
+const	I_PRESENTATION				= 19;	// Presentation message
+const	I_DISCOVER						= 20;	// Discover request
+const	I_DISCOVER_RESPONSE		= 21;	// Discover response
+const	I_HEARTBEAT_RESPONSE	= 22;	// Heartbeat response
+const	I_LOCKED							= 23;	// Node is locked (reason in string-payload)
+const	I_PING								= 24;	// Ping sent to node, payload incremental hop counter
+const	I_PONG								= 25;	// In return to ping, sent back to sender, payload incremental hop counter
+const	I_REGISTRATION_REQUEST	= 26;	// Register request to GW
+const	I_REGISTRATION_RESPONSE	= 27;	// Register response from GW
+const	I_DEBUG								= 28; // Debug message
+	
 abstract class MySensorMaster{    
   public $debug = true;            /* should output debug messages */ 
   public $subscribe = array();

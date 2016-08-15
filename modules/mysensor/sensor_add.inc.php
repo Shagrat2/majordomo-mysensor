@@ -73,7 +73,7 @@ if ($sens['ID']) {
   $sens = array();
   
   foreach ($presentation as $val){    
-    $subtype = $val['SUBTYPE'];
+    $subtype = $val['SUBTYPE'];		
     $title = $mysensor_presentation[ $subtype ][0];    
     $sens[] = array('ID'=>$val['SID'], 'TITLE'=>$val['SID']." : $title");
   }
