@@ -14,7 +14,7 @@
 class mysensor extends module {
   
   public $tryTimeout = 2; // 2 second
-  public $RxExpireTimeout = 6*60*60; // 6 hours
+  public $RxExpireTimeout = 21600;// 6*60*60 = 6 hours
 	public $MY_CORE_MIN_VERSION = 2;
 
 /**

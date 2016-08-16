@@ -31,6 +31,7 @@ function tree($a,$i,$p,$r=0,$c='children'){
 }
 
 // SEARCH RESULTS  
+SQLSelect("SET @@sql_mode = \"\"");
 $res=SQLSelect("SELECT msnodes.*, max(msnodeval.UPDATED) as UPDATED FROM msnodes, msnodeval WHERE msnodes.nid=msnodeval.nid GROUP BY NID ORDER BY NID");
 //$res=SQLSelect("SELECT * FROM msnodes ORDER BY nid");
   
