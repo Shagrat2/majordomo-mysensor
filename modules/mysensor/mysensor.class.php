@@ -780,11 +780,7 @@ function Internal($arr){
 	  // I_REGISTRATION_REQUEST
 		case I_REGISTRATION_REQUEST:
 			// Register request to GW
-			if ($val >= $MY_CORE_MIN_VERSION)
-				$val = 0;
-			else
-				$val = 1;
-			
+			$val = $val >= $this->MY_CORE_MIN_VERSION;		
 			$this->cmd( $NId.";255;3;0;".I_REGISTRATION_RESPONSE.";".$val);
 			break;
 			
