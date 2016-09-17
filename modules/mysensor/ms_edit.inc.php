@@ -135,6 +135,9 @@ if ($this->mode=='update') {
       if ($rec['ID']) {
         $total=count($sensors);
         for($i=0;$i<$total;$i++) {
+					if ($sensors[$i]['UPDATED'] == 0)
+						$sensors[$i]['UPDATED'] = date('Y-m-d H:i:s'); 
+					
           global ${'linked_object'.$sensors[$i]['ID']};
           global ${'linked_property'.$sensors[$i]['ID']};
           

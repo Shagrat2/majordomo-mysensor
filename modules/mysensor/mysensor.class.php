@@ -38,7 +38,7 @@ function mysensor() {
 *
 * @access public
 */
-function saveParams() {
+function saveParams($data=1) {
  $p=array();
  if (IsSet($this->id)) {
   $p["id"]=$this->id;
@@ -136,7 +136,7 @@ function admin(&$out) {
 	global $ajax; 
 	global $filter;
 	global $atype;
-	
+  
 	if ($ajax) {
 		header ("HTTP/1.0: 200 OK\n");
 		header ('Content-Type: text/html; charset=utf-8');
@@ -305,8 +305,8 @@ function admin(&$out) {
     if ($this->view_mode=='presentation_clean'){
       $this->clean_presentation($this->id);
       $this->redirect("?data_source=$this->data_source&view_mode=node_edit&id=$this->id&tab=presentation");
-    }
-  }
+    }	
+  }		
 }
 /**
 * FrontEnd
@@ -427,26 +427,24 @@ function Presentation($arr){
   $info = $arr[5];
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
-  if (!$node['ID']) {
-		$ms_autoid = $this->config['MS_AUTOID'];
-		if ($ms_autoid == "0")
+  if (!$node['ID']) 
+		if (!$this->RegistNewNode($node, $NId))
 			return;
-		
-    $node['NID']=$NId;
-    $node['TITLE']=$NId;
-    $node['ID']=SQLInsert('msnodes', $node);    
-  }  
   
   // Arduino Node
   if ($SId == 255){
     $node['PROT'] = $arr[5]; 
+		
+		if ($node['LASTREBOOT'] == 0)
+			$node['LASTREBOOT'] = date('Y-m-d H:i:s');
+		
     SQLUpdate('msnodes', $node);
   } else {
     // Sensor
     $sens=SQLSelectOne("SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
     if (!$sens['ID']) {
       $sens['NID'] = $NId;
-      $sens['SID'] = $SId;
+      $sens['SID'] = $SId;			
       $sens['SUBTYPE'] = $SubType;
       $sens['INFO'] = $info;
       $sens['ID']=SQLInsert('msnodesens', $sens);
@@ -470,15 +468,9 @@ function Set($arr){
 	if ($NId == "") return;
 	
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
-  if (!$node['ID']) {
-		$ms_autoid = $this->config['MS_AUTOID'];
-		if ($ms_autoid == "0")
+  if (!$node['ID'])
+		if (!$this->RegistNewNode($node, $NId))
 			return;
-		
-    $node['NID']=$NId;
-    $node['TITLE']=$NId;
-    $node['ID']=SQLInsert('msnodes', $node);
-  }
 	
   // Sensor
   $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
@@ -523,6 +515,8 @@ function setProperty($prop_id, $value, $set_linked=0) {
   $rec=SQLSelectOne("SELECT * FROM msnodeval WHERE msnodeval.id=$prop_id");	
   if (!$rec['ID']) 
     return 0;  
+	
+	$rec['UPDATED']=date('Y-m-d H:i:s'); 
 	
 	// Set to node value
 	if ($rec['VAL'] != $value)
@@ -585,15 +579,9 @@ function req($arr){
   if ($NId == "") return;
   
   $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
-  if (!$node['ID']) {
-		$ms_autoid = $this->config['MS_AUTOID'];
-		if ($ms_autoid == "0")
+  if (!$node['ID'])
+		if (!$this->RegistNewNode($node, $NId))
 			return;
-		
-    $node['NID']=$NId;
-    $node['TITLE']=$NId;
-    $node['ID']=SQLInsert('msnodes', $node);
-  }  
   
   // Sensor
   $sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe($SubType)."';"); 
@@ -621,6 +609,7 @@ function req($arr){
 * @access public
 */
 function Internal($arr){	
+	$this->getConfig();
 	
   // Node
   $NId = $arr[0];  
@@ -633,16 +622,13 @@ function Internal($arr){
     $node = false;
   } else {
     $node=SQLSelectOne("SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';"); 
-    if (!$node['ID']) {
-			$ms_autoid = $this->config['MS_AUTOID'];			
-			if ($ms_autoid == "0")
-		  	return;
-		
-      $node['NID']=$NId;
-      $node['TITLE']=$NId;
-      $node['ID']=SQLInsert('msnodes', $node);
-    }
+    if (!$node['ID'])
+			if (!$this->RegistNewNode($node, $NId))
+			  return;
   }
+	
+	if ($node['LASTREBOOT'] == 0)
+		$node['LASTREBOOT'] = date('Y-m-d H:i:s');
   
   switch ($SubType){
     // Battery
@@ -671,8 +657,7 @@ function Internal($arr){
       break;    
       
     // Request data
-    case I_ID_REQUEST:    
-      $this->getConfig();
+    case I_ID_REQUEST:          
       
       if (($this->config['MS_AUTOID'] == '') || ($this->config['MS_AUTOID'] == 1)){
         $nextid = $this->config['MS_NEXTID'];
@@ -691,11 +676,7 @@ function Internal($arr){
         if ($nextid < 255){
           // Send new id
           $this->cmd( "255;255;3;0;".I_ID_RESPONSE.";".$nextid );
-          echo "Req new ID: $nextid\n";
-          
-          $nextid++;
-          $this->config['MS_NEXTID']=$nextid;
-          $this->saveConfig();        
+          echo "Req new ID: $nextid\n";          
         } else {
           echo "Req new ID: out of range\n";
         }
@@ -705,8 +686,7 @@ function Internal($arr){
       break;
       
     // INCLUSION MODE
-    case I_INCLUSION_MODE:
-      $this->getConfig();
+    case I_INCLUSION_MODE:      
       $this->config['MS_INCLUSION_MODE']=$val;
       $this->saveConfig();
       break;      
@@ -719,8 +699,7 @@ function Internal($arr){
         SQLUpdate('msnodes', $node);
       }
       
-      // Send ansver - metric
-      $this->getConfig();
+      // Send ansver - metric      
       $this->cmd( $NId.";255;3;0;".I_CONFIG.";".$this->config['MS_MEASURE'] );
       break;
       
@@ -793,6 +772,31 @@ function Internal($arr){
     // @@@ 14 - GATEWAY_READY
   }
 }
+
+function RegistNewNode(&$node, $NId)
+{
+	$ms_autoid = $this->config['MS_AUTOID'];			
+	if ($ms_autoid == "0")
+		return false;
+	
+	// Next id
+	$nextid = $this->config['MS_NEXTID'];
+	
+	if ($NId >= $nextid)
+	{				
+		$this->config['MS_NEXTID']=$NId+1;
+		$this->saveConfig();
+	}
+
+	// Set new
+	$node['NID']=$NId;
+	$node['PID'] = 0;
+	$node['TITLE']=$NId;
+	$node['ID']=SQLInsert('msnodes', $node);
+	
+	return true;
+}
+
 /**
 * Install
 *
