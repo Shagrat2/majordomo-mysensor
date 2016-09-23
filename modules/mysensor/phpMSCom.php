@@ -69,7 +69,7 @@ class MySensorMasterCom extends MySensorMaster {
     $lastTime = round(microtime(true) * 1000);
     $data = "";
     while (true){
-      $c = fread($this->Serial->_dHandle, 1);
+      $c = @fread($this->Serial->_dHandle, 1);
       if ($c === false) return "";
 
       $currentMillis = round(microtime(true) * 1000);
