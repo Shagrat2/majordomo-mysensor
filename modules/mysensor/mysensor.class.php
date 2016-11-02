@@ -559,7 +559,7 @@ function cmd($str) {
   $data['SUBTYPE'] = $arr[4];
   $data['MESSAGE'] = $arr[5];
   $data['EXPIRE'] = $expire;
-	$data['SENDRX'] = $sendrx;
+  $data['SENDRX'] = $sendrx;
   SQLInsert('mssendstack', $data);
   
   //DebMes("Prepare send: ".print_r($data, true));
@@ -575,6 +575,7 @@ function req($arr){
   $NId = $arr[0];
   $SId = $arr[1];
   $mType = 1; // $arr[2];
+  $Ack = $arr[3];
   $SubType = $arr[4];
   if ($NId == "") return;
   
@@ -588,17 +589,18 @@ function req($arr){
   if (!$sens['ID']) {
     $sens['NID'] = $NId;
     $sens['SID'] = $SId;
+	$sens['ACK'] = $Ack;
     $sens['SUBTYPE'] = $SubType;
     $sens['ID']=SQLInsert('msnodeval', $sens);
   }
   
   // Req
-	$val = $sens['VAL'];
-	if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {		
+  $val = $sens['VAL'];
+  if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {		
     $val = getGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']);		
 		//echo "Get from: ".$sens['LINKED_OBJECT'].".".$sens['LINKED_PROPERTY']." = ".$val."\n";
   } 	
-	//echo "Set: ".$val."\n";
+  //echo "Set: ".$val."\n";
 	
   $this->cmd( "$NId;$SId;$mType;".$sens['ACK'].";$SubType;".$val);
   return false;
