@@ -4,7 +4,10 @@
  [#if VIEW_MODE="search_mysensors" || VIEW_MODE=""#]
   [#inc search_admin.html#]
  [#endif VIEW_MODE#]
- 
+ <!-- table bin edit -->
+ [#if VIEW_MODE="bin_edit"#]
+	[#inc edit_bin.html#]
+ [#endif VIEW_MODE#] 
  <!-- table node edit -->
  [#if VIEW_MODE="node_edit"#]
 <p align=center>

@@ -63,6 +63,22 @@
 		</select>
   </div>
 </div>
+<!-- Firmware (int) -->
+[#if !IS_SET_FIRMWARE#]
+<div class="form-group">
+ <label class="control-label"[#if ERR_FIRMWARE#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_FIRMWARE#>:
+ </label>
+<div class="controls">
+ <select name="firmware"  class="form-control input">
+  <option value="">select
+  [#begin FIRMWARE_OPTIONS#]
+    <option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
+  [#end FIRMWARE_OPTIONS#]
+ </select>
+</div>
+</div>
+[#endif IS_SET_FIRMWARE#]
 <!-- Sketch (varchar) -->
 <div class="form-group">
  <label class="control-label">Sketch:</label>
@@ -124,3 +140,11 @@
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;18;0" class="btn btn-default"><#LANG_HEARTBEAT#></a> - <#LANG_HEARTBEAT_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;19;0" class="btn btn-default"><#LANG_PRESENTATION#></a> - <#LANG_PRESENTATION_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#><br/>
+<br/>
+<div>Debug:
+ <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;28;0;F" class="btn btn-default">Frequency (mHz)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;28;0;V" class="btn btn-default">Voltage (mV)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;28;0;B" class="btn btn-default">FreeMemory (B)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;28;0;R" class="btn btn-default">Routing table</a>
+ <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;28;0;E" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">!!Clean eprom!!</a>
+</div>

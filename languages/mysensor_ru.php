@@ -31,7 +31,12 @@ $dictionary=array(
 'HEARTBEAT_INFO'=>'Проверить жив ли (ver 2.0)',
 'RESETBAT_INFO'=>'Сброс информации о батареи',
 'PRESENTATION'=>'Презентация',
-
+'SETVALUE'=>'Установить',
+'REQUEST'=>'Запросить',
+'FIRMWARE'=>'Прошивка',
+'FILE'=>'Файл',
+'DISCOVER'=>'Поиск',
+'DISCOVER_INFO'=>'Поиск узлов',
 /* end module names */
 
 );

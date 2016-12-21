@@ -38,7 +38,7 @@
    <tr>
     <td valign="top"><b><#LANG_SENSOR#></b></td>	
     <td valign="top"><b><#LANG_TYPE#></b></td>
-		<td valign="top"><b><#LANG_MORE_INFO#></b></td>
+	<td valign="top"><b><#LANG_MORE_INFO#></b></td>
     <td valign="top"><b><#LANG_UPDATED#></b></td>   
     <td valign="top"><b><#LANG_VALUE#></b></td>
 	<td valign="top">&nbsp;</td>
@@ -52,14 +52,17 @@
    <tr>
     <td valign="top" [#if SDESCR!=""#]title="[#SDESCR#]"[#endif#]><b>[#SID#]</b>[#if STITLE!=""#]<br/>[#STITLE#][#endif#]</td>
     <td valign="top" [#if SUBDESCR!=""#]title="[#SUBDESCR#]"[#endif#]>[#SUBTYPE#][#if SUBTITLE!=""#]<br/>[#SUBTITLE#][#endif#]</td>
-		<td valign="top">[#NOTE#]</td>
+	<td valign="top">[#NOTE#]</td>
     <td valign="top">[#UPDATED#]</td>
     <td valign="top">[#VAL#]</td>
-	  <td valign="top"><a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SET#></a></td>
+	<td valign="top">
+	  <a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SETVALUE#></a><br/>
+	  <a href="?data_source=&view_mode=node_edit&id=[#PID#]&tab=sensors&mode=cmd&data=[#NID#];[#SID#];2;0;[#SUBTYPE#];0"><#LANG_REQUEST#></a><br/>
+	</td>
     <td valign="top"><input type="text" name="linked_object[#ID#]" id="linked_object[#ID#]" value="[#LINKED_OBJECT#]"></td>
     <td valign="top"><input type="text" name="linked_property[#ID#]" id="linked_property[#ID#]" value="[#LINKED_PROPERTY#]">
     <td valign="top"><input type="checkbox" name="ack[#ID#]" value="1"[#if ACK="1"#] checked[#endif#]></td>
-		<td valign="top"><input type="checkbox" name="req[#ID#]" value="1"[#if REQ="1"#] checked[#endif#]></td>
+	<td valign="top"><input type="checkbox" name="req[#ID#]" value="1"[#if REQ="1"#] checked[#endif#]></td>
     [#module name="linkedobject" object_field="linked_object<#SENSORS.ID#>" property_field="linked_property<#SENSORS.ID#>"#]
     </td>  
     <td><a href="?view_mode=sensor_delete&id=[#ID#]&pid=[#PID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a></td>

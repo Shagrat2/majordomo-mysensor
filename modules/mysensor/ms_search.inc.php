@@ -1,8 +1,14 @@
 <?php
 
   global $session;
+  global $node_bins;
     
   $qry="1";
+  
+  if ($this->mode=='cmd') {
+	global $data;
+	$this->cmd($data);
+  }
   
   global $nid;
   if ($nid!='') {
@@ -61,11 +67,20 @@
     colorizeArray($res);
     $total=count($res);
     for($i=0;$i<$total;$i++) {
-      // some action for every record if required		 
-		  if ($res[$i]['DEVTYPE'] == 1)
-				$res[$i]['DEVTYPE'] = "Battery";
-			else
-				$res[$i]['DEVTYPE'] = "Power";
+		// some action for every record if required		 
+		if ($res[$i]['DEVTYPE'] == 1)
+			$res[$i]['DEVTYPE'] = "Battery";
+		else
+			$res[$i]['DEVTYPE'] = "Power";
+		
+		// Battery | Load state
+		$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE NID=".$res[$i]["NID"].";");
+		if ($rec2['state']) {
+			if ($res[$i]['BATTERY'] != ""){
+				$res[$i]['BATTERY'] .= "<br>";
+			}
+			$res[$i]['BATTERY'] .= "Write boot: ".$rec2['state'];
+		}		
     }
     $out['RESULT']=$res;
   }  

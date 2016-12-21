@@ -30,8 +30,13 @@ $dictionary=array(
 'PRESENTATION'=>'Presentation',
 'PRESENTATION_INFO'=>'Get node Presentation',
 'HEARTBEAT'=>'HeartBeat',
-'HEARTBEAT_INFO'=>'Get HeartBeat'
-
+'HEARTBEAT_INFO'=>'Get HeartBeat',
+'SETVALUE'=>'Set value',
+'REQUEST'=>'Request',
+'FIRMWARE'=>'Firmware',
+'FILE'=>'File',
+'DISCOVER'=>'Discover',
+'DISCOVER_INFO'=>'Discover nodes',
 /* end module names */
 
 );

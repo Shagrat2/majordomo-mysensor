@@ -24,26 +24,28 @@ class MySensorMasterTCP extends MySensorMaster {
   * @return bool
   */
   function connect(){
-		if($this->debug) echo date("Y-m-d H:i:s")." Connecting TCP\n";
+	if($this->debug) echo date("Y-m-d H:i:s")." Connecting TCP: '$this->host':$this->port\n";
 		
-    // TCP socket
-    $this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
-		if ($this->sock === FALSE)
-			return false;
-      
-    socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
-    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));
-		
-		socket_set_option($this->sock, SOL_SOCKET, SO_KEEPALIVE, 1);
-    
-    // Connect the socket
-    $result = @socket_connect($this->sock, $this->host, $this->port);
-    if ($result === false) {
-			  echo "socket_connect() failed. Reason: ".socket_strerror(socket_last_error($this->sock))."\n";
-				return $result;
-    } 
+	// TCP socket
+	$this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
+	if ($this->sock === FALSE)
+		return false;
+	
+	socket_set_block($this->sock);
+	
+	//socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
+	socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));		
+	socket_set_option($this->sock, SOL_SOCKET, SO_KEEPALIVE, 1);
+	
+	// Connect the socket
+	$result = @socket_connect($this->sock, $this->host, $this->port);
+	if ($result === false) {
+		echo "socket_connect() failed. Reason: ".socket_strerror(socket_last_error($this->sock))."\n";		
+		socket_close($this->sock);
+		return $result;
+	} 
         
-    if($this->debug) echo date("Y-m-d H:i:s")." Connected\n";        
+	if($this->debug) echo date("Y-m-d H:i:s")." Connected\n";        
     
     MySensorMaster::connect();
     
@@ -82,7 +84,7 @@ class MySensorMasterTCP extends MySensorMaster {
    * Send the socket
    */
   function send($nid, $sid, $mtype, $ack, $subtype, $msg, $log = true){
-    $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
+    $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";
     $ret = socket_write($this->sock, $data);
     if ($log)
       echo date("Y-m-d H:i:s")." Send: $data";

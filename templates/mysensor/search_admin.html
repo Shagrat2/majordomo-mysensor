@@ -145,13 +145,17 @@
 <br/>
 
 <ul class="nav nav-tabs">
- <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes"><#LANG_NODES#></a> </li>
- <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh"><#LANG_MESH#></a> </li> 
- <li [#if TAB=="log"#] class="active"[#endif#]><a href="?tab=log"><#LANG_GENERAL_EVENTS_LOG#></a> </li> 
+ <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes"><#LANG_NODES#></a></li>
+ <li [#if TAB=="firmware"#] class="active"[#endif#]><a href="?tab=firmware"><#LANG_FIRMWARE#></a></li>
+ <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh"><#LANG_MESH#></a></li> 
+ <li [#if TAB=="log"#] class="active"[#endif#]><a href="?tab=log"><#LANG_GENERAL_EVENTS_LOG#></a></li> 
 </ul> 
 
 [#if TAB="nodes" || TAB=""#]
   [#inc search_list.html#] 
+[#endif#] 
+[#if TAB="firmware"#]
+  [#inc search_firmware.html#] 
 [#endif#] 
 [#if TAB="mesh"#]
   [#inc search_mesh.html#] 

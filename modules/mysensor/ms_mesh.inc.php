@@ -5,7 +5,7 @@ global $session;
 function tree($a,$i,$p,$r=0,$c='children'){
   if (!is_array($a)) return false;		
   
-	// ‚нутренняя рекурсивная функция
+  // ‚нутренняя рекурсивная функция
   function tree_node($index,$root,$cn) {
     $_ret = array();
     foreach ($index[$root] as $k => $v) {

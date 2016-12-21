@@ -59,18 +59,18 @@ if ($this->mode=='update') {
     }
 
     //updating 'LOCATION_ID' (select)
-    if (IsSet($this->location_id)) {
-      $rec['LOCATION_ID']=$this->location_id;
-    } else {
-      global $location_id;
-      $rec['LOCATION_ID']=$location_id;
-    }
+	global $location_id;
+	$rec['LOCATION_ID']= '0'.$location_id;
 		
-		// Dev type
-		global $devtype;
-		$rec['DEVTYPE'] = $devtype;		
+	// Dev type
+	global $devtype;
+	$rec['DEVTYPE'] = $devtype;
+	
+	// FIRMWARE
+	global $firmware;
+	$rec['FIRMWARE'] = '0'.$firmware;
 
-		// Battery
+	// Battery
     $old_bat_object=$rec['BAT_OBJECT'];
     $old_bat_property=$rec['BAT_PROPERTY'];
 
@@ -80,15 +80,15 @@ if ($this->mode=='update') {
     global $bat_property;
     $rec['BAT_PROPERTY']=$bat_property;
 		
-		// Heartbeat
-		$old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
+	// Heartbeat
+	$old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
     $old_heartbeat_property=$rec['HEARTBEAT_PROPERTY'];
 
     global $heartbeat_object;
-    $rec['HEARTBEAT_OBJECT']=$heartbeat_object;
+    $rec['HEARTBEAT_OBJECT']="".$heartbeat_object;
 
     global $heartbeat_property;
-    $rec['HEARTBEAT_PROPERTY']=$heartbeat_property;
+    $rec['HEARTBEAT_PROPERTY']="".$heartbeat_property;
 
     //UPDATING RECORD
     if ($ok) {
@@ -99,7 +99,7 @@ if ($this->mode=='update') {
         $rec['ID']=SQLInsert($table_name, $rec); // adding new record
       }
 
-			// Battery
+	  // Battery
       if ($rec['BAT_OBJECT'] && $rec['BAT_PROPERTY']) {
         addLinkedProperty($rec['BAT_OBJECT'], $rec['BAT_PROPERTY'], $this->name);
       }
@@ -107,8 +107,8 @@ if ($this->mode=='update') {
         removeLinkedProperty($old_bat_object, $old_bat_property, $this->name);
       }
 			
-			// Hearbeat
-			if ($rec['HEARTBEAT_OBJECT'] && $rec['HEARTBEAT_PROPERTY']) {
+	  // Hearbeat
+	  if ($rec['HEARTBEAT_OBJECT'] && $rec['HEARTBEAT_PROPERTY']) {
         addLinkedProperty($rec['HEARTBEAT_OBJECT'], $rec['HEARTBEAT_PROPERTY'], $this->name);
       }
       if ($old_heartbeat_object && $old_heartbeat_property && ($old_heartbeat_object!=$rec['HEARTBEAT_OBJECT'] || $old_heartbeat_property!=$rec['HEARTBEAT_PROPERTY'])) {
@@ -220,11 +220,24 @@ if ($this->tab == ""){
     if ($rec['LOCATION_ID']==$tmp[$i]['ID']) $tmp[$i]['SELECTED']=1;
   }
   $out['LOCATION_ID_OPTIONS']=$tmp;
+  
+  //options for 'FIRMWARE_ID' (select)
+  $tmp=SQLSelect("SELECT ID, TITLE FROM msbins ORDER BY TITLE");
+  $firmware_total=count($tmp);
+  for($firmware_i=0;$firmware_i<$firmware_total;$firmware_i++) {
+    $firmware_id_opt[$tmp[$firmware_i]['ID']]=$tmp[$firmware_i]['TITLE'];
+  }
+  for($i=0;$i<count($tmp);$i++) {
+    if ($rec['FIRMWARE']==$tmp[$i]['ID']) $tmp[$i]['SELECTED']=1;
+  }
+  $out['FIRMWARE_OPTIONS']=$tmp;
+  
+  // Parse
   if (is_array($rec)) {
     foreach($rec as $k=>$v) {
-    if (!is_array($v)) {
-      $rec[$k]=htmlspecialchars($v);
-    }
+      if (!is_array($v)) {
+        $rec[$k]=htmlspecialchars($v);
+      }
     }
   }
   
