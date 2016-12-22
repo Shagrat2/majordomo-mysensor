@@ -75,10 +75,10 @@ if ($this->mode=='update') {
     $old_bat_property=$rec['BAT_PROPERTY'];
 
     global $bat_object;
-    $rec['BAT_OBJECT']=$bat_object;
+    $rec['BAT_OBJECT']="".$bat_object;
 
     global $bat_property;
-    $rec['BAT_PROPERTY']=$bat_property;
+    $rec['BAT_PROPERTY']="".$bat_property;
 		
 	// Heartbeat
 	$old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
