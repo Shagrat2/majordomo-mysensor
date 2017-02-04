@@ -1,6 +1,8 @@
 <?php
 
 require("phpMS.php");
+include_once("intelhex.php");
+include_once("crc16.php");
 
 $table_name='msbins';
 $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
@@ -26,6 +28,25 @@ if ($this->mode=='update') {
 	if ($bin != "") {
 		$rec['BIN']=LoadFile($bin);
 	}
+	
+	//=== Test bin
+	$parser = new IntelHex();
+	if (!$parser->Parse($rec['BIN'])) {
+		$ok=0;
+		$out['ERR_FILE']=1;		
+	}
+	if ($parser->FirstAddr != 0){
+		$ok=0;
+		$out['ERR_FILE']=1;
+	}
+	$parser->NormalizePage(16);
+
+	// Make CRC15
+	$crc = crc16($parser->Data);
+
+	// Sent to cashed
+	$rec['CRC'] = bin2hex($crc);
+	$rec['BLOKS'] = strlen($parser->Data)/16;	
 	
 	if ($ok) { 
 		if ($rec['ID']) { 

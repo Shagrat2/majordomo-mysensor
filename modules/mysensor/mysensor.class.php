@@ -565,9 +565,7 @@ class mysensor extends module {
 		if ($sens ['LINKED_OBJECT'] && $sens ['LINKED_PROPERTY']) {
 			// echo date("Y-m-d H:i:s")." Start set\n";
 			// echo "Set ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$val."\n";
-			setGlobal ( $sens ['LINKED_OBJECT'] . '.' . $sens ['LINKED_PROPERTY'], $val, array (
-					$this->name => '0' 
-			) );
+			setGlobal ( $sens ['LINKED_OBJECT'] . '.' . $sens ['LINKED_PROPERTY'], $val, array($this->name => '0') );
 			// echo date("Y-m-d H:i:s")." End set\n";
 		}
 	}
@@ -715,9 +713,7 @@ class mysensor extends module {
 					SQLUpdate ( 'msnodes', $node );
 					
 					if ($node ['BAT_OBJECT'] && $node ['BAT_PROPERTY']) {
-						setGlobal ( $node ['BAT_OBJECT'] . '.' . $node ['BAT_PROPERTY'], $val, array (
-								$this->name => '0' 
-						) );
+						setGlobal ( $node ['BAT_OBJECT'] . '.' . $node ['BAT_PROPERTY'], $val, array($this->name => '0') );
 					}
 				}
 				break;
@@ -828,9 +824,7 @@ class mysensor extends module {
 					SQLUpdate ( 'msnodes', $node );
 					
 					if ($node ['HEARTBEAT_OBJECT'] && $node ['HEARTBEAT_PROPERTY']) {
-						setGlobal ( $node ['HEARTBEAT_OBJECT'] . '.' . $node ['HEARTBEAT_PROPERTY'], $val, array (
-								$this->name => '0' 
-						) );
+						setGlobal ( $node ['HEARTBEAT_OBJECT'] . '.' . $node ['HEARTBEAT_PROPERTY'], $val, array($this->name => '0') );
 					}
 				}
 				break;
@@ -1013,13 +1007,13 @@ class mysensor extends module {
 		}
 		  
 		if ($expire){
-			echo date ( "Y-m-d H:i:s" )."Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s")."\n";
+			echo date ( "Y-m-d H:i:s" )." Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s")."\n";
 
 			$sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
 			if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
-				echo "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']."\n";
+				echo date( "Y-m-d H:i:s" )." Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']."\n";
 				// Rollback value if not comin
-				setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($ms->name=>'0'));
+				setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($this->name => '0'));
 			}
 			
 			return;
@@ -1145,8 +1139,10 @@ class mysensor extends module {
 	
 	msbins: ID int(10) unsigned NOT NULL auto_increment
 	msbins: TITLE varchar(255) NOT NULL DEFAULT ''
-	msbins: VER int(10) NOT NULL DEFAULT 0  
-	msbins: BIN BLOB	
+	msbins: VER int(10) NOT NULL DEFAULT 0
+	msbins: BIN BLOB
+	msbins: CRC char(4)
+	msbins: BLOKS int(10) NOT NULL DEFAULT 0
 EOD;
 		parent::dbInstall ( $data );
 	}

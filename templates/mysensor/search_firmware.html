@@ -28,6 +28,8 @@
  [#if SORTBY="TITLE DESC"#](-)[#endif#]</nobr> 
  </th>
  <th><#LANG_VERSION#></th>
+ <th>CRC16</th>
+ <th>Bloks</th>
  <th>&nbsp;</th>
 </tr>
 </thead>
@@ -42,6 +44,8 @@
 [#endif#]
 </a></td>
 <td>[#VER#]</td>
+<td>[#CRC#]</td>
+<td>[#BLOKS#]</td>
 <td width="1%" nowrap>
 [#if "<#ACTION#>"=="admin"#]
 	<a href="?view_mode=bin_edit&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>

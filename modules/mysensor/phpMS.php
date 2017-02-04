@@ -10,7 +10,7 @@ $mysensor_presentation = array(
   0 => Array("S_DOOR",              "Door and window sensors",                              'V_TRIPPED, V_ARMED'),
   1 => Array("S_MOTION",            "Motion sensors",                                       'V_TRIPPED, V_ARMED'),
   2 => Array("S_SMOKE",             "Smoke sensor",                                         'V_TRIPPED, V_ARMED'),
-  3 => Array("S_LIGHT",             "Light Actuator (on/off)",                              'V_STATUS (or V_LIGHT), V_WATT'),
+  3 => Array("S_BINARY",            "Binary device (on/off)",                               'V_STATUS (or V_LIGHT), V_WATT'),
   4 => Array("S_DIMMER",            "Dimmable device of some kind",                         'V_STATUS (on/off), V_DIMMER (dimmer level 0-100), V_WATT'),
   5 => Array("S_COVER",             "Window covers or shades",                              'V_UP, V_DOWN, V_STOP, V_PERCENTAGE'),
   6 => Array("S_TEMP",              "Temperature sensor",                                   'V_TEMP, V_ID'),
@@ -45,13 +45,15 @@ $mysensor_presentation = array(
   35 => Array("S_MOISTURE",         "Moisture sensor",                                      'V_LEVEL (water content or moisture in percentage?), V_TRIPPED, V_ARMED'),
   36 => Array("S_INFO",             "LCD text device",                                      'V_TEXT'),
   37 => Array("S_GAS",              "Gas meter",                                      	    'V_FLOW, V_VOLUME'),
+  38 => Array("S_GPS",				"GPS Sensor",											'V_POSITION'),
+  39 => Array("S_WATER_QUALITY",	"Water quality sensor",									'V_TEMP, V_PH, V_ORP, V_EC, V_STATUS'),
 ); 
 
 $mysensor_property = array(
   0 => Array("V_TEMP", "Temperature"),
   1 => Array("V_HUM", "Humidity"),
-  2 => Array("V_LIGHT", "Light status. 0=off 1=on"),
-  3 => Array("V_DIMMER", "Dimmer value. 0-100%"),
+  2 => Array("V_STATUS", "Binary status. 0=off 1=on"),
+  3 => Array("V_PERCENTAGE", "Percentage value. 0-100 (%)"),
   4 => Array("V_PRESSURE", "Atmospheric Pressure"),
   5 => Array("V_FORECAST", "Whether forecast. One of \"stable\", \"sunny\", \"cloudy\", \"unstable\", \"thunderstorm\" or \"unknown\""),
   6 => Array("V_RAIN", "Amount of rain"),
@@ -96,6 +98,15 @@ $mysensor_property = array(
   45 => Array("V_HVAC_SETPOINT_HEAT", 'HVAC/Heater setpoint (Integer between 0-100)'),
   46 => Array("V_HVAC_FLOW_MODE", 'Flow mode for HVAC ("Auto", "ContinuousOn", "PeriodicOn")'),
   47 => Array("V_TEXT", 'S_INFO. Text message to display on LCD or controller device'),
+  48 => Array("V_CUSTOM", 'Custom messages used for controller/inter node specific commands, preferably using S_CUSTOM device type.'),
+  49 => Array("V_POSITION", 'GPS position and altitude. Payload: latitude;longitude;altitude(m). E.g. "55.722526;13.017972;18"'),
+  50 => Array("V_IR_RECORD", 'Record IR codes S_IR for playback'),
+  51 => Array("V_PH", 'Water PH'),
+  52 => Array("V_ORP", 'Water ORP : redox potential in mV'),
+  53 => Array("V_EC", 'Water electric conductivity μS/cm (microSiemens/cm)'),
+  54 => Array("V_VAR", 'Reactive power: volt-ampere reactive (var)'),
+  55 => Array("V_VA", 'Apparent power: volt-ampere (VA)'),
+  56 => Array("V_POWER_FACTOR", 'Ratio of real power to apparent power: floating point value in the range [-1,..,1]'),
 );
 
 const 	I_BATTERY_LEVEL				= 0;	// Battery level
