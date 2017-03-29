@@ -958,8 +958,9 @@ class mysensor extends module {
 				$CType = substr( $val, 0, 4 );
 				$CVer = substr( $val, 4, 4 );
 				$CBlok = substr( $val, 8, 4 );
-				$DBlock = unpack("S", hex2bin($CBlok)[1]);
-				$BlockP = $DBlock*16;
+				
+				$Data2 = hex2bin(hex2bin($CBlok));
+				$BlockP = unpack("S", $Data2[1])*16;
 
 				// Test version
 				if ($CVer != "0100"){
