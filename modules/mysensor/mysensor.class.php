@@ -262,7 +262,10 @@ class mysensor extends module {
 				$this->config['MS_MEASURE'] = $ms_measure;
 				$this->config['MS_AUTOID'] = $ms_autoid;
 				$this->config['MS_NEXTID'] = $ms_nextid;
-				$this->saveConfig ();
+				$this->saveConfig ();				
+				
+				setGlobal('cycle_mysensorControl', 'restart');
+				
 				$this->redirect( "?" );
 			}
 			
