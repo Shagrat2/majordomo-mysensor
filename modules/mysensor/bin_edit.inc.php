@@ -2,7 +2,7 @@
 
 require("phpMS.php");
 include_once("intelhex.php");
-include_once("crc16.php");
+include_once("crcs.php");
 
 $table_name='msbins';
 $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
@@ -41,12 +41,16 @@ if ($this->mode=='update') {
 	}
 	$parser->NormalizePage(16);
 
-	// Make CRC15
+	// Make CRC MySensors
 	$crc = crc16($parser->Data);
+	
+	// Make CRC_OptiBoot	
+	//$crc = crcA001($parser->Data);
+	//DebMes("CRC: ".$crc);
 
 	// Sent to cashed
 	$rec['CRC'] = bin2hex($crc);
-	$rec['BLOKS'] = strlen($parser->Data)/16;	
+	$rec['BLOKS'] =  bin2hex( pack("S", strlen($parser->Data)/16) );
 	
 	if ($ok) { 
 		if ($rec['ID']) { 

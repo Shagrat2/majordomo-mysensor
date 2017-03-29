@@ -7,11 +7,11 @@
  * @package project
  * @author Ivan Z. <ivan@jad.ru>
  * @copyright http://www.pstd.ru/ (c)
- * @version 0.1 (wizard, 9:33 [Jul 08, 2015])
+ * @version 0.1 (wizard, 9:33[Jul 08, 2015])
  */
 
 include_once("intelhex.php");
-include_once("crc16.php");
+include_once("crcs.php");
  
 class mysensor extends module {
 	public $tryTimeout = 2; // 2 second
@@ -45,22 +45,22 @@ class mysensor extends module {
 	 */
 	function saveParams($data = 1) {
 		$p = array ();
-		if (IsSet ( $this->id )) {
-			$p ["id"] = $this->id;
+		if (IsSet( $this->id )) {
+			$p["id"] = $this->id;
 		}
-		if (IsSet ( $this->view_mode )) {
-			$p ["view_mode"] = $this->view_mode;
+		if (IsSet( $this->view_mode )) {
+			$p["view_mode"] = $this->view_mode;
 		}
-		if (IsSet ( $this->edit_mode )) {
-			$p ["edit_mode"] = $this->edit_mode;
+		if (IsSet( $this->edit_mode )) {
+			$p["edit_mode"] = $this->edit_mode;
 		}
-		if (IsSet ( $this->data_souce )) {
-			$p ["data_source"] = $this->data_source;
+		if (IsSet( $this->data_souce )) {
+			$p["data_source"] = $this->data_source;
 		}
-		if (IsSet ( $this->tab )) {
-			$p ["tab"] = $this->tab;
+		if (IsSet( $this->tab )) {
+			$p["tab"] = $this->tab;
 		}
-		return parent::saveParams ( $p );
+		return parent::saveParams( $p );
 	}
 	/**
 	 * getParams
@@ -77,22 +77,22 @@ class mysensor extends module {
 		global $edit_mode;
 		global $data_source;
 		global $tab;
-		if (isset ( $id )) {
+		if (isset( $id )) {
 			$this->id = $id;
 		}
-		if (isset ( $mode )) {
+		if (isset( $mode )) {
 			$this->mode = $mode;
 		}
-		if (isset ( $view_mode )) {
+		if (isset( $view_mode )) {
 			$this->view_mode = $view_mode;
 		}
-		if (isset ( $edit_mode )) {
+		if (isset( $edit_mode )) {
 			$this->edit_mode = $edit_mode;
 		}
-		if (isset ( $data_source )) {
+		if (isset( $data_source )) {
 			$this->data_source = $data_source;
 		}
-		if (isset ( $tab )) {
+		if (isset( $tab )) {
 			$this->tab = $tab;
 		}
 	}
@@ -109,27 +109,27 @@ class mysensor extends module {
 		
 		$out = array ();
 		if ($this->action == 'admin') {
-			$this->admin ( $out );
+			$this->admin( $out );
 		} else {
-			$this->usual ( $out );
+			$this->usual( $out );
 		}
-		if (IsSet ( $this->owner->action )) {
-			$out ['PARENT_ACTION'] = $this->owner->action;
+		if (IsSet( $this->owner->action )) {
+			$out['PARENT_ACTION'] = $this->owner->action;
 		}
-		if (IsSet ( $this->owner->name )) {
-			$out ['PARENT_NAME'] = $this->owner->name;
+		if (IsSet( $this->owner->name )) {
+			$out['PARENT_NAME'] = $this->owner->name;
 		}
-		$out ['VIEW_MODE'] = $this->view_mode;
-		$out ['EDIT_MODE'] = $this->edit_mode;
-		$out ['MODE'] = $this->mode;
-		$out ['ACTION'] = $this->action;
-		$out ['DATA_SOURCE'] = $this->data_source;
-		$out ['TAB'] = $this->tab;
+		$out['VIEW_MODE'] = $this->view_mode;
+		$out['EDIT_MODE'] = $this->edit_mode;
+		$out['MODE'] = $this->mode;
+		$out['ACTION'] = $this->action;
+		$out['DATA_SOURCE'] = $this->data_source;
+		$out['TAB'] = $this->tab;
 		if ($this->single_rec) {
-			$out ['SINGLE_REC'] = 1;
+			$out['SINGLE_REC'] = 1;
 		}
 		$this->data = $out;
-		$p = new parser ( DIR_TEMPLATES . $this->name . "/" . $this->name . ".html", $this->data, $this );
+		$p = new parser( DIR_TEMPLATES . $this->name . "/" . $this->name . ".html", $this->data, $this );
 		$this->result = $p->result;
 	}
 	/**
@@ -146,12 +146,12 @@ class mysensor extends module {
 		global $atype;
 		
 		if ($ajax) {
-			header ( "HTTP/1.0: 200 OK\n" );
-			header ( 'Content-Type: text/html; charset=utf-8' );
+			header( "HTTP/1.0: 200 OK\n" );
+			header( 'Content-Type: text/html; charset=utf-8' );
 			
 			if ($atype == "incmode") {
 				$this->getConfig ();
-				echo $this->config ['MS_INCLUSION_MODE'];
+				echo $this->config['MS_INCLUSION_MODE'];
 				exit ();
 			}
 			
@@ -159,31 +159,31 @@ class mysensor extends module {
 			
 			// Find last midifed
 			$filename = ROOT . 'debmes/log_*-cycle_mysensor.php.txt';
-			foreach ( glob ( $filename ) as $file ) {
-				$LastModified [] = filemtime ( $file );
-				$FileName [] = $file;
+			foreach( glob( $filename ) as $file ) {
+				$LastModified[] = filemtime( $file );
+				$FileName[] = $file;
 			}
-			$files = array_multisort ( $LastModified, SORT_NUMERIC, SORT_ASC, $FileName );
-			$lastIndex = count ( $LastModified ) - 1;
+			$files = array_multisort( $LastModified, SORT_NUMERIC, SORT_ASC, $FileName );
+			$lastIndex = count( $LastModified ) - 1;
 			
 			// Open file
-			$data = LoadFile ( $FileName [$lastIndex] );
+			$data = LoadFile( $FileName[$lastIndex] );
 			
-			$lines = explode ( "\n", $data );
-			$lines = array_reverse ( $lines );
+			$lines = explode( "\n", $data );
+			$lines = array_reverse( $lines );
 			$res_lines = array ();
-			$total = count ( $lines );
+			$total = count( $lines );
 			$added = 0;
 			for($i = 0; $i < $total; $i ++) {
-				if (trim ( $lines [$i] ) == '') {
+				if (trim( $lines[$i] ) == '') {
 					continue;
 				}
 				
-				if ($filter && preg_match ( '/' . preg_quote ( $filter ) . '/is', $lines [$i] )) {
-					$res_lines [] = $lines [$i];
+				if ($filter && preg_match( '/' . preg_quote( $filter ) . '/is', $lines[$i] )) {
+					$res_lines[] = $lines[$i];
 					$added ++;
 				} elseif (! $filter) {
-					$res_lines [] = $lines [$i];
+					$res_lines[] = $lines[$i];
 					$added ++;
 				}
 				
@@ -192,56 +192,56 @@ class mysensor extends module {
 				}
 			}
 			
-			echo implode ( "<br/>", $res_lines );
+			echo implode( "<br/>", $res_lines );
 			exit ();
 		}
-		if (isset ( $this->data_source ) && ! $_GET ['data_source'] && ! $_POST ['data_source']) {
-			$out ['SET_DATASOURCE'] = 1;
+		if (isset( $this->data_source ) && ! $_GET['data_source'] && ! $_POST['data_source']) {
+			$out['SET_DATASOURCE'] = 1;
 		}
 		
 		$this->getConfig ();
-		$out ['MS_CONTYPE'] = $this->config ['MS_CONTYPE'];
-		$out ['MS_HOST'] = $this->config ['MS_HOST'];
-		$out ['MS_PORT'] = $this->config ['MS_PORT'];
-		$out ['MS_SERIAL'] = $this->config ['MS_SERIAL'];
-		$out ['MS_MEASURE'] = $this->config ['MS_MEASURE'];
-		$out ['MS_AUTOID'] = $this->config ['MS_AUTOID'];
-		$out ['MS_NEXTID'] = $this->config ['MS_NEXTID'];
-		$out ['MS_INCLUSION_MODE'] = $this->config ['MS_INCLUSION_MODE'];
+		$out['MS_CONTYPE'] = $this->config['MS_CONTYPE'];
+		$out['MS_HOST'] = $this->config['MS_HOST'];
+		$out['MS_PORT'] = $this->config['MS_PORT'];
+		$out['MS_SERIAL'] = $this->config['MS_SERIAL'];
+		$out['MS_MEASURE'] = $this->config['MS_MEASURE'];
+		$out['MS_AUTOID'] = $this->config['MS_AUTOID'];
+		$out['MS_NEXTID'] = $this->config['MS_NEXTID'];
+		$out['MS_INCLUSION_MODE'] = $this->config['MS_INCLUSION_MODE'];
 		
-		if ($out ['MS_CONTYPE'] == "") {
-			$out ['MS_CONTYPE'] = 0;
-			$this->config ['MS_CONTYPE'] = $out ['MS_CONTYPE'];
+		if ($out['MS_CONTYPE'] == "") {
+			$out['MS_CONTYPE'] = 0;
+			$this->config['MS_CONTYPE'] = $out['MS_CONTYPE'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_HOST'] == "") {
-			$out ['MS_HOST'] = '10.9.0.253';
-			$this->config ['MS_HOST'] = $out ['MS_HOST'];
+		if ($out['MS_HOST'] == "") {
+			$out['MS_HOST'] = '10.9.0.253';
+			$this->config['MS_HOST'] = $out['MS_HOST'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_PORT'] == "") {
-			$out ['MS_PORT'] = '5003';
-			$this->config ['MS_PORT'] = $out ['MS_PORT'];
+		if ($out['MS_PORT'] == "") {
+			$out['MS_PORT'] = '5003';
+			$this->config['MS_PORT'] = $out['MS_PORT'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_SERIAL'] == "") {
-			$out ['MS_SERIAL'] = '/dev/ttyMySensorsGateway';
-			$this->config ['MS_SERIAL'] = $out ['MS_SERIAL'];
+		if ($out['MS_SERIAL'] == "") {
+			$out['MS_SERIAL'] = '/dev/ttyMySensorsGateway';
+			$this->config['MS_SERIAL'] = $out['MS_SERIAL'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_MEASURE'] == "") {
-			$out ['MS_MEASURE'] = 'M';
-			$this->config ['MS_MEASURE'] = $out ['MS_MEASURE'];
+		if ($out['MS_MEASURE'] == "") {
+			$out['MS_MEASURE'] = 'M';
+			$this->config['MS_MEASURE'] = $out['MS_MEASURE'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_AUTOID'] == "") {
-			$out ['MS_AUTOID'] = 1;
-			$this->config ['MS_AUTOID'] = $out ['MS_AUTOID'];
+		if ($out['MS_AUTOID'] == "") {
+			$out['MS_AUTOID'] = 1;
+			$this->config['MS_AUTOID'] = $out['MS_AUTOID'];
 			$this->saveConfig ();
 		}
-		if ($out ['MS_NEXTID'] == "") {
-			$out ['MS_NEXTID'] = 10;
-			$this->config ['MS_NEXTID'] = $out ['MS_NEXTID'];
+		if ($out['MS_NEXTID'] == "") {
+			$out['MS_NEXTID'] = 10;
+			$this->config['MS_NEXTID'] = $out['MS_NEXTID'];
 			$this->saveConfig ();
 		}
 		
@@ -255,30 +255,30 @@ class mysensor extends module {
 				global $ms_autoid;
 				global $ms_nextid;
 				
-				$this->config ['MS_CONTYPE'] = $ms_contype;
-				$this->config ['MS_HOST'] = $ms_host;
-				$this->config ['MS_PORT'] = ( int ) $ms_port;
-				$this->config ['MS_SERIAL'] = $ms_serial;
-				$this->config ['MS_MEASURE'] = $ms_measure;
-				$this->config ['MS_AUTOID'] = $ms_autoid;
-				$this->config ['MS_NEXTID'] = $ms_nextid;
+				$this->config['MS_CONTYPE'] = $ms_contype;
+				$this->config['MS_HOST'] = $ms_host;
+				$this->config['MS_PORT'] = ( int ) $ms_port;
+				$this->config['MS_SERIAL'] = $ms_serial;
+				$this->config['MS_MEASURE'] = $ms_measure;
+				$this->config['MS_AUTOID'] = $ms_autoid;
+				$this->config['MS_NEXTID'] = $ms_nextid;
 				$this->saveConfig ();
-				$this->redirect ( "?" );
+				$this->redirect( "?" );
 			}
 			
 			if ($this->view_mode == '' || $this->view_mode == 'search_ms') {
 				if ($this->tab == 'firmware') {
-					$this->search_bins ( $out );
+					$this->search_bins( $out );
 				} else if ($this->tab == 'mesh') {
-					$this->search_mesh ( $out );
+					$this->search_mesh( $out );
 				} else if ($this->tab == 'log') {
-					$this->search_log ( $out );
+					$this->search_log( $out );
 				} else {
-					$this->search_ms ( $out );
+					$this->search_ms( $out );
 				}
 			}
 			if ($this->view_mode == 'node_edit') {
-				$this->edit_ms ( $out, $this->id );
+				$this->edit_ms( $out, $this->id );
 			}
 			if ($this->view_mode == 'inc_mode') {
 				$NId = 0;
@@ -287,39 +287,39 @@ class mysensor extends module {
 				$ack = 0;
 				$SubType = 5;
 				
-				if ($this->config ['MS_INCLUSION_MODE'] == 0)
+				if ($this->config['MS_INCLUSION_MODE'] == 0)
 					$val = 1;
 				else
 					$val = 0;
-				$this->config ['MS_INCLUSION_MODE'] = $val;
+				$this->config['MS_INCLUSION_MODE'] = $val;
 				$this->saveConfig ();
 				
-				$this->cmd ( "$NId;$SId;$mType;$ack;$SubType;" . $val );
-				$this->redirect ( "?" );
+				$this->cmd( "$NId;$SId;$mType;$ack;$SubType;" . $val );
+				$this->redirect( "?" );
 			}
 			if ($this->view_mode == 'node_delete') {
-				$this->delete_ms ( $this->id );
-				$this->redirect ( "?" );
+				$this->delete_ms( $this->id );
+				$this->redirect( "?" );
 			}
 			if ($this->view_mode == 'bin_edit') {
-				$this->edit_bin ( $out, $this->id );
+				$this->edit_bin( $out, $this->id );
 			}
 			if ($this->view_mode == 'bin_delete') {
-				$this->delete_bin ( $this->id );
-				$this->redirect ( "?data_source=$this->data_source&tab=firmware" );
+				$this->delete_bin( $this->id );
+				$this->redirect( "?data_source=$this->data_source&tab=firmware" );
 			}
 			if ($this->view_mode == 'sensor_add') {
-				$this->add_sensor ( $out, $this->id );
+				$this->add_sensor( $out, $this->id );
 			}
 			if ($this->view_mode == 'sensor_delete') {
-				$this->delete_sensor ( $this->id );
+				$this->delete_sensor( $this->id );
 				
 				global $pid;
-				$this->redirect ( "?data_source=$this->data_source&view_mode=node_edit&id=$pid&tab=sensors" );
+				$this->redirect( "?data_source=$this->data_source&view_mode=node_edit&id=$pid&tab=sensors" );
 			}
 			if ($this->view_mode == 'presentation_clean') {
-				$this->clean_presentation ( $this->id );
-				$this->redirect ( "?data_source=$this->data_source&view_mode=node_edit&id=$this->id&tab=presentation" );
+				$this->clean_presentation( $this->id );
+				$this->redirect( "?data_source=$this->data_source&view_mode=node_edit&id=$this->id&tab=presentation" );
 			}
 		}
 	}
@@ -332,7 +332,7 @@ class mysensor extends module {
 	 *        
 	 */
 	function usual(&$out) {
-		$this->admin ( $out );
+		$this->admin( $out );
 	}
 	/**
 	 * Search nodes
@@ -395,11 +395,11 @@ class mysensor extends module {
 	 *        
 	 */
 	function delete_ms($id) {
-		$rec = SQLSelectOne ( "SELECT * FROM msnodes WHERE ID='$id'" );
+		$rec = SQLSelectOne( "SELECT * FROM msnodes WHERE ID='$id'" );
 		// some action for related tables
-		SQLExec ( "DELETE FROM msnodesens WHERE NID='" . $rec ['NID'] . "'" );
-		SQLExec ( "DELETE FROM msnodeval WHERE NID='" . $rec ['NID'] . "'" );
-		SQLExec ( "DELETE FROM msnodes WHERE ID='" . $rec ['ID'] . "'" );
+		SQLExec( "DELETE FROM msnodesens WHERE NID='" . $rec['NID'] . "'" );
+		SQLExec( "DELETE FROM msnodeval WHERE NID='" . $rec['NID'] . "'" );
+		SQLExec( "DELETE FROM msnodes WHERE ID='" . $rec['ID'] . "'" );
 	}
 	/**
 	 * Edit/add
@@ -417,9 +417,9 @@ class mysensor extends module {
 	 *        
 	 */
 	function delete_bin($id) {
-		$rec = SQLSelectOne ( "SELECT * FROM msbins WHERE ID='$id'" );
+		$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID='$id'" );
 		// some action for related tables
-		SQLExec ( "DELETE FROM msbins WHERE ID='" . $rec ['ID'] . "'" );
+		SQLExec( "DELETE FROM msbins WHERE ID='" . $rec['ID'] . "'" );
 	}
 	/**
 	 * Add sensor
@@ -437,9 +437,9 @@ class mysensor extends module {
 	 *        
 	 */
 	function delete_sensor($id) {
-		$rec = SQLSelectOne ( "SELECT * FROM msnodeval WHERE ID='$id'" );
+		$rec = SQLSelectOne( "SELECT * FROM msnodeval WHERE ID='$id'" );
 		// some action for related tables
-		SQLExec ( "DELETE FROM msnodeval WHERE ID='" . $rec ['ID'] . "'" );
+		SQLExec( "DELETE FROM msnodeval WHERE ID='" . $rec['ID'] . "'" );
 	}
 	/**
 	 * Handle property object
@@ -448,11 +448,11 @@ class mysensor extends module {
 	 *        
 	 */
 	function propertySetHandle($object, $property, $value) {
-		$properties = SQLSelect ( "SELECT ID FROM msnodeval WHERE LINKED_OBJECT LIKE '" . DBSafe ( $object ) . "' AND LINKED_PROPERTY LIKE '" . DBSafe ( $property ) . "'" );
-		$total = count ( $properties );
+		$properties = SQLSelect( "SELECT ID FROM msnodeval WHERE LINKED_OBJECT LIKE '" . DBSafe( $object ) . "' AND LINKED_PROPERTY LIKE '" . DBSafe( $property ) . "'" );
+		$total = count( $properties );
 		if ($total) {
 			for($i = 0; $i < $total; $i ++) {
-				$this->setProperty ( $properties [$i] ['ID'], $value );
+				$this->setProperty( $properties[$i]['ID'], $value );
 			}
 		}
 	}
@@ -465,7 +465,7 @@ class mysensor extends module {
 	function clean_presentation($id) {
 		global $nid;
 		
-		SQLExec ( "DELETE FROM msnodesens WHERE NID='" . $nid . "'" );
+		SQLExec( "DELETE FROM msnodesens WHERE NID='" . $nid . "'" );
 	}
 	/**
 	 * Receive Presentation
@@ -475,42 +475,42 @@ class mysensor extends module {
 	 */
 	function Presentation($arr) {
 		// Node
-		$NId = $arr [0];
+		$NId = $arr[0];
 		if ($NId == "") return;
 		
-		$SId = $arr [1];		
-		$SubType = $arr [4];
-		$info = $arr [5];
+		$SId = $arr[1];		
+		$SubType = $arr[4];
+		$info = $arr[5];
 		
 		// Log
-		$Ack = $arr [3];
+		$Ack = $arr[3];
 		echo date("Y-m-d H:i:s")." Presentation: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$info\n";
 		
-		$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';" );
-		if (! $node ['ID'])
-			if (! $this->RegistNewNode ( $node, $NId ))
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';" );
+		if (! $node['ID'])
+			if (! $this->RegistNewNode( $node, $NId ))
 				return;
 			
 			// Arduino Node
 		if ($SId == 255) {
-			$node ['PROT'] = $arr [5];
+			$node['PROT'] = $arr[5];
 			
-			if ($node ['LASTREBOOT'] == 0)
-				$node ['LASTREBOOT'] = date ( 'Y-m-d H:i:s' );
+			if ($node['LASTREBOOT'] == 0)
+				$node['LASTREBOOT'] = date( 'Y-m-d H:i:s' );
 			
-			SQLUpdate ( 'msnodes', $node );
+			SQLUpdate( 'msnodes', $node );
 		} else {
 			// Sensor
-			$sens = SQLSelectOne ( "SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
-			if (! $sens ['ID']) {
-				$sens ['NID'] = $NId;
-				$sens ['SID'] = $SId;
-				$sens ['SUBTYPE'] = $SubType;
-				$sens ['INFO'] = $info;
-				$sens ['ID'] = SQLInsert ( 'msnodesens', $sens );
+			$sens = SQLSelectOne( "SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+			if (! $sens['ID']) {
+				$sens['NID'] = $NId;
+				$sens['SID'] = $SId;
+				$sens['SUBTYPE'] = $SubType;
+				$sens['INFO'] = $info;
+				$sens['ID'] = SQLInsert( 'msnodesens', $sens );
 			} else {
-				$sens ['INFO'] = $info;
-				SQLUpdate ( 'msnodesens', $sens );
+				$sens['INFO'] = $info;
+				SQLUpdate( 'msnodesens', $sens );
 			}
 		}
 	}
@@ -522,50 +522,50 @@ class mysensor extends module {
 	 */
 	function Set($arr) {
 		// Node
-		$NId = $arr [0];
-		$SId = $arr [1];
-		$SubType = $arr [4];
-		$val = $arr [5];
+		$NId = $arr[0];
+		$SId = $arr[1];
+		$SubType = $arr[4];
+		$val = $arr[5];
 		if ($NId == "")	return;
 		
 		// Log
 		$Ack = $arr[3];
 		echo date("Y-m-d H:i:s")." Set: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$val\n";
 		
-		$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
-		if (! $node ['ID'])
-			if (! $this->RegistNewNode ( $node, $NId ))
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		if (! $node['ID'])
+			if (! $this->RegistNewNode( $node, $NId ))
 				return;
 			
 			// Sensor
-		$sens = SQLSelectOne ( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
-		if (! $sens ['ID']) {
-			$sens ['NID'] = $NId;
-			$sens ['SID'] = $SId;
-			$sens ['SUBTYPE'] = $SubType;
-			$sens ['ID'] = SQLInsert ( 'msnodeval', $sens );
+		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+		if (! $sens['ID']) {
+			$sens['NID'] = $NId;
+			$sens['SID'] = $SId;
+			$sens['SUBTYPE'] = $SubType;
+			$sens['ID'] = SQLInsert( 'msnodeval', $sens );
 		}
 		
 		// Delete ACK
-		if ($arr [3] == 1) {
-			SQLExec ( "DELETE FROM mssendstack WHERE NID='" . $NId . "' AND SID='" . $SId . "' AND MType='" . $arr [2] . "' AND SUBTYPE='" . $SubType . "' AND MESSAGE='" . $val . "' AND SENDRX=0" );
+		if ($arr[3] == 1) {
+			SQLExec( "DELETE FROM mssendstack WHERE NID='" . $NId . "' AND SID='" . $SId . "' AND MType='" . $arr[2] . "' AND SUBTYPE='" . $SubType . "' AND MESSAGE='" . $val . "' AND SENDRX=0" );
 		}
 		
 		// echo date("Y-m-d H:i:s")." Proc 3\n";
 		// echo print_r($sens, true)."\n";
 		
 		// Set
-		$sens ['UPDATED'] = date ( 'Y-m-d H:i:s' );
-		$sens ['VAL'] = $val;
-		SQLUpdate ( 'msnodeval', $sens );
+		$sens['UPDATED'] = date( 'Y-m-d H:i:s' );
+		$sens['VAL'] = $val;
+		SQLUpdate( 'msnodeval', $sens );
 		
 		// echo "set:".print_r($sens)."\n";
 		// echo date("Y-m-d H:i:s")." Proc 4\n";
 		
-		if ($sens ['LINKED_OBJECT'] && $sens ['LINKED_PROPERTY']) {
+		if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
 			// echo date("Y-m-d H:i:s")." Start set\n";
 			// echo "Set ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$val."\n";
-			setGlobal ( $sens ['LINKED_OBJECT'] . '.' . $sens ['LINKED_PROPERTY'], $val, array($this->name => '0') );
+			setGlobal( $sens['LINKED_OBJECT'] . '.' . $sens['LINKED_PROPERTY'], $val, array($this->name => '0') );
 			// echo date("Y-m-d H:i:s")." End set\n";
 		}
 	}
@@ -578,19 +578,19 @@ class mysensor extends module {
 	 *        
 	 */
 	function setProperty($prop_id, $value, $set_linked = 0) {
-		$rec = SQLSelectOne ( "SELECT * FROM msnodeval WHERE msnodeval.id=$prop_id" );
-		if (! $rec ['ID'])
+		$rec = SQLSelectOne( "SELECT * FROM msnodeval WHERE msnodeval.id=$prop_id" );
+		if (! $rec['ID'])
 			return 0;
 		
-		$rec ['UPDATED'] = date ( 'Y-m-d H:i:s' );
+		$rec['UPDATED'] = date( 'Y-m-d H:i:s' );
 		
 		// Set to node value
-		if ($rec ['VAL'] != $value) {
+		if ($rec['VAL'] != $value) {
 			// Not set for rollback --- $rec['VAL'] = $value;
-			SQLUpdate ( 'msnodeval', $rec );
+			SQLUpdate( 'msnodeval', $rec );
 		}
 		
-		$this->cmd ( $rec ['NID'] . ";" . $rec ['SID'] . ";1;" . $rec ['ACK'] . ";" . $rec ['SUBTYPE'] . ";" . $value );
+		$this->cmd( $rec['NID'] . ";" . $rec['SID'] . ";1;" . $rec['ACK'] . ";" . $rec['SUBTYPE'] . ";" . $value );
 	}
 	/**
 	 * Title
@@ -601,13 +601,13 @@ class mysensor extends module {
 	 *        
 	 */
 	function cmd($str) {
-		$arr = explode ( ';', $str, 6 );
+		$arr = explode( ';', $str, 6 );
 		
 		// For sleep node
 		$sendrx = 0;
-		$rec = SQLSelectOne ( "SELECT devtype FROM msnodes WHERE nid=" . $arr [0] );
+		$rec = SQLSelectOne( "SELECT devtype FROM msnodes WHERE nid=" . $arr[0] );
 		
-		if ($rec ['devtype'] == 1) {
+		if ($rec['devtype'] == 1) {
 			$sendrx = 1;
 			$expire = time () + $this->RxExpireTimeout;
 		} else {
@@ -615,15 +615,15 @@ class mysensor extends module {
 			$expire = time () + $this->tryTimeout;
 		}
 		
-		$data ['NID'] = $arr [0];
-		$data ['SID'] = $arr [1];
-		$data ['MType'] = $arr [2];
-		$data ['ACK'] = $arr [3];
-		$data ['SUBTYPE'] = $arr [4];
-		$data ['MESSAGE'] = $arr [5];
-		$data ['EXPIRE'] = $expire;
-		$data ['SENDRX'] = $sendrx;
-		SQLInsert ( 'mssendstack', $data );
+		$data['NID'] = $arr[0];
+		$data['SID'] = $arr[1];
+		$data['MType'] = $arr[2];
+		$data['ACK'] = $arr[3];
+		$data['SUBTYPE'] = $arr[4];
+		$data['MESSAGE'] = $arr[5];
+		$data['EXPIRE'] = $expire;
+		$data['SENDRX'] = $sendrx;
+		SQLInsert( 'mssendstack', $data );
 		
 		// DebMes("Prepare send: ".print_r($data, true));
 	}
@@ -636,40 +636,40 @@ class mysensor extends module {
 	function req($arr) {
 		
 		// Node
-		$NId = $arr [0];
-		$SId = $arr [1];
+		$NId = $arr[0];
+		$SId = $arr[1];
 		$mType = 1; // $arr[2];
-		$Ack = $arr [3];
-		$SubType = $arr [4];
+		$Ack = $arr[3];
+		$SubType = $arr[4];
 		if ($NId == "")	return;
 		
 		// Log		
 		echo date("Y-m-d H:i:s")." Req: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$val\n";
 		
-		$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
-		if (! $node ['ID'])
-			if (! $this->RegistNewNode ( $node, $NId ))
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		if (! $node['ID'])
+			if (! $this->RegistNewNode( $node, $NId ))
 				return;
 			
 		// Sensor
-		$sens = SQLSelectOne ( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
-		if (! $sens ['ID']) {
-			$sens ['NID'] = $NId;
-			$sens ['SID'] = $SId;
-			$sens ['ACK'] = $Ack;
-			$sens ['SUBTYPE'] = $SubType;
-			$sens ['ID'] = SQLInsert ( 'msnodeval', $sens );
+		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+		if (! $sens['ID']) {
+			$sens['NID'] = $NId;
+			$sens['SID'] = $SId;
+			$sens['ACK'] = $Ack;
+			$sens['SUBTYPE'] = $SubType;
+			$sens['ID'] = SQLInsert( 'msnodeval', $sens );
 		}
 		
 		// Req
-		$val = $sens ['VAL'];
-		if ($sens ['LINKED_OBJECT'] && $sens ['LINKED_PROPERTY']) {
-			$val = getGlobal ( $sens ['LINKED_OBJECT'] . '.' . $sens ['LINKED_PROPERTY'] );
+		$val = $sens['VAL'];
+		if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
+			$val = getGlobal( $sens['LINKED_OBJECT'] . '.' . $sens['LINKED_PROPERTY'] );
 			// echo "Get from: ".$sens['LINKED_OBJECT'].".".$sens['LINKED_PROPERTY']." = ".$val."\n";
 		}
 		// echo "Set: ".$val."\n";
 		
-		$this->cmd ( "$NId;$SId;$mType;" . $sens ['ACK'] . ";$SubType;" . $val );
+		$this->cmd( "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val );
 		return false;
 	}
 	/**
@@ -682,64 +682,64 @@ class mysensor extends module {
 		$this->getConfig();
 		
 		// Node
-		$NId = $arr [0];
-		$SubType = $arr [4];
-		$val = $arr [5];
+		$NId = $arr[0];
+		$SubType = $arr[4];
+		$val = $arr[5];
 		if ($NId == "")	return;
 		
 		// Log		
 		$SId = $arr[1];
-		$Ack = $arr [3];
+		$Ack = $arr[3];
 		echo date("Y-m-d H:i:s")." Internal: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$val\n";
 			
 		// Skip tester present
 		if ($NId == 255) { // ($NId == 0) ||
 			$node = false;
 		} else {
-			$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
-			if (! $node ['ID'])
-				if (! $this->RegistNewNode ( $node, $NId ))
+			$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+			if (! $node['ID'])
+				if (! $this->RegistNewNode( $node, $NId ))
 					return;
 		}
 		
-		if ($node ['LASTREBOOT'] == 0)
-			$node ['LASTREBOOT'] = date ( 'Y-m-d H:i:s' );
+		if ($node['LASTREBOOT'] == 0)
+			$node['LASTREBOOT'] = date( 'Y-m-d H:i:s' );
 		
 		switch ($SubType) {
 			// Battery
 			case I_BATTERY_LEVEL :
 				if ($node) {
-					$node ['BATTERY'] = $val;
-					SQLUpdate ( 'msnodes', $node );
+					$node['BATTERY'] = $val;
+					SQLUpdate( 'msnodes', $node );
 					
-					if ($node ['BAT_OBJECT'] && $node ['BAT_PROPERTY']) {
-						setGlobal ( $node ['BAT_OBJECT'] . '.' . $node ['BAT_PROPERTY'], $val, array($this->name => '0') );
+					if ($node['BAT_OBJECT'] && $node['BAT_PROPERTY']) {
+						setGlobal( $node['BAT_OBJECT'] . '.' . $node['BAT_PROPERTY'], $val, array($this->name => '0') );
 					}
 				}
 				break;
 			
 			// Time
 			case I_TIME :
-				$this->cmd ( $NId . ";255;3;0;" . I_TIME . ";" . time () );
+				$this->cmd( $NId . ";255;3;0;" . I_TIME . ";" . time () );
 				break;
 			
 			// Version
 			case I_VERSION :
 				if ($node) {
-					$node ['VER'] = $val;
-					SQLUpdate ( 'msnodes', $node );
+					$node['VER'] = $val;
+					SQLUpdate( 'msnodes', $node );
 				}
 				break;
 			
 			// Request data
 			case I_ID_REQUEST :
-				if (($this->config ['MS_AUTOID'] == '') || ($this->config ['MS_AUTOID'] == 1)) {
-					$nextid = $this->config ['MS_NEXTID'];
+				if (($this->config['MS_AUTOID'] == '') || ($this->config['MS_AUTOID'] == 1)) {
+					$nextid = $this->config['MS_NEXTID'];
 					
 					// Check ready has
 					while ( true ) {
-						$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $nextid )."';" );
-						if ($node ['ID']) {
+						$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $nextid )."';" );
+						if ($node['ID']) {
 							$nextid ++;
 							continue;
 						}
@@ -748,7 +748,7 @@ class mysensor extends module {
 					
 					if ($nextid < 255) {
 						// Send new id
-						$this->cmd ( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid );
+						$this->cmd( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid );
 						echo "Req new ID: $nextid\n";
 					} else {
 						echo "Req new ID: out of range\n";
@@ -760,39 +760,39 @@ class mysensor extends module {
 			
 			// INCLUSION MODE
 			case I_INCLUSION_MODE :
-				$this->config ['MS_INCLUSION_MODE'] = $val;
+				$this->config['MS_INCLUSION_MODE'] = $val;
 				$this->saveConfig ();
 				break;
 			
 			// CONFIG
 			case I_CONFIG :
 				if ($node) {
-					$node ['PID'] = $val;
-					$node ['LASTREBOOT'] = date ( 'Y-m-d H:i:s' );
-					SQLUpdate ( 'msnodes', $node );
+					$node['PID'] = $val;
+					$node['LASTREBOOT'] = date( 'Y-m-d H:i:s' );
+					SQLUpdate( 'msnodes', $node );
 				}
 				
 				// Send ansver - metric
-				$this->cmd ( $NId . ";255;3;0;" . I_CONFIG . ";" . $this->config ['MS_MEASURE'] );
+				$this->cmd( $NId . ";255;3;0;" . I_CONFIG . ";" . $this->config['MS_MEASURE'] );
 				break;
 			
 			// LOG_MESSAGE
 			case I_LOG_MESSAGE :
-				echo date ( "Y-m-d H:i:s" ) . "Log message ID:" . $NId . " $val";
+				echo date( "Y-m-d H:i:s" ) . "Log message ID:" . $NId . " $val";
 			
 			// SKETCH_NAME
 			case I_SKETCH_NAME :
 				if ($node) {
-					$node ['SKETCH'] = $val;
-					SQLUpdate ( 'msnodes', $node );
+					$node['SKETCH'] = $val;
+					SQLUpdate( 'msnodes', $node );
 				}
 				break;
 			
 			// SKETCH_VERSION
 			case I_SKETCH_VERSION :
 				if ($node) {
-					$node ['VER'] = $val;
-					SQLUpdate ( 'msnodes', $node );
+					$node['VER'] = $val;
+					SQLUpdate( 'msnodes', $node );
 				}
 				break;
 			
@@ -807,7 +807,7 @@ class mysensor extends module {
 						break;
 					
 					default :
-						echo date ( "Y-m-d H:i:s" ) . " Unknow SIGNING_PRESENTATION ID:" . $NId . " Sub:" . $SubType . " Val:" . $val . "\n";
+						echo date( "Y-m-d H:i:s" ) . " Unknow SIGNING_PRESENTATION ID:" . $NId . " Sub:" . $SubType . " Val:" . $val . "\n";
 						break;
 				}
 				
@@ -820,11 +820,11 @@ class mysensor extends module {
 			// I_HEARTBEAT_RESPONSE
 			case I_HEARTBEAT_RESPONSE :
 				if ($node) {
-					$node ['HEARTBEAT'] = date ( 'Y-m-d H:i:s' );
-					SQLUpdate ( 'msnodes', $node );
+					$node['HEARTBEAT'] = date( 'Y-m-d H:i:s' );
+					SQLUpdate( 'msnodes', $node );
 					
-					if ($node ['HEARTBEAT_OBJECT'] && $node ['HEARTBEAT_PROPERTY']) {
-						setGlobal ( $node ['HEARTBEAT_OBJECT'] . '.' . $node ['HEARTBEAT_PROPERTY'], $val, array($this->name => '0') );
+					if ($node['HEARTBEAT_OBJECT'] && $node['HEARTBEAT_PROPERTY']) {
+						setGlobal( $node['HEARTBEAT_OBJECT'] . '.' . $node['HEARTBEAT_PROPERTY'], $val, array($this->name => '0') );
 					}
 				}
 				break;
@@ -832,23 +832,23 @@ class mysensor extends module {
 			// I_PING
 			case I_PING :
 				// Send I_PONG
-				$this->cmd ( $NId . ";255;3;0;" . I_PONG . ";" . $val );
+				$this->cmd( $NId . ";255;3;0;" . I_PONG . ";" . $val );
 				break;
 			
 			// I_REGISTRATION_REQUEST
 			case I_REGISTRATION_REQUEST :
 				// Register request to GW
 				$val = $val >= $this->MY_CORE_MIN_VERSION;
-				$this->cmd ( $NId . ";255;3;0;" . I_REGISTRATION_RESPONSE . ";" . $val );
+				$this->cmd( $NId . ";255;3;0;" . I_REGISTRATION_RESPONSE . ";" . $val );
 				break;
 				
 			// I_DEBUG
 			case I_DEBUG:
-				echo date ( "Y-m-d H:i:s" ) . " Debug: ID:".$NId." = ".$val."\n";
+				echo date( "Y-m-d H:i:s" ) . " Debug: ID:".$NId." = ".$val."\n";
 				break;
 			
 			default :
-				echo date ( "Y-m-d H:i:s" ) . " Unknow internal command: ID:" . $NId . " Sub:" . $SubType . " Val:" . $val . "\n";
+				echo date( "Y-m-d H:i:s" ) . " Unknow internal command: ID:" . $NId . " Sub:" . $SubType . " Val:" . $val . "\n";
 				break;
 			
 			// @@@ 7 - FIND_PARENT
@@ -866,9 +866,9 @@ class mysensor extends module {
 		//$this->getConfig ();
 		
 		// Node
-		$NId = $arr [0];		
-		$SubType = $arr [4];
-		$val = $arr [5];
+		$NId = $arr[0];		
+		$SubType = $arr[4];
+		$val = $arr[5];
 		if ($NId == "")	return;
 		
 		// Log				
@@ -876,9 +876,9 @@ class mysensor extends module {
 		$SId = $arr[1];
 		echo date("Y-m-d H:i:s")." Stream: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$val\n";
 		
-		$node = SQLSelectOne ( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
-		if (! $node ['ID'])
-			if (! $this->RegistNewNode ( $node, $NId ))
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		if (! $node['ID'])
+			if (! $this->RegistNewNode( $node, $NId ))
 				return;
 		
 		switch ($SubType) {
@@ -888,12 +888,12 @@ class mysensor extends module {
 				unset($this->node_bins[$NId]);
 				
 				// Type
-				$CType = substr ( $val, 0, 4 );
-				$CVer = substr ( $val, 4, 4 );
-				$CBloks = hexdec ( substr ( $val, 8, 4 ) );
-				$CCrc = hexdec ( substr ( $val, 12, 4 ) );
-				$BLh = hexdec ( substr ( $val, 16, 2 ) );
-				$BLl = hexdec ( substr ( $val, 18, 2 ) );
+				$CType = substr( $val, 0, 4 );
+				$CVer = substr( $val, 4, 4 );
+				$CBloks = hexdec( substr( $val, 8, 4 ) );
+				$CCrc = hexdec( substr( $val, 12, 4 ) );
+				$BLh = hexdec( substr( $val, 16, 2 ) );
+				$BLl = hexdec( substr( $val, 18, 2 ) );
 				
 				// Test version
 /*				
@@ -908,10 +908,10 @@ class mysensor extends module {
 				//	return;
 				//}
 				
-				echo date ( "Y-m-d H:i:s" ) . " BL version=$BLh.$BLl\n";
+				echo date( "Y-m-d H:i:s" ) . " BL version=$BLh.$BLl\n";
 				
 				// Load bin									
-				$rec = SQLSelectOne ( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
+				$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
 				if (!$rec['ID']){
 					echo date("Y-m-d H:i:s")." Binary for $NId not found\n";
 					return;
@@ -955,10 +955,11 @@ class mysensor extends module {
 				$size = strlen($ndata["data"]);
 				
 				// Type
-				$CType = substr ( $val, 0, 4 );
-				$CVer = substr ( $val, 4, 4 );
-				$CBlok = substr ( $val, 8, 4 );
-				$BlockP = (unpack("S", hex2bin($CBlok))[1])*16;
+				$CType = substr( $val, 0, 4 );
+				$CVer = substr( $val, 4, 4 );
+				$CBlok = substr( $val, 8, 4 );
+				$DBlock = unpack("S", hex2bin($CBlok))[1]);
+				$BlockP = $DBlock*16;
 
 				// Test version
 				if ($CVer != "0100"){
@@ -984,7 +985,7 @@ class mysensor extends module {
 				break;
 			
 			default :
-				echo date ( "Y-m-d H:i:s" ) . " Unknow stream command: ID: $NId; Sub:$SubType; Val:$val\n";
+				echo date( "Y-m-d H:i:s" ) . " Unknow stream command: ID: $NId; Sub:$SubType; Val:$val\n";
 				break;
 		}
 	}
@@ -1007,7 +1008,7 @@ class mysensor extends module {
 		}
 		  
 		if ($expire){
-			echo date ( "Y-m-d H:i:s" )." Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s")."\n";
+			echo date( "Y-m-d H:i:s" )." Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s")."\n";
 
 			$sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
 			if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
@@ -1031,23 +1032,23 @@ class mysensor extends module {
 	}
 		
 	function RegistNewNode(&$node, $NId) {
-		$ms_autoid = $this->config ['MS_AUTOID'];
+		$ms_autoid = $this->config['MS_AUTOID'];
 		if ($ms_autoid == "0")
 			return false;
 			
 			// Next id
-		$nextid = $this->config ['MS_NEXTID'];
+		$nextid = $this->config['MS_NEXTID'];
 		
 		if ($NId >= $nextid) {
-			$this->config ['MS_NEXTID'] = $NId + 1;
+			$this->config['MS_NEXTID'] = $NId + 1;
 			$this->saveConfig ();
 		}
 		
 		// Set new
-		$node ['NID'] = $NId;
-		$node ['PID'] = 0;
-		$node ['TITLE'] = $NId;
-		$node ['ID'] = SQLInsert ( 'msnodes', $node );
+		$node['NID'] = $NId;
+		$node['PID'] = 0;
+		$node['TITLE'] = $NId;
+		$node['ID'] = SQLInsert( 'msnodes', $node );
 		
 		return true;
 	}
@@ -1074,7 +1075,7 @@ class mysensor extends module {
 	function dbInstall($data) {
 		
 		// Send message
-		SQLExec ( "DROP TABLE IF EXISTS `mssendstack`;" );
+		SQLExec( "DROP TABLE IF EXISTS `mssendstack`;" );
 		
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `mssendstack`
                (`ID`  int(10) unsigned NOT NULL auto_increment,
@@ -1089,7 +1090,7 @@ class mysensor extends module {
                 PRIMARY KEY (`ID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 		
-		SQLExec ( $sqlQuery );
+		SQLExec( $sqlQuery );
 		
 		// Node boot state
 		//TODO make
@@ -1099,7 +1100,7 @@ class mysensor extends module {
 			   PRIMARY KEY (`NID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 		
-		SQLExec ( $sqlQuery );
+		SQLExec( $sqlQuery );
 		
 		$data = <<<EOD
 	msnodes: ID int(10) unsigned NOT NULL auto_increment
@@ -1140,11 +1141,11 @@ class mysensor extends module {
 	msbins: ID int(10) unsigned NOT NULL auto_increment
 	msbins: TITLE varchar(255) NOT NULL DEFAULT ''
 	msbins: VER int(10) NOT NULL DEFAULT 0
-	msbins: BIN BLOB
+	msbins: BIN LONGBLOB
 	msbins: CRC char(4)
-	msbins: BLOKS int(10) NOT NULL DEFAULT 0
+	msbins: BLOKS char(4)
 EOD;
-		parent::dbInstall ( $data );
+		parent::dbInstall( $data );
 	}
 	// --------------------------------------------------------------------
 }
