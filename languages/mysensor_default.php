@@ -37,6 +37,7 @@ $dictionary=array(
 'FILE'=>'File',
 'DISCOVER'=>'Discover',
 'DISCOVER_INFO'=>'Discover nodes',
+'INFO'=>'Information',
 /* end module names */
 
 );

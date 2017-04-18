@@ -63,7 +63,7 @@
   
   // SEARCH RESULTS  
   $res=SQLSelect("SELECT * FROM msnodes WHERE $qry ORDER BY ".$sortby_mysensor);
-  if ($res[0]['ID']) {   
+  if ($res[0]['ID']) {
     colorizeArray($res);
     $total=count($res);
     for($i=0;$i<$total;$i++) {
@@ -73,14 +73,14 @@
 		else
 			$res[$i]['DEVTYPE'] = "Power";
 		
-		// Battery | Load state
-		$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE NID=".$res[$i]["NID"].";");
-		if ($rec2['state']) {
-			if ($res[$i]['BATTERY'] != ""){
-				$res[$i]['BATTERY'] .= "<br>";
-			}
-			$res[$i]['BATTERY'] .= "Write boot: ".$rec2['state'];
-		}		
+		// Battery		
+		$info = "";
+		
+		if ($res[$i]['BATTERY'] != ""){
+			$info .= "Battery: ".$res[$i]['BATTERY'];
+		}
+
+		$res[$i]['INFO'] .= $info;
     }
     $out['RESULT']=$res;
   }  

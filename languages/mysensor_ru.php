@@ -37,6 +37,7 @@ $dictionary=array(
 'FILE'=>'Файл',
 'DISCOVER'=>'Поиск',
 'DISCOVER_INFO'=>'Поиск узлов',
+'INFO'=>'Информация',
 /* end module names */
 
 );

@@ -52,7 +52,7 @@
  <th><#LANG_TYPE#></th>
  <th><#LANG_PARENT#></th>
  <th>Sketch</th> 
- <th><#LANG_BATTERY_LEVEL#></th>
+ <th><#LANG_INFO#></th>
  <th>&nbsp;</th>
 </tr>
 </thead>
@@ -88,13 +88,9 @@
   [#else#]
    &nbsp;
   [#endif#]
- </td> 
- <td>
-  [#if BATTERY!=""#]
-   [#BATTERY#]
-  [#else#]
-   &nbsp;
-  [#endif#]
+ </td>
+ <td id="i[#NID#]">
+  [#INFO#]
  </td>  
  <td width="1%" nowrap>
   [#if "<#ACTION#>"=="admin"#]
@@ -131,3 +127,29 @@
 <!-- / results -->
 <hr/>
 <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&data=255;255;3;0;20;0" class="btn btn-default"><#LANG_DISCOVER#></a> - <#LANG_DISCOVER_INFO#><br/><br/>
+<script language="javascript">
+  var InfoTimer;  
+  
+  function UpdateInfo() {	
+	clearTimeout(InfoTimer);
+	var url="?ajax=1&atype=info";
+	$.ajax({url: url}).done(function(data) {		
+		arr = JSON.parse(data);
+		if ( Array.isArray(arr) ) {			
+			for (var i=0; i < arr.length; i++) {
+				var itm = arr[i];
+				dInfo = document.getElementById("i"+itm.I);
+				if (dInfo != null) {
+					if (dInfo.innerHTML != itm.D) {                            
+						dInfo.innerHTML = itm.D;                            
+                    }
+				}
+			}
+		}		
+		InfoTimer=setTimeout('UpdateInfo()', 5000);
+    });
+    return false;
+  }
+ 
+  UpdateInfo();
+</script> 

@@ -150,8 +150,28 @@ class mysensor extends module {
 			header( 'Content-Type: text/html; charset=utf-8' );
 			
 			if ($atype == "incmode") {
-				$this->getConfig ();
+				$this->getConfig();
 				echo $this->config['MS_INCLUSION_MODE'];
+				exit ();
+			}
+			if ($atype == "info") {
+				$arr = array();
+				
+				$res=SQLSelect("SELECT NID, BATTERY FROM msnodes");				
+				$total=count($res);
+				for($i=0;$i<$total;$i++) {					
+					$info = "".$res[$i]['BATTERY'];
+					
+					// State
+					$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE NID=".$res[$i]["NID"].";");
+					if ($rec2['state']) {
+						if ($info != "") $info .= "; ";
+						$info .= "Write: ".$rec2['state'];
+					}
+
+					$arr[] = array("I"=>$res[$i]["NID"], "D"=>$info);
+				}
+				echo json_encode($arr);				
 				exit ();
 			}
 			
@@ -962,9 +982,9 @@ class mysensor extends module {
 				$CVer = substr( $val, 4, 4 );
 				$CBlok = substr( $val, 8, 4 );
 				
-				$Data2 = hex2bin(hex2bin($CBlok));
-				$BlockP = unpack("S", $Data2[1])*16;
-
+				$Data2 = unpack("S", hex2bin($CBlok));
+				$BlockP = $Data2[1]*16;
+				
 				// Test version
 				if ($CVer != "0100"){
 					echo date("Y-m-d H:i:s")." Unknow boot version $NId - $CVer\n";
@@ -1144,12 +1164,14 @@ class mysensor extends module {
 	
 	msbins: ID int(10) unsigned NOT NULL auto_increment
 	msbins: TITLE varchar(255) NOT NULL DEFAULT ''
-	msbins: VER int(10) NOT NULL DEFAULT 0
+	msbins: VER varchar(255) NOT NULL DEFAULT ''
 	msbins: BIN LONGBLOB
 	msbins: CRC char(4)
 	msbins: BLOKS char(4)
 EOD;
 		parent::dbInstall( $data );
+		
+		SQLExec("ALTER TABLE `msbins` CHANGE `VER` `VER` varchar(255) NOT NULL DEFAULT ''");
 	}
 	// --------------------------------------------------------------------
 }
