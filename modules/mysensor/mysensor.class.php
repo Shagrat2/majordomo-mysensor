@@ -529,10 +529,10 @@ class mysensor extends module {
 				$sens['NID'] = $NId;
 				$sens['SID'] = $SId;
 				$sens['SUBTYPE'] = $SubType;
-				$sens['INFO'] = $info;
+				$sens['INFO'] = utf8_encode($info);
 				$sens['ID'] = SQLInsert( 'msnodesens', $sens );
 			} else {
-				$sens['INFO'] = $info;
+				$sens['INFO'] = utf8_encode($info);
 				SQLUpdate( 'msnodesens', $sens );
 			}
 		}
@@ -548,7 +548,7 @@ class mysensor extends module {
 		$NId = $arr[0];
 		$SId = $arr[1];
 		$SubType = $arr[4];
-		$val = $arr[5];
+		$val = utf8_encode($arr[5]);
 		if ($NId == "")	return;
 		
 		// Log
@@ -580,6 +580,8 @@ class mysensor extends module {
 		// Set
 		$sens['UPDATED'] = date( 'Y-m-d H:i:s' );
 		$sens['VAL'] = $val;
+		if (strlen($sens['VAL']) > 32) return;
+		
 		SQLUpdate( 'msnodeval', $sens );
 		
 		// echo "set:".print_r($sens)."\n";
@@ -906,7 +908,7 @@ class mysensor extends module {
 		
 		switch ($SubType) {
 			// Request new FW, payload contains current FW details
-			case 0x00 :
+			case 0x00:
 				// Delete cashed bin
 				unset($this->node_bins[$NId]);
 				
