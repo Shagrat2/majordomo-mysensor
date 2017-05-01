@@ -902,9 +902,14 @@ class mysensor extends module {
 		echo date("Y-m-d H:i:s")." Stream: Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType; Msg:$val\n";
 		
 		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
-		if (! $node['ID'])
+		if (!$node['ID'])
 			if (! $this->RegistNewNode( $node, $NId ))
 				return;
+				
+		if ($node['OTA'] != 1) {
+			$node['OTA'] = 1;
+			SQLUpdate( 'msnodes', $node );
+		}
 		
 		switch ($SubType) {
 			// Request new FW, payload contains current FW details
@@ -1146,6 +1151,7 @@ class mysensor extends module {
 	msnodes: LOCATION_ID int(10) NOT NULL DEFAULT '0' 
 	msnodes: LASTREBOOT datetime
 	msnodes: DEVTYPE int(10) DEFAULT '0'
+	msnodes: OTA int(10) DEFAULT '0'
 
 	msnodesens: ID int(10) unsigned NOT NULL auto_increment
 	msnodesens: NID int(10) NOT NULL 
@@ -1174,6 +1180,8 @@ EOD;
 		parent::dbInstall( $data );
 		
 		SQLExec("ALTER TABLE `msbins` CHANGE `VER` `VER` varchar(255) NOT NULL DEFAULT ''");
+		SQLExec("ALTER TABLE `msbins` CHANGE `CRC` `CRC` char(4)");
+		SQLExec("ALTER TABLE `msbins` CHANGE `BLOKS` `BLOKS` char(4)");
 	}
 	// --------------------------------------------------------------------
 }

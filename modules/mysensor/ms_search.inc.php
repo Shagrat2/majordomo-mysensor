@@ -67,11 +67,18 @@
     colorizeArray($res);
     $total=count($res);
     for($i=0;$i<$total;$i++) {
+	
+		$DevType = "";
+		if ($res[$i]['OTA'] == 1)
+			$DevType = "OTA: ";			
+
 		// some action for every record if required		 
 		if ($res[$i]['DEVTYPE'] == 1)
-			$res[$i]['DEVTYPE'] = "Battery";
+			$DevType = $DevType . "Battery";
 		else
-			$res[$i]['DEVTYPE'] = "Power";
+			$DevType = $DevType . "Power";
+		
+		$res[$i]['DEVTYPE'] = $DevType;
 		
 		// Battery		
 		$info = "";
