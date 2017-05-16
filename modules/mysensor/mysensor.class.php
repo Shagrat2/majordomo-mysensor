@@ -808,7 +808,7 @@ class mysensor extends module {
 			// SKETCH_NAME
 			case I_SKETCH_NAME :
 				if ($node) {
-					$node['SKETCH'] = $val;
+					$node['SKETCH'] = utf8_encode($val);
 					SQLUpdate( 'msnodes', $node );
 				}
 				break;
@@ -816,7 +816,7 @@ class mysensor extends module {
 			// SKETCH_VERSION
 			case I_SKETCH_VERSION :
 				if ($node) {
-					$node['VER'] = $val;
+					$node['VER'] = utf8_encode($val);
 					SQLUpdate( 'msnodes', $node );
 				}
 				break;
