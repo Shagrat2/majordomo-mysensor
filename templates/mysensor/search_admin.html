@@ -149,6 +149,7 @@
  <li [#if TAB=="firmware"#] class="active"[#endif#]><a href="?tab=firmware"><#LANG_FIRMWARE#></a></li>
  <li [#if TAB=="mesh"#] class="active"[#endif#]><a href="?tab=mesh"><#LANG_MESH#></a></li> 
  <li [#if TAB=="log"#] class="active"[#endif#]><a href="?tab=log"><#LANG_GENERAL_EVENTS_LOG#></a></li> 
+ <li [#if TAB=="queuing"#] class="active"[#endif#]><a href="?tab=queuing"><#LANG_QUEUING#></a></li> 
 </ul> 
 
 [#if TAB="nodes" || TAB=""#]
@@ -162,4 +163,7 @@
 [#endif#] 
 [#if TAB="log"#]
   [#inc search_log.html#] 
+[#endif#]
+[#if TAB="queuing"#]
+  [#inc search_queuing.html#] 
 [#endif#] 

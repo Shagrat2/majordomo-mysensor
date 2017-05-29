@@ -38,6 +38,7 @@ $dictionary=array(
 'DISCOVER'=>'Discover',
 'DISCOVER_INFO'=>'Discover nodes',
 'INFO'=>'Information',
+'QUEUING'=>'Queuing',
 /* end module names */
 
 );

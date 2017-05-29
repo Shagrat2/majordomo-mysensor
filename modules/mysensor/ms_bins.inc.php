@@ -2,10 +2,8 @@
 
 require("phpMS.php");
 
-//$qry="1";
-
 // SEARCH RESULTS  
-$res=SQLSelect("SELECT ID, TITLE, VER, CRC, BLOKS FROM msbins"); // WHERE $qry ORDER BY id");
+$res=SQLSelect("SELECT ID, TITLE, VER, CRC, BLOKS FROM msbins");
 
 if ($res[0]['ID']) {  
 	$out['BINS']=$res;

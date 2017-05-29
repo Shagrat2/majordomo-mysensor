@@ -159,14 +159,24 @@ class mysensor extends module {
 				
 				$res=SQLSelect("SELECT NID, BATTERY FROM msnodes");				
 				$total=count($res);
-				for($i=0;$i<$total;$i++) {					
-					$info = "".$res[$i]['BATTERY'];
+				for($i=0;$i<$total;$i++) {			
+					$info = "";
+					if ($res[$i]['BATTERY'] != ""){
+						$info = "Battery: ".$res[$i]['BATTERY']."%";
+					}
 					
 					// State
 					$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE NID=".$res[$i]["NID"].";");
 					if ($rec2['state']) {
-						if ($info != "") $info .= "; ";
+						if ($info != "") $info .= "<br/>";
 						$info .= "Write: ".$rec2['state'];
+					}
+					
+					// Message stack
+					$rec2 = SQLSelectOne ("SELECT count(id) as TOTAL FROM mssendstack WHERE NID=".$res[$i]["NID"].";");
+					if ($rec2['TOTAL']) {
+						if ($info != "") $info .= "<br/>";
+						$info .= "Messages: ".$rec2['TOTAL'];
 					}
 
 					$arr[] = array("I"=>$res[$i]["NID"], "D"=>$info);
@@ -296,6 +306,8 @@ class mysensor extends module {
 					$this->search_mesh( $out );
 				} else if ($this->tab == 'log') {
 					$this->search_log( $out );
+				} else if ($this->tab == 'queuing') {
+					$this->search_queuing( $out );
 				} else {
 					$this->search_ms( $out );
 				}
@@ -343,6 +355,10 @@ class mysensor extends module {
 			if ($this->view_mode == 'presentation_clean') {
 				$this->clean_presentation( $this->id );
 				$this->redirect( "?data_source=$this->data_source&view_mode=node_edit&id=$this->id&tab=presentation" );
+			}
+			if ($this->view_mode == 'queuing_delete') {
+				$this->delete_queuing( $this->id );
+				$this->redirect( "?data_source=$this->data_source&tab=queuing" );
 			}
 		}
 	}
@@ -392,6 +408,15 @@ class mysensor extends module {
 	 */
 	function search_log(&$out) {
 		require (DIR_MODULES . $this->name . '/ms_log.inc.php');
+	}
+	/**
+	 * Search queuing
+	 *
+	 * @access public
+	 *        
+	 */
+	function search_queuing(&$out) {
+		require (DIR_MODULES . $this->name . '/ms_queuing.inc.php');
 	}
 	/**
 	 * Search sensors
@@ -444,6 +469,19 @@ class mysensor extends module {
 		// some action for related tables
 		SQLExec( "DELETE FROM msbins WHERE ID='" . $rec['ID'] . "'" );
 	}
+	
+	/**
+	 * Delete queuing
+	 *
+	 * @access public
+	 *        
+	 */
+	function delete_queuing($id) {
+		$rec = SQLSelectOne( "SELECT * FROM mssendstack WHERE ID='$id'" );
+		// some action for related tables
+		SQLExec( "DELETE FROM mssendstack WHERE ID='" . $rec['ID'] . "'" );
+	}
+	
 	/**
 	 * Add sensor
 	 *
@@ -514,7 +552,7 @@ class mysensor extends module {
 			if (! $this->RegistNewNode( $node, $NId ))
 				return;
 			
-			// Arduino Node
+		// Arduino Node
 		if ($SId == 255) {
 			$node['PROT'] = $arr[5];
 			
@@ -559,8 +597,8 @@ class mysensor extends module {
 		if (! $node['ID'])
 			if (! $this->RegistNewNode( $node, $NId ))
 				return;
-			
-			// Sensor
+		
+		// Sensor
 		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
 		if (! $sens['ID']) {
 			$sens['NID'] = $NId;
@@ -675,7 +713,7 @@ class mysensor extends module {
 		if (! $node['ID'])
 			if (! $this->RegistNewNode( $node, $NId ))
 				return;
-			
+		
 		// Sensor
 		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
 		if (! $sens['ID']) {
@@ -845,6 +883,10 @@ class mysensor extends module {
 			// I_HEARTBEAT_RESPONSE
 			case I_HEARTBEAT_RESPONSE :
 				if ($node) {
+					// SMart sleep
+					if ($node['DEVTYPE'] == 1)
+						$this->doSend($NId);
+				
 					$node['HEARTBEAT'] = date( 'Y-m-d H:i:s' );
 					SQLUpdate( 'msnodes', $node );
 					
@@ -881,8 +923,52 @@ class mysensor extends module {
 			// @@@ 14 - GATEWAY_READY
 		}
 	}
+	
 	/**
-	 * STream packet
+	 * Stream packet - Response FW
+	 *
+	 * @access public
+	 *        
+	 */
+	function ResponseFW($NId){
+		// Delete cashed bin
+		unset($this->node_bins[$NId]);
+	
+		// Load bin									
+		$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
+		if (!$rec['ID']){
+			echo date("Y-m-d H:i:s")." Binary for $NId not found\n";
+			return false;
+		}
+		
+		// Parse HEX
+		$parser = new IntelHex();
+		if (!$parser->Parse($rec['BIN'])) {
+			echo date("Y-m-d H:i:s")." Error load bin $NId : $parser->LastError\n";
+			return false;
+		}
+		if ($parser->FirstAddr != 0){
+			echo date("Y-m-d H:i:s")." Error load bin $NId : First adress $parser->FirstAddr\n";
+			return false;
+		}
+		$parser->NormalizePage(16);
+		
+		// Make CRC15
+		$crc = crc16($parser->Data);
+		
+		// Sent to cashed
+		$this->node_bins[$NId] = array(
+			"data" => $parser->Data,
+			"crc" => bin2hex($crc),
+			"bloks" => bin2hex( pack("S", strlen($parser->Data)/16) )
+		);
+		
+		// Send				
+		$data = sprintf("%04x", $NId)."0100".$this->node_bins[$NId]["bloks"].$this->node_bins[$NId]["crc"];
+		$this->cmd( "$NId;0;4;0;1;". $data );
+	}
+	/**
+	 * Stream packet
 	 *
 	 * @access public
 	 *        
@@ -914,11 +1000,7 @@ class mysensor extends module {
 		switch ($SubType) {
 			// Request new FW, payload contains current FW details
 			case 0x00:
-				// Delete cashed bin
-				unset($this->node_bins[$NId]);
-				
-				// Type
-				$CType = substr( $val, 0, 4 );
+				// Type				
 				$CVer = substr( $val, 4, 4 );
 				$CBloks = hexdec( substr( $val, 8, 4 ) );
 				$CCrc = hexdec( substr( $val, 12, 4 ) );
@@ -926,12 +1008,12 @@ class mysensor extends module {
 				$BLl = hexdec( substr( $val, 18, 2 ) );
 				
 				// Test version
-/*				
+		/*				
 				if (($CVer != "0100") || ($CVer != "01FF") || ($CVer != "FFFF")){
 					echo date("Y-m-d H:i:s")." Unknow boot version $NId - $CVer\n";
 					return;
 				}
-*/				
+		*/				
 				// Test BLVer
 				//if ($BLh != 1){
 				//	echo date("Y-m-d H:i:s")." Error BL version $BLh.$BLl\n";
@@ -939,39 +1021,8 @@ class mysensor extends module {
 				//}
 				
 				echo date( "Y-m-d H:i:s" ) . " BL version=$BLh.$BLl\n";
-				
-				// Load bin									
-				$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
-				if (!$rec['ID']){
-					echo date("Y-m-d H:i:s")." Binary for $NId not found\n";
-					return;
-				}
-				
-				// Parse HEX
-				$parser = new IntelHex();
-				if (!$parser->Parse($rec['BIN'])) {
-					echo date("Y-m-d H:i:s")." Error load bin $NId : $parser->LastError\n";
-					return;
-				}
-				if ($parser->FirstAddr != 0){
-					echo date("Y-m-d H:i:s")." Error load bin $NId : First adress $parser->FirstAddr\n";
-					return;
-				}
-				$parser->NormalizePage(16);
-				
-				// Make CRC15
-				$crc = crc16($parser->Data);
-				
-				// Sent to cashed
-				$this->node_bins[$NId] = array(
-					"data" => $parser->Data,
-					"crc" => bin2hex($crc),
-					"bloks" => bin2hex( pack("S", strlen($parser->Data)/16) )
-				);
-				
-				// Send				
-				$data = $CType."0100".$this->node_bins[$NId]["bloks"].$this->node_bins[$NId]["crc"];
-				$this->MySensor->send($NId, 0, 4, 0, 1, $data);
+		
+				$this->ResponseFW($NId);
 				
 				break;
 				
@@ -985,7 +1036,6 @@ class mysensor extends module {
 				$size = strlen($ndata["data"]);
 				
 				// Type
-				$CType = substr( $val, 0, 4 );
 				$CVer = substr( $val, 4, 4 );
 				$CBlok = substr( $val, 8, 4 );
 				
@@ -1002,7 +1052,7 @@ class mysensor extends module {
 					echo date("Y-m-d H:i:s")." Out of data $NId : $BlockP\n";
 					return;
 				}
-				$data = $CType."0100".$CBlok.bin2hex( substr($ndata["data"], $BlockP, 16));
+				$data = sprintf("%04x", $NId)."0100".$CBlok.bin2hex( substr($ndata["data"], $BlockP, 16));
 				$this->MySensor->send($NId, 0, 4, 0, 3, $data);
 				
 				// State
@@ -1020,14 +1070,19 @@ class mysensor extends module {
 				break;
 		}
 	}
+	
 	/**
 	 * Send data
 	 *
 	 * @access public
 	 *        
 	 */
-	function doSend() {
-		$rec=SQLSelectOne("SELECT * FROM mssendstack;");   
+	function doSend($NId = -1) {
+		if ($NId == -1) {
+			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=0;");
+		} else {
+			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=1 AND NID=$NId;");
+		}
 		if (!$rec['ID']) return;
 		
 		$expire = $rec['EXPIRE'] < time();
@@ -1167,6 +1222,7 @@ class mysensor extends module {
 	msnodeval: UPDATED datetime
 	msnodeval: LINKED_OBJECT varchar(255) NOT NULL DEFAULT ''
 	msnodeval: LINKED_PROPERTY varchar(255) NOT NULL DEFAULT ''
+	msnodeval: LINKED_METHOD varchar(100) NOT NULL DEFAULT ''
 	msnodeval: ACK int(3) unsigned NOT NULL DEFAULT '0'
 	msnodeval: REQ int(3) unsigned NOT NULL DEFAULT '0'
 	

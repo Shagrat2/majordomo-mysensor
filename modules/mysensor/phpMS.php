@@ -49,12 +49,13 @@ $mysensor_presentation = array(
   39 => Array("S_WATER_QUALITY",	"Water quality sensor",									'V_TEMP, V_PH, V_ORP, V_EC, V_STATUS'),
 ); 
 
+// Index, Type, Title, Major Domo Smartdevice name
 $mysensor_property = array(
-  0 => Array("V_TEMP", "Temperature"),
-  1 => Array("V_HUM", "Humidity"),
-  2 => Array("V_STATUS", "Binary status. 0=off 1=on"),
-  3 => Array("V_PERCENTAGE", "Percentage value. 0-100 (%)"),
-  4 => Array("V_PRESSURE", "Atmospheric Pressure"),
+  0 => Array("V_TEMP", "Temperature", "sensor_temp"),
+  1 => Array("V_HUM", "Humidity", "sensor_humidity"),
+  2 => Array("V_STATUS", "Binary status. 0=off 1=on", "sensor_state"),
+  3 => Array("V_PERCENTAGE", "Percentage value. 0-100 (%)", "sensor_percentage"),
+  4 => Array("V_PRESSURE", "Atmospheric Pressure", "sensor_pressure"),
   5 => Array("V_FORECAST", "Whether forecast. One of \"stable\", \"sunny\", \"cloudy\", \"unstable\", \"thunderstorm\" or \"unknown\""),
   6 => Array("V_RAIN", "Amount of rain"),
   7 => Array("V_RAINRATE", "Rate of rain"),
@@ -67,8 +68,8 @@ $mysensor_property = array(
   14 => Array("V_IMPEDANCE", "Impedance value"),
   15 => Array("V_ARMED", "Armed status of a security sensor. 1=Armed, 0=Bypassed"),
   16 => Array("V_TRIPPED", "Tripped status of a security sensor. 1=Tripped, 0=Untripped"),
-  17 => Array("V_WATT", "Watt value for power meters"),
-  18 => Array("V_KWH", "Accumulated number of KWH for a power meter"),
+  17 => Array("V_WATT", "Watt value for power meters", "sensor_power"),
+  18 => Array("V_KWH", "Accumulated number of KWH for a power meter", "sensor_power"),
   19 => Array("V_SCENE_ON", "Turn on a scene"),
   20 => Array("V_SCENE_OFF", "Turn of a scene"),
   21 => Array("V_HVAC_FLOW_STATE", 'Mode of header. One of "Off", "HeatOn", "CoolOn", or "AutoChangeOver"'),
@@ -88,8 +89,8 @@ $mysensor_property = array(
   35 => Array("V_VOLUME", "Water volume"),
   36 => Array("V_LOCK_STATUS", "Set or get lock status. 1=Locked, 0=Unlocked"),
   37 => Array("V_LEVEL", "Used for sending level-value"),
-  38 => Array("V_VOLTAGE", "Voltage level"),
-  39 => Array("V_CURRENT", "Current level"),
+  38 => Array("V_VOLTAGE", "Voltage level", "sensor_voltage"),
+  39 => Array("V_CURRENT", "Current level", "sensor_current"),
   40 => Array("V_RGB", 'RGB value transmitted as ASCII hex string (I.e "ff0000" for red)'),
   41 => Array("V_RGBW", 'RGBW value transmitted as ASCII hex string (I.e "ff0000ff" for red + full white)'),
   42 => Array("V_ID", 'Optional unique sensor id (e.g. OneWire DS1820b ids)'),
@@ -213,6 +214,11 @@ abstract class MySensorMaster{
 		// Reset timer
 		$this->lastTime = $currentMillis;
 		$this->testsend = false;
+		
+		// #Patch
+		if ($read_data[0] == ";") {
+			$read_data = "0".$read_data;
+		}
 
 		$arr = explode(';', $read_data, 6);
 			
@@ -220,7 +226,7 @@ abstract class MySensorMaster{
 		for ($i=0; $i<5; $i++)			
 			if ((is_numeric($arr[$i]) === false) || (is_float($arr[$i]) !== false))
 			{	
-				echo date("Y-m-d H:i:s")."### $read_data\n";					
+				echo date("Y-m-d H:i:s")." ### $read_data\n";					
 				return true;
 			}
 			

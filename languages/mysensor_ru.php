@@ -38,6 +38,7 @@ $dictionary=array(
 'DISCOVER'=>'Поиск',
 'DISCOVER_INFO'=>'Поиск узлов',
 'INFO'=>'Информация',
+'QUEUING'=>'Очередь',
 /* end module names */
 
 );

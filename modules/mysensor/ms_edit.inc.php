@@ -13,6 +13,7 @@ if ($this->mode=='setvalue') {
 if ($this->mode=='cmd') {
   global $data;
   $this->cmd($data);
+  $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }
 
 if ($this->mode=='resetbat'){
@@ -22,6 +23,15 @@ if ($this->mode=='resetbat'){
 	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE NID='$data'");
 	$rec['BATTERY'] = "";
 	SQLUpdate($table_name, $rec); // update
+	$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
+}
+
+if ($this->mode=='respfw'){
+	global $data;
+	$NId = $data;
+	
+	$this->ResponseFW($NId);
+	$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }
   
 if ($this->owner->name=='panel') {
@@ -135,30 +145,30 @@ if ($this->mode=='update') {
       if ($rec['ID']) {
         $total=count($sensors);
         for($i=0;$i<$total;$i++) {
-					if ($sensors[$i]['UPDATED'] == 0)
-						$sensors[$i]['UPDATED'] = date('Y-m-d H:i:s'); 
+			if ($sensors[$i]['UPDATED'] == 0)
+				$sensors[$i]['UPDATED'] = date('Y-m-d H:i:s'); 
 					
-          global ${'linked_object'.$sensors[$i]['ID']};
-          global ${'linked_property'.$sensors[$i]['ID']};
+			global ${'linked_object'.$sensors[$i]['ID']};
+			global ${'linked_property'.$sensors[$i]['ID']};
           
-					global ${'ack'.$sensors[$i]['ID']};					
-          if (${'ack'.$sensors[$i]['ID']}) {
-            $sensors[$i]['ACK']=1;            
-          } else {
-            $sensors[$i]['ACK']=0;            
-          } 
+			global ${'ack'.$sensors[$i]['ID']};					
+			if (${'ack'.$sensors[$i]['ID']}) {
+				$sensors[$i]['ACK']=1;            
+			} else {
+				$sensors[$i]['ACK']=0;            
+			} 
 					
-					global ${'req'.$sensors[$i]['ID']};
-					if (${'req'.$sensors[$i]['ID']}) {
-            $sensors[$i]['REQ']=1;            
-          } else {
-            $sensors[$i]['REQ']=0;            
-          } 
-					SQLUpdate('msnodeval', $sensors[$i]);					
+			global ${'req'.$sensors[$i]['ID']};
+			if (${'req'.$sensors[$i]['ID']}) {
+				$sensors[$i]['REQ']=1;            
+			} else {
+				$sensors[$i]['REQ']=0;            
+			} 
+			SQLUpdate('msnodeval', $sensors[$i]);					
           
-					// Battery
-          $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
-          $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
+			// Battery
+			$old_linked_object=$sensors[$i]['LINKED_OBJECT'];
+			$old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
           
           if (${'linked_object'.$sensors[$i]['ID']} && ${'linked_property'.$sensors[$i]['ID']}) {
             $sensors[$i]['LINKED_OBJECT']=${'linked_object'.$sensors[$i]['ID']};
@@ -178,7 +188,7 @@ if ($this->mode=='update') {
             removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
           }
 					
-					// Heartheat
+		  // Heartheat
           $old_linked_object=$sensors[$i]['HEARTBEAT_OBJECT'];
           $old_linked_property=$sensors[$i]['HEARTBEAT_PROPERTY'];
           
@@ -253,7 +263,7 @@ if ($this->tab == "sensors"){
           $pres = $itm['SUBTYPE'];
           $sensors[$k]['STITLE'] = $mysensor_presentation[$pres][0];
           $sensors[$k]['SDESCR'] = $mysensor_presentation[$pres][1];
-					$sensors[$k]['NOTE'] = $itm['INFO'];
+		  $sensors[$k]['NOTE'] = $itm['INFO'];
           break;
         }
       }
@@ -261,6 +271,8 @@ if ($this->tab == "sensors"){
       $subtype = $v['SUBTYPE'];        
       $sensors[$k]['SUBTITLE'] = $mysensor_property[ $subtype ][0];
       $sensors[$k]['SUBDESCR'] = $mysensor_property[ $subtype ][1];
+	  	  
+	  $sensors[$k]['SDEVICE_TYPE'] = $mysensor_property[$sensors[$k]['SUBTYPE']][2];
     }
   }    
     
