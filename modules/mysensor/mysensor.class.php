@@ -663,14 +663,14 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function cmd($str) {
+	function cmd($str, $immediately = false) {
 		$arr = explode( ';', $str, 6 );
 		
 		// For sleep node
 		$sendrx = 0;
 		$rec = SQLSelectOne( "SELECT devtype FROM msnodes WHERE nid=" . $arr[0] );
 		
-		if ($rec['devtype'] == 1) {
+		if (($rec['devtype'] == 1) && (!$immediately)) {
 			$sendrx = 1;
 			$expire = time () + $this->RxExpireTimeout;
 		} else {
@@ -732,7 +732,7 @@ class mysensor extends module {
 		}
 		// echo "Set: ".$val."\n";
 		
-		$this->cmd( "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val );
+		$this->cmd( "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val, true );
 		return false;
 	}
 	/**
@@ -783,7 +783,7 @@ class mysensor extends module {
 			
 			// Time
 			case I_TIME :
-				$this->cmd( $NId . ";255;3;0;" . I_TIME . ";" . time () );
+				$this->cmd( $NId . ";255;3;0;" . I_TIME . ";" . time (), true );
 				break;
 			
 			// Version
@@ -811,7 +811,7 @@ class mysensor extends module {
 					
 					if ($nextid < 255) {
 						// Send new id
-						$this->cmd( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid );
+						$this->cmd( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid, true );
 						echo "Req new ID: $nextid\n";
 					} else {
 						echo "Req new ID: out of range\n";
@@ -836,7 +836,7 @@ class mysensor extends module {
 				}
 				
 				// Send ansver - metric
-				$this->cmd( $NId . ";255;3;0;" . I_CONFIG . ";" . $this->config['MS_MEASURE'] );
+				$this->cmd( $NId . ";255;3;0;" . I_CONFIG . ";" . $this->config['MS_MEASURE'], true );
 				break;
 			
 			// LOG_MESSAGE
@@ -880,10 +880,11 @@ class mysensor extends module {
 			case I_DISCOVER_RESPONSE :
 				break;
 						
-			// I_HEARTBEAT_RESPONSE
-			case I_HEARTBEAT_RESPONSE :
+			// I_HEARTBEAT_RESPONSE, I_PRE_SLEEP_NOTIFICATION
+			case I_HEARTBEAT_RESPONSE:
+			case I_PRE_SLEEP_NOTIFICATION:
 				if ($node) {
-					// SMart sleep
+					// Smart sleep
 					if ($node['DEVTYPE'] == 1)
 						$this->doSend($NId);
 				
@@ -899,19 +900,23 @@ class mysensor extends module {
 			// I_PING
 			case I_PING :
 				// Send I_PONG
-				$this->cmd( $NId . ";255;3;0;" . I_PONG . ";" . $val );
+				$this->cmd( $NId . ";255;3;0;" . I_PONG . ";" . $val, true );
 				break;
 			
 			// I_REGISTRATION_REQUEST
 			case I_REGISTRATION_REQUEST :
 				// Register request to GW
 				$val = $val >= $this->MY_CORE_MIN_VERSION;
-				$this->cmd( $NId . ";255;3;0;" . I_REGISTRATION_RESPONSE . ";" . $val );
+				$this->cmd( $NId . ";255;3;0;" . I_REGISTRATION_RESPONSE . ";" . $val, true );
 				break;
 				
 			// I_DEBUG
 			case I_DEBUG:
 				echo date( "Y-m-d H:i:s" ) . " Debug: ID:".$NId." = ".$val."\n";
+				break;
+			
+			// I_POST_SLEEP_NOTIFICATION
+			case I_POST_SLEEP_NOTIFICATION:
 				break;
 			
 			default :
@@ -965,7 +970,7 @@ class mysensor extends module {
 		
 		// Send				
 		$data = sprintf("%04x", $NId)."0100".$this->node_bins[$NId]["bloks"].$this->node_bins[$NId]["crc"];
-		$this->cmd( "$NId;0;4;0;1;". $data );
+		$this->cmd( "$NId;0;4;0;1;". $data, true );
 	}
 	/**
 	 * Stream packet
@@ -991,12 +996,7 @@ class mysensor extends module {
 		if (!$node['ID'])
 			if (! $this->RegistNewNode( $node, $NId ))
 				return;
-				
-		if ($node['OTA'] != 1) {
-			$node['OTA'] = 1;
-			SQLUpdate( 'msnodes', $node );
-		}
-		
+					
 		switch ($SubType) {
 			// Request new FW, payload contains current FW details
 			case 0x00:
@@ -1007,21 +1007,12 @@ class mysensor extends module {
 				$BLh = hexdec( substr( $val, 16, 2 ) );
 				$BLl = hexdec( substr( $val, 18, 2 ) );
 				
-				// Test version
-		/*				
-				if (($CVer != "0100") || ($CVer != "01FF") || ($CVer != "FFFF")){
-					echo date("Y-m-d H:i:s")." Unknow boot version $NId - $CVer\n";
-					return;
-				}
-		*/				
-				// Test BLVer
-				//if ($BLh != 1){
-				//	echo date("Y-m-d H:i:s")." Error BL version $BLh.$BLl\n";
-				//	return;
-				//}
+				// Test version	
+				echo date( "Y-m-d H:i:s" ) . " CV=$CVer ; BLV=$BLh.$BLl\n";
 				
-				echo date( "Y-m-d H:i:s" ) . " BL version=$BLh.$BLl\n";
-		
+				$node['BOOTVER'] = "OTA:$BLh.$BLl";
+				SQLUpdate( 'msnodes', $node );
+			
 				$this->ResponseFW($NId);
 				
 				break;
@@ -1206,7 +1197,7 @@ class mysensor extends module {
 	msnodes: LOCATION_ID int(10) NOT NULL DEFAULT '0' 
 	msnodes: LASTREBOOT datetime
 	msnodes: DEVTYPE int(10) DEFAULT '0'
-	msnodes: OTA int(10) DEFAULT '0'
+	msnodes: BOOTVER varchar(255) NOT NULL DEFAULT ''
 
 	msnodesens: ID int(10) unsigned NOT NULL auto_increment
 	msnodesens: NID int(10) NOT NULL 

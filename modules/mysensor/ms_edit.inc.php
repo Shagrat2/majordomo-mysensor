@@ -16,12 +16,13 @@ if ($this->mode=='cmd') {
   $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }
 
-if ($this->mode=='resetbat'){
+if ($this->mode=='resetinfo'){
 	global $data;
 	
 	$table_name='msnodes';
 	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE NID='$data'");
 	$rec['BATTERY'] = "";
+	$rec['BOOTVER'] = "";
 	SQLUpdate($table_name, $rec); // update
 	$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }

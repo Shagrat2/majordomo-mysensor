@@ -94,6 +94,11 @@
  <label class="control-label"><#LANG_PROTOCOL#>:</label>
  <div class="controls">[#PROT#]</div>
 </div>
+<!-- Boot ver (varchar) -->
+<div class="form-group">
+ <label class="control-label">Boot:</label>
+ <div class="controls">[#BOOTVER#]</div>
+</div>
 <!-- LastReboot (varchar) -->
 <div class="form-group">
  <label class="control-label"><#LANG_LASTREBOOT#>:</label>
@@ -136,7 +141,7 @@
 [#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
 [#module name="linkedobject" object_field="heartbeat_object" property_field="heartbeat_property"#] 
 <hr/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=resetbat&data=[#NID#]" class="btn btn-default"><#LANG_RESETBAT#></a> - <#LANG_RESETBAT_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=resetinfo&data=[#NID#]" class="btn btn-default"><#LANG_RESETINFO#></a> - <#LANG_RESET_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;18;0" class="btn btn-default"><#LANG_HEARTBEAT#></a> - <#LANG_HEARTBEAT_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;19;0" class="btn btn-default"><#LANG_PRESENTATION#></a> - <#LANG_PRESENTATION_INFO#><br/><br/>
 <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#><br/>

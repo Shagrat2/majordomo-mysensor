@@ -69,14 +69,16 @@
     for($i=0;$i<$total;$i++) {
 	
 		$DevType = "";
-		if ($res[$i]['OTA'] == 1)
-			$DevType = "OTA: ";			
+		
+		if ($res[$i]['BOOTVER'] != ""){
+			$DevType .= $res[$i]['BOOTVER']."<br/>";
+		}
 
 		// some action for every record if required		 
 		if ($res[$i]['DEVTYPE'] == 1)
-			$DevType = $DevType . "Battery";
+			$DevType .= "Battery";
 		else
-			$DevType = $DevType . "Power";
+			$DevType .= "Power";
 		
 		$res[$i]['DEVTYPE'] = $DevType;
 		
