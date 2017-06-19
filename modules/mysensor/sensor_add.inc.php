@@ -74,7 +74,7 @@ if ($sens['ID']) {
   
   foreach ($presentation as $val){    
     $subtype = $val['SUBTYPE'];		
-    $title = $mysensor_presentation[ $subtype ][0];    
+    $title = MSPresentation[ $subtype ][0];    
     $sens[] = array('ID'=>$val['SID'], 'TITLE'=>$val['SID']." : $title");
   }
   $out['SID_OPTIONS']=$sens;
@@ -82,7 +82,7 @@ if ($sens['ID']) {
 
 // SubType
 $subtype = array();
-foreach ($mysensor_property as $k=>$v){
+foreach (MSProperty as $k=>$v){
   $subtype[] = array('ID'=>$k, 'TITLE'=>$k." : ".$v[0]);
 }
 $out['SUBTYPE_OPTIONS']=$subtype;

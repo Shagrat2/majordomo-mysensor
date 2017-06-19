@@ -31,16 +31,16 @@ class MySensorMasterCom extends MySensorMaster {
   *
   * @return bool
   */
-  function connect(){    
-	  if($this->debug) echo date("Y-m-d H:i:s")." Connecting COM\n";
+  function connect(){
+	$this->AddLog(cLogDebug, "Connecting COM");
 		
     $result = $this->Serial->deviceOpen("w+b");
-    
     if ($result === false) {
-        throw new Exception("serrial.open() failed");
+		$this->AddLog(cLogError, "serrial.open() failed");
+		return false;
     } 
-      
-    if($this->debug) echo  date("Y-m-d H:i:s")." Connected\n";
+    
+	$this->AddLog(cLogDebug, "Connected");
     
     stream_set_timeout($this->Serial->_dHandle, 0, 250000);    
 		
@@ -55,8 +55,8 @@ class MySensorMasterCom extends MySensorMaster {
    * Disconnect the socket
    */
   function disconnect(){    
-    $this->Serial->deviceClose();    
-	  if($this->debug) echo  date("Y-m-d H:i:s")." Disconnected\n";
+    $this->Serial->deviceClose();
+	  $this->AddLog(cLogDebug, "Disconnected");
   }   
   
   /**
@@ -64,7 +64,7 @@ class MySensorMasterCom extends MySensorMaster {
    *
    * Read the socket
    */
-  function read(){    
+  function read(){
     //echo  date("Y-m-d H:i:s")." Start read ".time()." \n";
     $lastTime = round(microtime(true) * 1000);
     $data = "";
@@ -93,7 +93,7 @@ class MySensorMasterCom extends MySensorMaster {
     $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";    
     $this->Serial->sendMessage($data);
     if ($log)
-      echo date("Y-m-d H:i:s")." Send: $data";
+      $this->AddLog(cLogDebug, "Send: $data");
     return true;
   }
 } 

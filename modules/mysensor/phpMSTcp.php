@@ -24,7 +24,7 @@ class MySensorMasterTCP extends MySensorMaster {
   * @return bool
   */
   function connect(){
-	if($this->debug) echo date("Y-m-d H:i:s")." Connecting TCP: '$this->host':$this->port\n";
+	$this->AddLog(cLogDebug, "Connecting TCP: '$this->host':$this->port");
 		
 	// TCP socket
 	$this->sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);         
@@ -40,12 +40,12 @@ class MySensorMasterTCP extends MySensorMaster {
 	// Connect the socket
 	$result = @socket_connect($this->sock, $this->host, $this->port);
 	if ($result === false) {
-		echo "socket_connect() failed. Reason: ".socket_strerror(socket_last_error($this->sock))."\n";		
+		$this->AddLog(cLogError, "socket_connect() failed. Reason: ".socket_strerror(socket_last_error($this->sock)));
 		socket_close($this->sock);
 		return $result;
 	} 
-        
-	if($this->debug) echo date("Y-m-d H:i:s")." Connected\n";        
+
+	$this->AddLog(cLogDebug, "Connected");
     
     MySensorMaster::connect();
     
@@ -59,7 +59,7 @@ class MySensorMasterTCP extends MySensorMaster {
    */
   function disconnect(){    
     socket_close($this->sock);
-	  if($this->debug) echo date("Y-m-d H:i:s")." Disconnected\n";
+	$this->AddLog(cLogDebug, "Disconnected");
   }   
   
   /**
@@ -87,7 +87,7 @@ class MySensorMasterTCP extends MySensorMaster {
     $data = "$nid;$sid;$mtype;$ack;$subtype;$msg\n";
     $ret = socket_write($this->sock, $data);
     if ($log)
-      echo date("Y-m-d H:i:s")." Send: $data";
+	  $this->AddLog(cLogDebug, "Send: $data");
     return $ret;
   }
 } 

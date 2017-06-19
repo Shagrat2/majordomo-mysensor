@@ -12,47 +12,10 @@ if ($res[0]['ID']) {
 		$mstype = $res[$i]['MType'];
 		$mssubtype = $res[$i]['SUBTYPE'];
 		
-		switch ($mstype) {
-		  case C_PRESENTATION:
-			if ($mssubtype >= count($mysensor_presentation)) 
-			  $ret = "-Unknown-";
-			else
-			  $ret = $mysensor_presentation[$mssubtype][0];
-		    break;
-		  case C_SET:
-			if ($mssubtype >= count($mysensor_property)) 
-			  $ret = "-Unknown-";
-			else
-			  $ret = $mysensor_property[$mssubtype][0];
-		    break;
-		  case C_REQ:
-			if ($mssubtype >= count($mysensor_property)) 
-			  $ret = "-Unknown-";
-			else
-			  $ret = $mysensor_property[$mssubtype][0];
-		    break;
-		  case C_INTERNAL:
-			if ($mssubtype >= count($mysensor_internal)) 
-			  $ret = "-Unknown-";
-			else
-			  $ret = $mysensor_internal[$mssubtype][0];
-		    break;
-		  case C_STREAM:
-			if ($mssubtype >= count($mysensor_stream)) 
-			  $ret = "-Unknown-";
-			else
-			  $ret = $mysensor_stream[$mssubtype][0];
-		    break;;
-		  default:
-			$ret = "-Error-";
-		}
-
-		$res[$i]['MType'] = $mysensor_type[$mstype];
-		$res[$i]['SUBTYPE'] = $ret;
+		$res[$i]['MType'] = MSType[$mstype];
+		$res[$i]['SUBTYPE'] = SubTypeDecode($mstype, $mssubtype);
 	}
 	$out['QUEUING']=$res;
 }
-
-?>
 
 ?>

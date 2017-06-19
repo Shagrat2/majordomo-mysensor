@@ -5,15 +5,15 @@ VERSION: 2015.07.08 - 11:01
 */
 
 // Constants for the MySensor class
-$mysensor_type = array(
+const MSType = array(
   0 => "Presentation",
-  1 => "Sresentation",
+  1 => "Set",
   2 => "Req",
   3 => "Internal",
   4 => "Stream",
 );
 
-$mysensor_presentation = array(
+const MSPresentation = array(
   0 => Array("S_DOOR",              "Door and window sensors",                              'V_TRIPPED, V_ARMED'),
   1 => Array("S_MOTION",            "Motion sensors",                                       'V_TRIPPED, V_ARMED'),
   2 => Array("S_SMOKE",             "Smoke sensor",                                         'V_TRIPPED, V_ARMED'),
@@ -57,7 +57,7 @@ $mysensor_presentation = array(
 ); 
 
 // Index, Type, Title, Major Domo Smartdevice name
-$mysensor_property = array(
+const MSProperty = array(
   0 => Array("V_TEMP", "Temperature", "sensor_temp"),
   1 => Array("V_HUM", "Humidity", "sensor_humidity"),
   2 => Array("V_STATUS", "Binary status. 0=off 1=on", "sensor_state"),
@@ -74,7 +74,7 @@ $mysensor_property = array(
   13 => Array("V_DISTANCE", "Distance"),
   14 => Array("V_IMPEDANCE", "Impedance value"),
   15 => Array("V_ARMED", "Armed status of a security sensor. 1=Armed, 0=Bypassed"),
-  16 => Array("V_TRIPPED", "Tripped status of a security sensor. 1=Tripped, 0=Untripped"),
+  16 => Array("V_TRIPPED", "Tripped status of a security sensor. 1=Tripped, 0=Untripped", "sensor_state"),
   17 => Array("V_WATT", "Watt value for power meters", "sensor_power"),
   18 => Array("V_KWH", "Accumulated number of KWH for a power meter", "sensor_power"),
   19 => Array("V_SCENE_ON", "Turn on a scene"),
@@ -117,7 +117,7 @@ $mysensor_property = array(
   56 => Array("V_POWER_FACTOR", 'Ratio of real power to apparent power: floating point value in the range [-1,..,1]'),
 );
 
-$mysensor_internal = array(
+const MSInternal = array(
 	0 => array("I_BATTERY_LEVEL", ""),
 	1 => array("I_TIME", ""),
 	2 => array("I_VERSION", ""),
@@ -154,7 +154,7 @@ $mysensor_internal = array(
 	33 => array("I_POST_SLEEP_NOTIFICATION", ""),
 );
 
-$mysensor_stream = array(
+const MSStream = array(
 	0 => array("ST_FIRMWARE_CONFIG_REQUEST", ""),
 	1 => array("ST_FIRMWARE_CONFIG_RESPONSE", ""),
 	2 => array("ST_FIRMWARE_REQUEST", ""),
@@ -203,6 +203,48 @@ const	I_SIGNAL_REPORT_REVERSE		= 30;	//
 const	I_SIGNAL_REPORT_RESPONSE	= 31;	// Device signal strength response (RSSI)
 const	I_PRE_SLEEP_NOTIFICATION	= 32;	// Message sent before node is going to sleep
 const	I_POST_SLEEP_NOTIFICATION	= 33;	// Message sent after node woke up (if enabled)
+
+const	cLogDebug = 0; // Debug
+const   cLogError = 1; // Error
+const	cLogMessage = 2; // Message
+
+function SubTypeDecode($mstype, $mssubtype){
+	
+	switch ($mstype) {
+	  case C_PRESENTATION:
+		if ($mssubtype >= count(MSPresentation)) 
+		  return "-Unknown-";
+		else
+		  return MSPresentation[$mssubtype][0];
+		break;
+	  case C_SET:
+		if ($mssubtype >= count(MSProperty)) 
+		  return "-Unknown-";
+		else
+		  return MSProperty[$mssubtype][0];
+		break;
+	  case C_REQ:
+		if ($mssubtype >= count(MSProperty)) 
+		  return "-Unknown-";
+		else
+		  return MSProperty[$mssubtype][0];
+		break;
+	  case C_INTERNAL:
+		if ($mssubtype >= count(MSInternal)) 
+		  return "-Unknown-";
+		else
+		  return MSInternal[$mssubtype][0];
+		break;
+	  case C_STREAM:
+		if ($mssubtype >= count(MSStream)) 
+		  return "-Unknown-";
+		else
+		  return MSStream[$mssubtype][0];
+		break;;
+	  default:
+		return "-Error-";
+	}
+}
 	
 abstract class MySensorMaster{    
   public $debug = false;            /* should output debug messages */ 
@@ -220,7 +262,7 @@ abstract class MySensorMaster{
    * @return bool
    */
   function connect(){
-		if($this->debug) echo date("Y-m-d H:i:s")." Connecting main\n";
+	$this->AddLog(cLogDebug, "Connecting main");
 		
     // Set time out    
     $this->lastTime = round(microtime(true) * 1000);
@@ -249,6 +291,22 @@ abstract class MySensorMaster{
   abstract function send($nid, $sid, $mtype, $ack, $subtype, $msg, $log = true);
   
   /**
+  * Append to log
+  */
+  function AddLog($level, $data){
+	  list($usec, $sec) = explode(" ", microtime());
+	
+	  switch ($level){
+		  case cLogDebug:
+			if($this->debug) echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
+			break;
+		  default:
+		    echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
+			break;
+	  }
+  }
+  
+  /**
   * subscribe
   */
   function subscribe($params){
@@ -262,18 +320,18 @@ abstract class MySensorMaster{
 	
 	//---- Send ----
 	if(function_exists($this->subscribe['sendproc'])){
-		if($this->debug) echo date("Y-m-d H:i:s")." Start send\n";
+		$this->AddLog(cLogDebug, "Start send");
 		call_user_func($this->subscribe['sendproc']);
 	}    
 		
     //---- Read ----
-	if($this->debug) echo date("Y-m-d H:i:s")." Start read\n";	
-    $read_data = $this->read();	
-	if($this->debug) echo date("Y-m-d H:i:s")." End read\n";
+	$this->AddLog(cLogDebug, "Start read");
+    $read_data = $this->read();
+	$this->AddLog(cLogDebug, "End read");
 
     if ($read_data != ''){
 		// Original data
-		if($this->debug) echo date("Y-m-d H:i:s")." >>> $read_data\n";
+		$this->AddLog(cLogDebug, ">>> $read_data");
 
 		// Reset timer
 		$this->lastTime = $currentMillis;
@@ -290,7 +348,7 @@ abstract class MySensorMaster{
 		for ($i=0; $i<5; $i++)			
 			if ((is_numeric($arr[$i]) === false) || (is_float($arr[$i]) !== false))
 			{	
-				echo date("Y-m-d H:i:s")." ### $read_data\n";					
+				$this->AddLog(cLogDebug, "### $read_data");
 				return true;
 			}
 			
@@ -329,7 +387,7 @@ abstract class MySensorMaster{
     
     // Tester present
     if ($currentMillis - $this->lastTime > $this->testtime && !$this->testsend){
-		if($this->debug) echo date("Y-m-d H:i:s")." Tester presend\n";		
+		$this->AddLog(cLogDebug, "Tester presend");
 		$this->send(0, 0, 3, 0, 2, "Tester present", false);
 		$this->testsend = true;
     }
@@ -338,7 +396,7 @@ abstract class MySensorMaster{
     if ($currentMillis - $this->lastTime > $this->alivetime){		
 		$this->disconnect();
 
-		if($this->debug) echo date("Y-m-d H:i:s")." Reconnect\n";
+		$this->AddLog(cLogDebug, "Reconnect");
 
 		$result = $this->connect();
 		if ($result === false)

@@ -32,8 +32,7 @@ function tree($a,$i,$p,$r=0,$c='children'){
 
 // SEARCH RESULTS  
 SQLSelect("SET @@sql_mode = \"\"");
-$res=SQLSelect("SELECT msnodes.*, max(msnodeval.UPDATED) as UPDATED FROM msnodes, msnodeval WHERE msnodes.nid=msnodeval.nid GROUP BY NID ORDER BY NID");
-//$res=SQLSelect("SELECT * FROM msnodes ORDER BY nid");
+$res=SQLSelect("SELECT q1.*, q2.tupdate FROM msnodes q1 LEFT JOIN (SELECT NID, max(UPDATED) AS tupdate FROM msnodeval GROUP BY NID) q2 ON q1.NID = q2.NID ORDER BY q1.NID");
   
 $tree = tree($res, 'NID', 'PID');
 
@@ -41,7 +40,13 @@ function Display($arr, $level = 0){
 	if (is_array($arr))
 	{
 		foreach ($arr as $k=>$v){
-			if ((time()-strtotime($v['UPDATED'])) > 3*60*60)			
+			$lastt = strtotime($v['tupdate']);
+			$lasthb = strtotime($v['HEARTBEAT']);
+			if ($lasthb > $lastt){
+				$lastt = $lasthb;
+			}
+			
+			if ((time()-$lastt) > 3*60*60)			
 				$res .= "<tr style=\"color: red\">";
 			else
 				$res .= "<tr>";
@@ -53,7 +58,7 @@ function Display($arr, $level = 0){
 			$res .= "<a href=\"?view_mode=node_edit&id=".$v['ID']."\">".$v['NID']." : ".$v['TITLE']."</a></td>";
 			
 			// Updated
-			$res .= "<td>".$v['UPDATED']."<td>";
+			$res .= "<td>".$v['tupdate']."<td>";
 			
 			// Start time
 			$res .= "<td>".$v['LASTREBOOT']."<td>";		
