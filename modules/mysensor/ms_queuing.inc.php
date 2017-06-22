@@ -9,11 +9,11 @@ if ($res[0]['ID']) {
     for($i=0;$i<$total;$i++) {
 		$res[$i]['EXPIRE'] = date("Y-m-d H:i:s", $res[$i]['EXPIRE']);
 		
-		$mstype = $res[$i]['MType'];
+		$mtype = $res[$i]['MType'];
 		$mssubtype = $res[$i]['SUBTYPE'];
 		
-		$res[$i]['MType'] = $MSType[$mstype];
-		$res[$i]['SUBTYPE'] = SubTypeDecode($mstype, $mssubtype);
+		$res[$i]['MType'] = MSType[$mtype];
+		$res[$i]['SUBTYPE'] = SubTypeDecode($mtype, $mssubtype);
 	}
 	$out['QUEUING']=$res;
 }
