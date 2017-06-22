@@ -5,15 +5,15 @@ VERSION: 2015.07.08 - 11:01
 */
 
 // Constants for the MySensor class
-const MSType = [
+const MSType = array(
   0 => "Presentation",
   1 => "Set",
   2 => "Req",
   3 => "Internal",
   4 => "Stream",
-];
+);
 
-const MSPresentation = [
+const MSPresentation = array(
   0 => Array("S_DOOR",              "Door and window sensors",                              'V_TRIPPED, V_ARMED'),
   1 => Array("S_MOTION",            "Motion sensors",                                       'V_TRIPPED, V_ARMED'),
   2 => Array("S_SMOKE",             "Smoke sensor",                                         'V_TRIPPED, V_ARMED'),
@@ -54,10 +54,10 @@ const MSPresentation = [
   37 => Array("S_GAS",              "Gas meter",                                      	    'V_FLOW, V_VOLUME'),
   38 => Array("S_GPS",				"GPS Sensor",											'V_POSITION'),
   39 => Array("S_WATER_QUALITY",	"Water quality sensor",									'V_TEMP, V_PH, V_ORP, V_EC, V_STATUS'),
-];
+);
 
 // Index, Type, Title, Major Domo Smartdevice name
-const MSProperty = [
+const MSProperty = array(
   0 => Array("V_TEMP", "Temperature", "sensor_temp"),
   1 => Array("V_HUM", "Humidity", "sensor_humidity"),
   2 => Array("V_STATUS", "Binary status. 0=off 1=on", "sensor_state"),
@@ -115,9 +115,9 @@ const MSProperty = [
   54 => Array("V_VAR", 'Reactive power: volt-ampere reactive (var)'),
   55 => Array("V_VA", 'Apparent power: volt-ampere (VA)'),
   56 => Array("V_POWER_FACTOR", 'Ratio of real power to apparent power: floating point value in the range [-1,..,1]'),
-];
+);
 
-const MSInternal = [
+const MSInternal = array(
 	0 => array("I_BATTERY_LEVEL", ""),
 	1 => array("I_TIME", ""),
 	2 => array("I_VERSION", ""),
@@ -152,16 +152,16 @@ const MSInternal = [
 	31 => array("I_SIGNAL_REPORT_RESPONSE", ""),
 	32 => array("I_PRE_SLEEP_NOTIFICATION", ""),
 	33 => array("I_POST_SLEEP_NOTIFICATION", ""),
-];
+);
 
-const MSStream = [
+const MSStream = array(
 	0 => array("ST_FIRMWARE_CONFIG_REQUEST", ""),
 	1 => array("ST_FIRMWARE_CONFIG_RESPONSE", ""),
 	2 => array("ST_FIRMWARE_REQUEST", ""),
 	3 => array("ST_FIRMWARE_RESPONSE", ""),
 	4 => array("ST_SOUND", ""),
 	5 => array("ST_IMAGE", ""),
-];
+);
 
 const   C_PRESENTATION				= 0;	// Sent by a node when they present attached sensors. This is usually done in presentation() at startup.
 const	C_SET						= 1;	// This message is sent from or to a sensor when a sensor value should be updated.
