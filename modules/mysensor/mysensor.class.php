@@ -560,7 +560,7 @@ class mysensor extends module {
 		
 		// Log
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 0:Presentation; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(0, $SubType)."; Msg:$info");
+		$this->MySensor->AddLog(cLogMessage, ">> 0:Presentation; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_PRESENTATION, $SubType)."; Msg:$info");
 		
 		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';" );
 		if (!$node['ID'])
@@ -606,7 +606,7 @@ class mysensor extends module {
 		
 		// Log
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 1:Set; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(1, $SubType)."; Msg:$val");
+		$this->MySensor->AddLog(cLogMessage, ">> 1:Set; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_SET, $SubType)."; Msg:$val");
 		
 		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
 		if (! $node['ID'])
@@ -713,7 +713,7 @@ class mysensor extends module {
 		if ($NId == "")	return;
 		
 		// Log		
-		$this->MySensor->AddLog(cLogMessage, ">> 2:Req; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(2, $SubType)."; Msg:$val");
+		$this->MySensor->AddLog(cLogMessage, ">> 2:Req; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_REQ, $SubType)."; Msg:$val");
 		
 		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
 		if (! $node['ID'])
@@ -757,7 +757,7 @@ class mysensor extends module {
 		// Log		
 		$SId = $arr[1];
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 3:Internal; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(3, $SubType)."; Msg:$val");
+		$this->MySensor->AddLog(cLogMessage, ">> 3:Internal; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_INTERNAL, $SubType)."; Msg:$val");
 			
 		// Skip tester present
 		if ($NId == 255) { // ($NId == 0) ||
@@ -1019,7 +1019,7 @@ class mysensor extends module {
 		// Log				
 		$Ack = $arr[3];
 		$SId = $arr[1];
-		$this->MySensor->AddLog(cLogMessage, ">> 4:Stream; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(4, $SubType)."; Msg:$val");
+		$this->MySensor->AddLog(cLogMessage, ">> 4:Stream; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_STREAM, $SubType)."; Msg:$val");
 		
 		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
 		if (!$node['ID'])
@@ -1104,6 +1104,8 @@ class mysensor extends module {
 	 *        
 	 */
 	function doSend($NId = -1) {
+		global $MSType;
+		
 		if ($NId == -1) {
 			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=0;");
 		} else {
