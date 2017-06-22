@@ -1145,7 +1145,7 @@ class mysensor extends module {
 		$this->MySensor->send($NId, $SId, $MType, $Ack, $SubType, $Data);
 		
 		//$sendwait[$rec['NID']] = time();
-		$this->MySensor->AddLog(cLogMessage, "<@ $MType:".MSType[$MType]."; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode($MType, $SubType)."; Msg:$Data");
+		$this->MySensor->AddLog(cLogMessage, "<@ $MType:".$MSType[$MType]."; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode($MType, $SubType)."; Msg:$Data");
 	}
 		
 	function RegistNewNode(&$node, $NId) {

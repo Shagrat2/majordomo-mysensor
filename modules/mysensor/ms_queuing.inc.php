@@ -12,7 +12,7 @@ if ($res[0]['ID']) {
 		$mstype = $res[$i]['MType'];
 		$mssubtype = $res[$i]['SUBTYPE'];
 		
-		$res[$i]['MType'] = MSType[$mstype];
+		$res[$i]['MType'] = $MSType[$mstype];
 		$res[$i]['SUBTYPE'] = SubTypeDecode($mstype, $mssubtype);
 	}
 	$out['QUEUING']=$res;
