@@ -1,6 +1,6 @@
 <?php
 
-require("phpMS.php");
+require_once ("phpMS.php");
 
 if ($this->mode=='setvalue') {
    global $prop_id;
@@ -262,18 +262,18 @@ if ($this->tab == "sensors"){
       foreach($presentation as $itm){
         if (($itm['NID'] == $rec['NID']) && ($itm['SID'] == $v['SID'])){
           $pres = $itm['SUBTYPE'];
-          $sensors[$k]['STITLE'] = MSPresentation[$pres][0];
-          $sensors[$k]['SDESCR'] = MSPresentation[$pres][1];
+          $sensors[$k]['STITLE'] = $MSPresentation[$pres][0];
+          $sensors[$k]['SDESCR'] = $MSPresentation[$pres][1];
 		  $sensors[$k]['NOTE'] = $itm['INFO'];
           break;
         }
       }
         
       $subtype = $v['SUBTYPE'];        
-      $sensors[$k]['SUBTITLE'] = MSProperty[ $subtype ][0];
-      $sensors[$k]['SUBDESCR'] = MSProperty[ $subtype ][1];
+      $sensors[$k]['SUBTITLE'] = $MSProperty[ $subtype ][0];
+      $sensors[$k]['SUBDESCR'] = $MSProperty[ $subtype ][1];
 	  	  
-	  $sensors[$k]['SDEVICE_TYPE'] = MSProperty[$sensors[$k]['SUBTYPE']][2];
+	  $sensors[$k]['SDEVICE_TYPE'] = $MSProperty[$sensors[$k]['SUBTYPE']][2];
     }
   }    
     
@@ -283,7 +283,7 @@ if ($this->tab == "presentation"){
   if (is_array($presentation)) {    
     foreach($presentation as $k=>$v){      
       $pres = $v['SUBTYPE'];
-      $presentation[$k]['TITLE'] = MSPresentation[$pres][0];
+      $presentation[$k]['TITLE'] = $MSPresentation[$pres][0];
     }    
   }    
     

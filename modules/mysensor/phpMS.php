@@ -4,8 +4,14 @@
 VERSION: 2015.07.08 - 11:01  
 */
 
+global $MSType;
+global $MSPresentation;
+global $MSProperty;
+global $MSInternal;
+global $MSStream;
+
 // Constants for the MySensor class
-const MSType = array(
+$MSType = array(
   0 => "Presentation",
   1 => "Set",
   2 => "Req",
@@ -13,7 +19,7 @@ const MSType = array(
   4 => "Stream",
 );
 
-const MSPresentation = array(
+$MSPresentation = array(
   0 => Array("S_DOOR",              "Door and window sensors",                              'V_TRIPPED, V_ARMED'),
   1 => Array("S_MOTION",            "Motion sensors",                                       'V_TRIPPED, V_ARMED'),
   2 => Array("S_SMOKE",             "Smoke sensor",                                         'V_TRIPPED, V_ARMED'),
@@ -57,7 +63,7 @@ const MSPresentation = array(
 );
 
 // Index, Type, Title, Major Domo Smartdevice name
-const MSProperty = array(
+$MSProperty = array(
   0 => Array("V_TEMP", "Temperature", "sensor_temp"),
   1 => Array("V_HUM", "Humidity", "sensor_humidity"),
   2 => Array("V_STATUS", "Binary status. 0=off 1=on", "sensor_state"),
@@ -117,7 +123,7 @@ const MSProperty = array(
   56 => Array("V_POWER_FACTOR", 'Ratio of real power to apparent power: floating point value in the range [-1,..,1]'),
 );
 
-const MSInternal = array(
+$MSInternal = array(
 	0 => array("I_BATTERY_LEVEL", ""),
 	1 => array("I_TIME", ""),
 	2 => array("I_VERSION", ""),
@@ -154,7 +160,7 @@ const MSInternal = array(
 	33 => array("I_POST_SLEEP_NOTIFICATION", ""),
 );
 
-const MSStream = array(
+$MSStream = array(
 	0 => array("ST_FIRMWARE_CONFIG_REQUEST", ""),
 	1 => array("ST_FIRMWARE_CONFIG_RESPONSE", ""),
 	2 => array("ST_FIRMWARE_REQUEST", ""),
@@ -209,37 +215,41 @@ const   cLogError = 1; // Error
 const	cLogMessage = 2; // Message
 
 function SubTypeDecode($mtype, $mssubtype){
+	global $MSPresentation;
+	global $MSProperty;
+	global $MSInternal;
+	global $MSStream;
 	
 	switch ($stype) {
 	  case C_PRESENTATION:
-		if ($mssubtype >= count(MSPresentation)) 
+		if ($mssubtype >= count($MSPresentation)) 
 		  return "-Unknown-";
 		else
-		  return MSPresentation[$mssubtype][0];
+		  return $MSPresentation[$mssubtype][0];
 		break;
 	  case C_SET:
-		if ($mssubtype >= count(MSProperty)) 
+		if ($mssubtype >= count($MSProperty)) 
 		  return "-Unknown-";
 		else
-		  return MSProperty[$mssubtype][0];
+		  return $MSProperty[$mssubtype][0];
 		break;
 	  case C_REQ:
-		if ($mssubtype >= count(MSProperty)) 
+		if ($mssubtype >= count($MSProperty)) 
 		  return "-Unknown-";
 		else
-		  return MSProperty[$mssubtype][0];
+		  return $MSProperty[$mssubtype][0];
 		break;
 	  case C_INTERNAL:
-		if ($mssubtype >= count(MSInternal)) 
+		if ($mssubtype >= count($MSInternal)) 
 		  return "-Unknown-";
 		else
-		  return MSInternal[$mssubtype][0];
+		  return $MSInternal[$mssubtype][0];
 		break;
 	  case C_STREAM:
-		if ($mssubtype >= count(MSStream)) 
+		if ($mssubtype >= count($MSStream)) 
 		  return "-Unknown-";
 		else
-		  return MSStream[$mssubtype][0];
+		  return $MSStream[$mssubtype][0];
 		break;;
 	  default:
 		return "-Error-";
