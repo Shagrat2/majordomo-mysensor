@@ -18,7 +18,7 @@ class mysensor extends module {
 	public $RxExpireTimeout = 21600; // 6*60*60 = 6 hours
 	public $MY_CORE_MIN_VERSION = 2;
 	public $node_bins = array();
-	public $MySensor;	
+	public $MySensor;
 	
 	/**
 	 * mySensor
@@ -971,19 +971,16 @@ class mysensor extends module {
 		// Load bin									
 		$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
 		if (!$rec['ID']){
-			$this->MySensor->AddLog(cLogError, "Binary for $NId not found");
-			return false;
+			return "Binary for $NId not found";
 		}
 		
 		// Parse HEX
 		$parser = new IntelHex();
-		if (!$parser->Parse($rec['BIN'])) {
-			$this->MySensor->AddLog(cLogError, "Error load bin $NId : $parser->LastError");
-			return false;
+		if (!$parser->Parse($rec['BIN'])) {			
+			return "Error load bin $NId : $parser->LastError";
 		}
 		if ($parser->FirstAddr != 0){
-			$this->MySensor->AddLog(cLogError, "Error load bin $NId : First adress $parser->FirstAddr");
-			return false;
+			return "Error load bin $NId : First adress $parser->FirstAddr";
 		}
 		$parser->NormalizePage(16);
 		
@@ -1000,6 +997,8 @@ class mysensor extends module {
 		// Send				
 		$data = sprintf("%04x", $NId)."0100".$this->node_bins[$NId]["bloks"].$this->node_bins[$NId]["crc"];
 		$this->cmd( "$NId;0;4;0;1;". $data, true );
+		
+		return true;
 	}
 	/**
 	 * Stream packet
@@ -1042,7 +1041,10 @@ class mysensor extends module {
 				$node['BOOTVER'] = "OTA:$BLh.$BLl";
 				SQLUpdate( 'msnodes', $node );
 			
-				$this->ResponseFW($NId);
+				$ret = $this->ResponseFW($NId);
+				if ($ret !== true){
+					$this->MySensor->AddLog(cLogError, $ret);
+				}
 				
 				SQLExec ("DELETE FROM msnodestate WHERE NID=".$NId);
 				
@@ -1263,6 +1265,7 @@ EOD;
 		SQLExec("ALTER TABLE `msbins` CHANGE `VER` `VER` varchar(255) NOT NULL DEFAULT ''");
 		SQLExec("ALTER TABLE `msbins` CHANGE `CRC` `CRC` char(4)");
 		SQLExec("ALTER TABLE `msbins` CHANGE `BLOKS` `BLOKS` char(4)");
+		SQLExec("ALTER TABLE `msbins` CHANGE `BIN` `BIN` LONGBLOB");
 	}
 	// --------------------------------------------------------------------
 }

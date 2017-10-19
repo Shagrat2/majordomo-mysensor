@@ -31,8 +31,13 @@ if ($this->mode=='respfw'){
 	global $data;
 	$NId = $data;
 	
-	$this->ResponseFW($NId);
-	$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
+	$ret = $this->ResponseFW($NId);
+	if ($ret !== true){
+		$out['ERR_RESPFW']=1;
+		$out['ERR_RESPFW_TEXT'] = $ret;
+	} else {
+		$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
+	}
 }
   
 if ($this->owner->name=='panel') {
