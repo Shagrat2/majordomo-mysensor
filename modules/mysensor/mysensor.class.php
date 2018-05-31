@@ -188,7 +188,7 @@ class mysensor extends module {
 			$limit = 50;
 			
 			// Find last midifed
-			$filename = ROOT . 'debmes/log_*-cycle_mysensor.php.txt';
+			$filename = ROOT . 'cms/debmes/log_*-cycle_mysensor.php.txt';
 			foreach( glob( $filename ) as $file ) {
 				$LastModified[] = filemtime( $file );
 				$FileName[] = $file;
