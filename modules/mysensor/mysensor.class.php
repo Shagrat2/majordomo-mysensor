@@ -239,6 +239,8 @@ class mysensor extends module {
 		$out['MS_NEXTID'] = $this->config['MS_NEXTID'];
 		$out['MS_INCLUSION_MODE'] = $this->config['MS_INCLUSION_MODE'];
 		
+		$out['CYCLERUN'] = ((time() - gg('cycle_mysensorRun')) < 300 ) ? 1 : 0;
+		
 		if ($out['MS_CONTYPE'] == "") {
 			$out['MS_CONTYPE'] = 0;
 			$this->config['MS_CONTYPE'] = $out['MS_CONTYPE'];

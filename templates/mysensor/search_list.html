@@ -94,8 +94,9 @@
  </td>  
  <td width="1%" nowrap>
   [#if "<#ACTION#>"=="admin"#]
-	<a href="?tab=log&filter=Node:[#NID#]">Log</a>
+	<a href="?tab=log&filter=Node:[#NID#]" class="btn btn-default btn-sm" title="Log"><i class="glyphicon glyphicon-info-sign"></i></a>
     <a href="?view_mode=node_edit&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>
+	<a href="?view_mode=node_edit&tab=sensors&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_GENERAL_SENSORS#>"><i class="glyphicon glyphicon-th-list"></i></a>
     <a href="?view_mode=node_delete&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
   [#endif ACTION#]
  </td>

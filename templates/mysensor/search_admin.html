@@ -31,6 +31,7 @@
  MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a>   
  &nbsp;
  <a id="bincmode" href="?view_mode=inc_mode&tab=<#TAB#>" class="btn btn-default [#if MS_INCLUSION_MODE=="1"#]active[#endif#]">Inclusion mode</a>
+ <span id="cyclestate" class="label [#if CYCLERUN == 1#]label-success[#else#]label-danger[#endif#]" title="Статус цикла">[#if CYCLERUN == 1#]Цикл запущен[#else#]Цикл остановлен[#endif#]</span> 
 </div>
 <script language="javascript">
   var checkIncTimer;
