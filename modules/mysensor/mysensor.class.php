@@ -677,26 +677,34 @@ class mysensor extends module {
 		// For sleep node
 		$sendrx = 0;
 		$rec = SQLSelectOne( "SELECT devtype FROM msnodes WHERE nid=" . $arr[0] );
-		
-		if (($rec['devtype'] == 1) && (!$immediately)) {
-			$sendrx = 1;
-			$expire = time () + $this->RxExpireTimeout;
-		} else {
-			$sendrx = 0;
-			$expire = time () + $this->tryTimeout;
-		}
-		
+
 		$data['NID'] = $arr[0];
 		$data['SID'] = $arr[1];
 		$data['MType'] = $arr[2];
 		$data['ACK'] = $arr[3];
 		$data['SUBTYPE'] = $arr[4];
 		$data['MESSAGE'] = $arr[5];
-		$data['EXPIRE'] = $expire;
-		$data['SENDRX'] = $sendrx;
-		SQLInsert( 'mssendstack', $data );
 		
-		// DebMes("Prepare send: ".print_r($data, true));
+		if (($rec['devtype'] == 1) && (!$immediately)) {
+			$data['EXPIRE'] = time () + $this->RxExpireTimeout;
+			$data['SENDRX'] = 1;
+
+			$rec = SQLSelectOne( "SELECT id FROM mssendstack WHERE nid=".$arr[0]." AND sid=".$arr[1]." AND MType=".$arr[2]." AND SUBTYPE=".$arr[4] );
+
+			if (! $rec['id']) {
+				SQLInsert( 'mssendstack', $data );
+			} else {		
+				$data['ID']	= $rec['id'];
+				SQLUpdate( 'mssendstack', $data );
+			}
+			
+		} else {
+			$data['EXPIRE'] = time () + $this->tryTimeout;
+			$data['SENDRX'] = 0;
+			
+			SQLInsert( 'mssendstack', $data );
+		}		
+		//DebMes("Prepare send: ".print_r($data, true));
 	}
 	/**
 	 * Receive req
