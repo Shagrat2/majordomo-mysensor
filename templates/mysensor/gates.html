@@ -1,8 +1,10 @@
-<br/> 
+<br/>
+<p>
+<a href="?view_mode=gate_edit" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
+</p> 
 <!-- results -->
-[#if QUEUING#]
+[#if GATES#]
 <!-- paging -->
-<a href="?view_mode=queuing_clean" class="btn btn-default"><i class="glyphicon glyphicon-trash"></i> <#LANG_CLEAN#></a> 
 [#if PAGES#]
 <center>
 <ul class="pagination">
@@ -20,33 +22,40 @@
 <table class="table table-stripped">
 <thead>
 <tr>
- <th>NID</th>
- <th>SID</th>
- <th>TYPE</th>
- <th>ACK</th>
- <th>SUBTYPE</th>
- <th>MESSAGE</th>
- <th>EXPIRE</th>
+ <th>Id</th>
+ <th>
+ <a href="?sortby_mysensor=TITLE&save_qry=1&tab=gates"><#LANG_TITLE#></a><nobr>
+ [#if SORTBY="TITLE"#](+)[#endif#]
+ [#if SORTBY="TITLE DESC"#](-)[#endif#]</nobr> 
+ </th>
+ <th>Active</th>
+ <th>Connect</th>
  <th>&nbsp;</th>
 </tr>
 </thead>
 <tbody>
-[#begin QUEUING#]
+[#begin GATES#]
 <tr class="hover_btn2">
-<td>[#NID#]</td>
-<td>[#SID#]</td>
-<td>[#MType#]</td>
-<td>[#ACK#]</td>
-<td>[#SUBTYPE#]</td>
-<td>[#MESSAGE#]</td>
-<td>[#EXPIRE#]</td>
+<td>[#ID#]</td>
+<td><a href="?view_mode=gate_edit&id=[#ID#]">
+[#if TITLE!=""#]
+[#TITLE#]
+[#else#]
+&nbsp;
+[#endif#]
+</a></td>
+<td>[#if ACTIVE="1"#]Active[#else#]Not active[#endif#]</td>
+<td>[#URL#]</td>
 <td width="1%" nowrap>
 [#if "<#ACTION#>"=="admin"#]
-	<a href="?view_mode=queuing_delete&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
+  <a href="?view_mode=[#VIEW_MODE#]&tab=gates&mode=cmd&gid=[#ID#]&data=0;0;3;0;5;1" class="btn btn-default" title="Inclusion mode"><i class="glyphicon glyphicon-eye-open"></i></a>
+  <a href="?view_mode=[#VIEW_MODE#]&tab=gates&mode=cmd&gid=[#ID#]&data=255;255;3;0;20;0" class="btn btn-default" title="<#LANG_DISCOVER_INFO#>"><i class="glyphicon glyphicon-refresh"></i></a>
+	<a href="?view_mode=gate_edit&id=[#ID#]" class="btn btn-default btn-sm" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>
+	<a href="?view_mode=gate_delete&id=[#ID#]" onClick="return confirm('<#ARE_YOU_SURE#>')" class="btn btn-default btn-sm" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
 [#endif ACTION#]
 </td>
 </tr>
-[#end QUEUING#]
+[#end GATES#]
 </tbody>
 </table>
 <input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
@@ -66,9 +75,9 @@
 </center>
 [#endif PAGES#]
 <!-- / paging -->
-[#else QUEUING#]
+[#else GATES#]
 <p>
 <div class="alert alert-danger"><#LANG_NO_RECORDS_FOUND#></div>
 </p>
-[#endif QUEUING#]
+[#endif GATES#]
 <!-- / results --> 

@@ -39,6 +39,7 @@
 <table   class="table table-stripped">
 <thead>
 <tr>
+ <th><#LANG_GATE#></th>
  <th>
  <a href="?sortby_mysensor=NID&save_qry=1"><#LANG_NODE#></a><nobr>
  [#if SORTBY="NID"#](+)[#endif#]
@@ -59,6 +60,7 @@
 <tbody>
 [#begin RESULT#]
 <tr class="hover_btn2">
+ <td>[#if gtitle==""#][#GID#][#else#][#gtitle#][#endif#]</td>
  <td><b>[#NID#]</b></td>
  <td><a href="?view_mode=node_edit&id=[#ID#]">
   [#if TITLE!=""#]
@@ -89,7 +91,7 @@
    &nbsp;
   [#endif#]
  </td>
- <td id="i[#NID#]">
+ <td id="i[#ID#]">
   [#INFO#]
  </td>  
  <td width="1%" nowrap>
@@ -127,8 +129,6 @@
 </p>
 [#endif RESULT#]
 <!-- / results -->
-<hr/>
-<a href="?view_mode=[#VIEW_MODE#]&mode=cmd&data=255;255;3;0;20;0" class="btn btn-default"><#LANG_DISCOVER#></a> - <#LANG_DISCOVER_INFO#><br/><br/>
 <script language="javascript">
   var InfoTimer;  
   

@@ -15,6 +15,14 @@ $sens=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 
 if ($this->mode=='update') { 
   $ok=1;
+
+  // GId
+  global $gid;
+  $rec['GID']=$gid;
+  if ($rec['GID']=='') {
+    $out['ERR_GID']=1;
+    $ok=0;
+  }
   
   // NId
   global $nid;
@@ -62,12 +70,13 @@ if ($this->mode=='update') {
   $this->redirect("?id=".$sens['ID']."&view_mode=node_edit&tab=sensors");
 }
 
-if ($sens['ID']) {
+if ($sens['ID']) {  
   $rec['ID'] = $sens['ID'];
+  $rec['GID'] = $sens['GID'];
   $rec['NID'] = $sens['NID'];
   $rec['TITLE'] = $sens['TITLE'];
   
-  $presentation=SQLSelect("SELECT * FROM msnodesens WHERE NID='".$sens['NID']."' ORDER BY SID");
+  $presentation=SQLSelect("SELECT * FROM msnodesens WHERE GID='".$sens['GID']."' AND NID='".$sens['NID']."' ORDER BY SID");
   
   // Sensors
   $sens = array();

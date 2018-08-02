@@ -2,8 +2,6 @@
 /**
  * MySesnor
  *
- * MySesnor
- *
  * @package project
  * @author Ivan Z. <ivan@jad.ru>
  * @copyright http://www.pstd.ru/ (c)
@@ -18,7 +16,7 @@ class mysensor extends module {
 	public $RxExpireTimeout = 21600; // 6*60*60 = 6 hours
 	public $MY_CORE_MIN_VERSION = 2;
 	public $node_bins = array();
-	public $MySensor;
+	public $Gates = array();
 	
 	/**
 	 * mySensor
@@ -148,16 +146,11 @@ class mysensor extends module {
 		if ($ajax) {
 			header( "HTTP/1.0: 200 OK\n" );
 			header( 'Content-Type: text/html; charset=utf-8' );
-			
-			if ($atype == "incmode") {
-				$this->getConfig();
-				echo $this->config['MS_INCLUSION_MODE'];
-				exit ();
-			}
+						
 			if ($atype == "info") {
 				$arr = array();
 				
-				$res=SQLSelect("SELECT NID, BATTERY FROM msnodes");				
+				$res=SQLSelect("SELECT GID, NID, BATTERY FROM msnodes");				
 				$total=count($res);
 				for($i=0;$i<$total;$i++) {			
 					$info = "";
@@ -166,20 +159,20 @@ class mysensor extends module {
 					}
 					
 					// State
-					$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE NID=".$res[$i]["NID"].";");
+					$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE GID=".$res[$i]["GID"]." AND NID=".$res[$i]["NID"].";");
 					if ($rec2['state']) {
 						if ($info != "") $info .= "<br/>";
 						$info .= "Write: ".$rec2['state'];
 					}
 					
 					// Message stack
-					$rec2 = SQLSelectOne ("SELECT count(id) as TOTAL FROM mssendstack WHERE NID=".$res[$i]["NID"].";");
+					$rec2 = SQLSelectOne ("SELECT count(id) as TOTAL FROM mssendstack WHERE GID=".$res[$i]["GID"]." AND NID=".$res[$i]["NID"].";");
 					if ($rec2['TOTAL']) {
 						if ($info != "") $info .= "<br/>";
 						$info .= "Messages: ".$rec2['TOTAL'];
 					}
 
-					$arr[] = array("I"=>$res[$i]["NID"], "D"=>$info);
+					$arr[] = array("I"=>$res[$i]["ID"], "D"=>$info);
 				}
 				echo json_encode($arr);				
 				exit ();
@@ -230,37 +223,12 @@ class mysensor extends module {
 		}
 		
 		$this->getConfig ();
-		$out['MS_CONTYPE'] = $this->config['MS_CONTYPE'];
-		$out['MS_HOST'] = $this->config['MS_HOST'];
-		$out['MS_PORT'] = $this->config['MS_PORT'];
-		$out['MS_SERIAL'] = $this->config['MS_SERIAL'];
 		$out['MS_MEASURE'] = $this->config['MS_MEASURE'];
 		$out['MS_AUTOID'] = $this->config['MS_AUTOID'];
-		$out['MS_NEXTID'] = $this->config['MS_NEXTID'];
-		$out['MS_INCLUSION_MODE'] = $this->config['MS_INCLUSION_MODE'];
+		$out['MS_NEXTID'] = $this->config['MS_NEXTID'];		
 		
 		$out['CYCLERUN'] = ((time() - gg('cycle_mysensorRun')) < 300 ) ? 1 : 0;
 		
-		if ($out['MS_CONTYPE'] == "") {
-			$out['MS_CONTYPE'] = 0;
-			$this->config['MS_CONTYPE'] = $out['MS_CONTYPE'];
-			$this->saveConfig ();
-		}
-		if ($out['MS_HOST'] == "") {
-			$out['MS_HOST'] = '10.9.0.253';
-			$this->config['MS_HOST'] = $out['MS_HOST'];
-			$this->saveConfig ();
-		}
-		if ($out['MS_PORT'] == "") {
-			$out['MS_PORT'] = '5003';
-			$this->config['MS_PORT'] = $out['MS_PORT'];
-			$this->saveConfig ();
-		}
-		if ($out['MS_SERIAL'] == "") {
-			$out['MS_SERIAL'] = '/dev/ttyMySensorsGateway';
-			$this->config['MS_SERIAL'] = $out['MS_SERIAL'];
-			$this->saveConfig ();
-		}
 		if ($out['MS_MEASURE'] == "") {
 			$out['MS_MEASURE'] = 'M';
 			$this->config['MS_MEASURE'] = $out['MS_MEASURE'];
@@ -279,18 +247,10 @@ class mysensor extends module {
 		
 		if ($this->data_source == 'mysensors' || $this->data_source == '') {
 			if ($this->view_mode == 'update_settings') {
-				global $ms_contype;
-				global $ms_host;
-				global $ms_port;
-				global $ms_serial;
 				global $ms_measure;
 				global $ms_autoid;
 				global $ms_nextid;
 				
-				$this->config['MS_CONTYPE'] = $ms_contype;
-				$this->config['MS_HOST'] = $ms_host;
-				$this->config['MS_PORT'] = ( int ) $ms_port;
-				$this->config['MS_SERIAL'] = $ms_serial;
 				$this->config['MS_MEASURE'] = $ms_measure;
 				$this->config['MS_AUTOID'] = $ms_autoid;
 				$this->config['MS_NEXTID'] = $ms_nextid;
@@ -301,39 +261,26 @@ class mysensor extends module {
 				$this->redirect( "?" );
 			}
 			
-			if ($this->view_mode == '' || $this->view_mode == 'search_ms') {
-				if ($this->tab == 'firmware') {
-					$this->search_bins( $out );
-				} else if ($this->tab == 'mesh') {
-					$this->search_mesh( $out );
+			if ($this->view_mode == '' || $this->view_mode == 'nodes') {		
+				if ($this->tab == 'gates') {		
+					$this->gates( $out );
+				} else if ($this->tab == 'firmware') {
+					$this->bins( $out );
 				} else if ($this->tab == 'log') {
-					$this->search_log( $out );
+					$this->log( $out );
 				} else if ($this->tab == 'queuing') {
-					$this->search_queuing( $out );
+					$this->queuing( $out );
 				} else {
-					$this->search_ms( $out );
+					$this->nodes( $out );
 				}
 			}
+			if ($this->view_mode == 'gate_edit') {
+				$this->edit_gate( $out, $this->id );
+			}
 			if ($this->view_mode == 'node_edit') {
-				$this->edit_ms( $out, $this->id );
+				$this->edit_node( $out, $this->id );
 			}
-			if ($this->view_mode == 'inc_mode') {
-				$NId = 0;
-				$SId = 0;
-				$mType = 3;
-				$ack = 0;
-				$SubType = 5;
-				
-				if ($this->config['MS_INCLUSION_MODE'] == 0)
-					$val = 1;
-				else
-					$val = 0;
-				$this->config['MS_INCLUSION_MODE'] = $val;
-				$this->saveConfig ();
-				
-				$this->cmd( "$NId;$SId;$mType;$ack;$SubType;" . $val );
-				$this->redirect( "?" );
-			}
+
 			if ($this->view_mode == 'node_delete') {
 				$this->delete_ms( $this->id );
 				$this->redirect( "?" );
@@ -380,13 +327,22 @@ class mysensor extends module {
 		$this->admin( $out );
 	}
 	/**
+	 * Search gates
+	 *
+	 * @access public
+	 *        
+	 */
+	function gates(&$out) {
+		require (DIR_MODULES . $this->name . '/gates.inc.php');
+	}
+	/**
 	 * Search nodes
 	 *
 	 * @access public
 	 *        
 	 */
-	function search_ms(&$out) {
-		require (DIR_MODULES . $this->name . '/ms_search.inc.php');
+	function nodes(&$out) {
+		require (DIR_MODULES . $this->name . '/nodes.inc.php');
 	}
 	/**
 	 * Search bins
@@ -394,17 +350,8 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function search_bins(&$out) {
-		require (DIR_MODULES . $this->name . '/ms_bins.inc.php');
-	}
-	/**
-	 * Search mesh
-	 *
-	 * @access public
-	 *        
-	 */
-	function search_mesh(&$out) {
-		require (DIR_MODULES . $this->name . '/ms_mesh.inc.php');
+	function bins(&$out) {
+		require (DIR_MODULES . $this->name . '/bins.inc.php');
 	}
 	/**
 	 * Search log
@@ -412,8 +359,8 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function search_log(&$out) {
-		require (DIR_MODULES . $this->name . '/ms_log.inc.php');
+	function log(&$out) {
+		require (DIR_MODULES . $this->name . '/log.inc.php');
 	}
 	/**
 	 * Search queuing
@@ -421,8 +368,8 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function search_queuing(&$out) {
-		require (DIR_MODULES . $this->name . '/ms_queuing.inc.php');
+	function queuing(&$out) {
+		require (DIR_MODULES . $this->name . '/queuing.inc.php');
 	}
 	/**
 	 * Search sensors
@@ -439,8 +386,17 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function edit_ms(&$out, $id) {
-		require (DIR_MODULES . $this->name . '/ms_edit.inc.php');
+	function edit_gate(&$out, $id) {
+		require (DIR_MODULES . $this->name . '/gate_edit.inc.php');
+	}
+	/**
+	 * Edit/add
+	 *
+	 * @access public
+	 *        
+	 */
+	function edit_node(&$out, $id) {
+		require (DIR_MODULES . $this->name . '/node_edit.inc.php');
 	}
 	/**
 	 * Delete node
@@ -451,9 +407,9 @@ class mysensor extends module {
 	function delete_ms($id) {
 		$rec = SQLSelectOne( "SELECT * FROM msnodes WHERE ID='$id'" );
 		// some action for related tables
-		SQLExec( "DELETE FROM msnodesens WHERE NID='" . $rec['NID'] . "'" );
-		SQLExec( "DELETE FROM msnodeval WHERE NID='" . $rec['NID'] . "'" );
-		SQLExec( "DELETE FROM msnodes WHERE ID='" . $rec['ID'] . "'" );
+		SQLExec( "DELETE FROM msnodesens WHERE GID='".$rec['GID']."' AND NID='".$rec['NID']."'" );
+		SQLExec( "DELETE FROM msnodeval WHERE GID='".$rec['GID']."' AND NID='".$rec['NID']."'" );
+		SQLExec( "DELETE FROM msnodes WHERE ID='".$rec['ID']."'" );
 	}
 	/**
 	 * Edit/add
@@ -485,7 +441,7 @@ class mysensor extends module {
 	function delete_queuing($id) {
 		$rec = SQLSelectOne( "SELECT * FROM mssendstack WHERE ID='$id'" );
 		// some action for related tables
-		SQLExec( "DELETE FROM mssendstack WHERE ID='" . $rec['ID'] . "'" );
+		SQLExec( "DELETE FROM mssendstack WHERE ID='".$rec['ID']."'" );
 	}
 	
 	/**
@@ -541,9 +497,10 @@ class mysensor extends module {
 	 *        
 	 */
 	function clean_presentation($id) {
+		global $gid;
 		global $nid;
 		
-		SQLExec( "DELETE FROM msnodesens WHERE NID='" . $nid . "'" );
+		SQLExec( "DELETE FROM msnodesens WHERE GID='$gid' AND NID='$nid'" );
 	}
 	/**
 	 * Receive Presentation
@@ -551,7 +508,11 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function Presentation($arr) {
+	function Presentation($gate, $arr) {
+
+		// GId
+		$GId = $gate->GId;
+		
 		// Node
 		$NId = $arr[0];
 		if ($NId == "") return;
@@ -562,11 +523,11 @@ class mysensor extends module {
 		
 		// Log
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 0:Presentation; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_PRESENTATION, $SubType)."; Msg:$info");
+		$gate->AddLog(cLogMessage, ">> 0:Presentation; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_PRESENTATION, $SubType)."; Msg:$info");
 		
-		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe($NId)."';" );
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe($GId)."' AND NID LIKE '".DBSafe($NId)."';" );
 		if (!$node['ID'])
-			if (! $this->RegistNewNode( $node, $NId ))
+			if (! $this->RegistNewNode( $gate, $node, $NId ))
 				return;
 			
 		// Arduino Node
@@ -579,8 +540,9 @@ class mysensor extends module {
 			SQLUpdate( 'msnodes', $node );
 		} else {
 			// Sensor
-			$sens = SQLSelectOne( "SELECT * FROM msnodesens WHERE NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+			$sens = SQLSelectOne( "SELECT * FROM msnodesens WHERE GID=$GId AND NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
 			if (! $sens['ID']) {
+				$sens['GID'] = $GId;
 				$sens['NID'] = $NId;
 				$sens['SID'] = $SId;
 				$sens['SUBTYPE'] = $SubType;
@@ -598,8 +560,9 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function Set($arr) {
+	function Set($gate, $arr) {
 		// Node
+		$GId = $gate->GId;
 		$NId = $arr[0];
 		$SId = $arr[1];
 		$SubType = $arr[4];
@@ -608,16 +571,17 @@ class mysensor extends module {
 		
 		// Log
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 1:Set; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_SET, $SubType)."; Msg:$val");
+		$gate->AddLog(cLogMessage, ">> 1:Set; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_SET, $SubType)."; Msg:$val");
 		
-		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."';" );
 		if (! $node['ID'])
-			if (! $this->RegistNewNode( $node, $NId ))
+			if (! $this->RegistNewNode( $gate, $node, $NId ))
 				return;
 		
 		// Sensor
-		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
 		if (! $sens['ID']) {
+			$sens['GID'] = $GId;
 			$sens['NID'] = $NId;
 			$sens['SID'] = $SId;
 			$sens['SUBTYPE'] = $SubType;
@@ -626,7 +590,7 @@ class mysensor extends module {
 		
 		// Delete ACK
 		if ($arr[3] == 1) {
-			SQLExec( "DELETE FROM mssendstack WHERE NID='" . $NId . "' AND SID='" . $SId . "' AND MType='" . $arr[2] . "' AND SUBTYPE='" . $SubType . "' AND MESSAGE='" . $val . "' AND SENDRX=0" );
+			SQLExec( "DELETE FROM mssendstack WHERE GID='".$GId."' AND NID='".$NId."' AND SID='".$SId."' AND MType='".$arr[2]."' AND SUBTYPE='".$SubType."' AND MESSAGE='".$val."' AND SENDRX=0" );
 		}
 				
 		// Set
@@ -661,7 +625,7 @@ class mysensor extends module {
 			SQLUpdate( 'msnodeval', $rec );
 		}
 		
-		$this->cmd( $rec['NID'] . ";" . $rec['SID'] . ";1;" . $rec['ACK'] . ";" . $rec['SUBTYPE'] . ";" . $value );
+		$this->cmd( $rec['GID'], $rec['NID'].";".$rec['SID'].";1;".$rec['ACK'].";".$rec['SUBTYPE'].";".$value );
 	}
 	/**
 	 * Title
@@ -671,13 +635,14 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function cmd($str, $immediately = false) {
+	function cmd($GId, $str, $immediately = false) {		
 		$arr = explode( ';', $str, 6 );
 		
 		// For sleep node
 		$sendrx = 0;
-		$rec = SQLSelectOne( "SELECT devtype FROM msnodes WHERE nid=" . $arr[0] );
+		$rec = SQLSelectOne( "SELECT devtype FROM msnodes WHERE gid=".$GId." AND nid=".$arr[0] );
 
+		$data['GID'] = $GId;
 		$data['NID'] = $arr[0];
 		$data['SID'] = $arr[1];
 		$data['MType'] = $arr[2];
@@ -689,7 +654,7 @@ class mysensor extends module {
 			$data['EXPIRE'] = time () + $this->RxExpireTimeout;
 			$data['SENDRX'] = 1;
 
-			$rec = SQLSelectOne( "SELECT id FROM mssendstack WHERE nid=".$arr[0]." AND sid=".$arr[1]." AND MType=".$arr[2]." AND SUBTYPE=".$arr[4] );
+			$rec = SQLSelectOne( "SELECT id FROM mssendstack WHERE gid=".$GId." AND nid=".$arr[0]." AND sid=".$arr[1]." AND MType=".$arr[2]." AND SUBTYPE=".$arr[4] );
 
 			if (! $rec['id']) {
 				SQLInsert( 'mssendstack', $data );
@@ -712,9 +677,10 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function req($arr) {
+	function req($gate, $arr) {
 		
 		// Node
+		$GId = $gate->GId;
 		$NId = $arr[0];
 		$SId = $arr[1];
 		$mType = 1; // $arr[2];
@@ -723,16 +689,17 @@ class mysensor extends module {
 		if ($NId == "")	return;
 		
 		// Log		
-		$this->MySensor->AddLog(cLogMessage, ">> 2:Req; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_REQ, $SubType)."; Msg:$val");
+		$gate->AddLog(cLogMessage, ">> 2:Req; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_REQ, $SubType)."; Msg:$val");
 		
-		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."';" );
 		if (! $node['ID'])
-			if (! $this->RegistNewNode( $node, $NId ))
+			if (! $this->RegistNewNode( $gate, $node, $NId ))
 				return;
 		
 		// Sensor
-		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
+		$sens = SQLSelectOne( "SELECT * FROM msnodeval WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."' AND SID LIKE '".DBSafe( $SId )."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
 		if (! $sens['ID']) {
+			$sens['GID'] = $GId;
 			$sens['NID'] = $NId;
 			$sens['SID'] = $SId;
 			$sens['ACK'] = $Ack;
@@ -746,7 +713,7 @@ class mysensor extends module {
 			$val = getGlobal( $sens['LINKED_OBJECT'] . '.' . $sens['LINKED_PROPERTY'] );
 		}
 		
-		$this->cmd( "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val, true );
+		$this->cmd( $GId, "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val, true );
 		return false;
 	}
 	/**
@@ -755,10 +722,11 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function Internal($arr) {
+	function Internal($gate, $arr) {
 		$this->getConfig();
 		
 		// Node
+		$GId = $gate->GId;
 		$NId = $arr[0];
 		$SubType = $arr[4];
 		$val = $arr[5];
@@ -767,15 +735,15 @@ class mysensor extends module {
 		// Log		
 		$SId = $arr[1];
 		$Ack = $arr[3];
-		$this->MySensor->AddLog(cLogMessage, ">> 3:Internal; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_INTERNAL, $SubType)."; Msg:$val");
+		$gate->AddLog(cLogMessage, ">> 3:Internal; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_INTERNAL, $SubType)."; Msg:$val");
 			
 		// Skip tester present
 		if ($NId == 255) { // ($NId == 0) ||
 			$node = false;
 		} else {
-			$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+			$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."';" );
 			if (! $node['ID'])
-				if (! $this->RegistNewNode( $node, $NId ))
+				if (! $this->RegistNewNode( $gate, $node, $NId ))
 					return;
 		}
 		
@@ -797,7 +765,7 @@ class mysensor extends module {
 			
 			// Time
 			case I_TIME :
-				$this->cmd( $NId . ";255;3;0;" . I_TIME . ";" . time (), true );
+				$this->cmd( $GId, $NId . ";255;3;0;" . I_TIME . ";" . time (), true );
 				break;
 			
 			// Version
@@ -818,7 +786,7 @@ class mysensor extends module {
 				switch ($AutoIdType) {
 					// Reject
 					case 0: 
-						$this->MySensor->AddLog(cLogError, "Req new ID: rejected");
+						$gate->AddLog(cLogError, "Req new ID: rejected");
 						break;
 					// Auto
 					case 1:
@@ -826,7 +794,7 @@ class mysensor extends module {
 						
 						// Check ready has
 						while ( true ) {
-							$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $nextid )."';" );
+							$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $nextid )."';" );
 							if ($node['ID']) {
 								$nextid ++;
 								continue;
@@ -836,30 +804,29 @@ class mysensor extends module {
 						
 						if ($nextid < 255) {
 							// Send new id
-							$this->cmd( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid, true );
-							$this->MySensor->AddLog(cLogDebug, "Req new ID: $nextid");
+							$this->cmd( $GId, "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid, true );
+							$gate->AddLog(cLogDebug, "Req new ID: $nextid");
 						} else { 
-							$this->MySensor->AddLog(cLogError, "Req new ID: out of range");
+							$gate->AddLog(cLogError, "Req new ID: out of range");
 						}
 						break;
 					// Manual
 					case 2:
 						$nextid = $this->config['MS_NEXTID'];
-						$this->cmd( "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid, true );
+						$this->cmd( $GId, "255;255;3;0;" . I_ID_RESPONSE . ";" . $nextid, true );
 						
-						$this->MySensor->AddLog(cLogDebug, "Req new ID: $nextid");
+						$gate->AddLog(cLogDebug, "Req new ID: $nextid");
 						break;						
 						
 					default:
-						$this->MySensor->AddLog(cLogError, "Req new ID: Error type");
+						$gate->AddLog(cLogError, "Req new ID: Error type");
 						break;
 				}
 				break;
 			
 			// INCLUSION MODE
 			case I_INCLUSION_MODE :
-				$this->config['MS_INCLUSION_MODE'] = $val;
-				$this->saveConfig ();
+				// TODO: indicate
 				break;
 			
 			// CONFIG
@@ -871,12 +838,12 @@ class mysensor extends module {
 				}
 				
 				// Send ansver - metric
-				$this->cmd( $NId . ";255;3;0;" . I_CONFIG . ";" . $this->config['MS_MEASURE'], true );
+				$this->cmd( $GId, $NId.";255;3;0;".I_CONFIG.";".$this->config['MS_MEASURE'], true );
 				break;
 			
 			// LOG_MESSAGE
 			case I_LOG_MESSAGE :
-				$this->MySensor->AddLog(cLogMessage, "Log message ID: $NId $val");
+				$gate->AddLog(cLogMessage, "Log message: Gate:$GId; Node:$NId - $val");
 			
 			// SKETCH_NAME
 			case I_SKETCH_NAME :
@@ -905,7 +872,7 @@ class mysensor extends module {
 						break;
 					
 					default :
-						$this->MySensor->AddLog(cLogError, "Unknow SIGNING_PRESENTATION ID:$NId Sub:$SubType Val:$val");
+						$gate->AddLog(cLogError, "Unknow SIGNING_PRESENTATION Gate:$GId; ID:$NId; Sub:$SubType - Val:$val");
 						break;
 				}
 				
@@ -925,7 +892,7 @@ class mysensor extends module {
 				if ($node) {
 					// Smart sleep
 					if ($node['DEVTYPE'] == 1)
-						$this->doSend($NId);
+						$this->doSend($gate, $NId);
 				
 					$node['HEARTBEAT'] = date( 'Y-m-d H:i:s' );
 					SQLUpdate( 'msnodes', $node );
@@ -939,19 +906,19 @@ class mysensor extends module {
 			// I_PING
 			case I_PING :
 				// Send I_PONG
-				$this->cmd( $NId . ";255;3;0;" . I_PONG . ";" . $val, true );
+				$this->cmd( $GId, $NId.";255;3;0;".I_PONG.";".$val, true );
 				break;
 			
 			// I_REGISTRATION_REQUEST
 			case I_REGISTRATION_REQUEST :
 				// Register request to GW
 				$val = $val >= $this->MY_CORE_MIN_VERSION;
-				$this->cmd( $NId . ";255;3;0;" . I_REGISTRATION_RESPONSE . ";" . $val, true );
+				$this->cmd( $Gid, $NId.";255;3;0;".I_REGISTRATION_RESPONSE.";".$val, true );
 				break;
 				
 			// I_DEBUG
 			case I_DEBUG:
-				$this->MySensor->AddLog(cLogMessage, "Debug: ID:$NId = $val");
+				$gate->AddLog(cLogMessage, "Debug: Gate:$GId; Node:$NId = $val");
 				break;
 			
 			// I_POST_SLEEP_NOTIFICATION
@@ -959,7 +926,7 @@ class mysensor extends module {
 				break;
 			
 			default :
-				$this->MySensor->AddLog(cLogError, "Unknow internal command: ID:$NId Sub:$SubType Val:$val");
+				$gate->AddLog(cLogError, "Unknow internal command: Gate:$GId; Node:$NId Sub:$SubType Val:$val");
 				break;
 			
 			// @@@ 7 - FIND_PARENT
@@ -974,23 +941,24 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function ResponseFW($NId){
+	function ResponseFW($GId, $NId){
+
 		// Delete cashed bin
-		unset($this->node_bins[$NId]);
+		unset($this->node_bins[$GId][$NId]);		
 	
 		// Load bin									
-		$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."');" );
+		$rec = SQLSelectOne( "SELECT * FROM msbins WHERE ID=( SELECT FIRMWARE FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."');" );
 		if (!$rec['ID']){
-			return "Binary for $NId not found";
+			return "Binary for: Gate:$GId; Node:$NId - not found";
 		}
 		
 		// Parse HEX
 		$parser = new IntelHex();
 		if (!$parser->Parse($rec['BIN'])) {			
-			return "Error load bin $NId : $parser->LastError";
+			return "Error load bin Gate:$GId; Node:$NId : $parser->LastError";
 		}
 		if ($parser->FirstAddr != 0){
-			return "Error load bin $NId : First adress $parser->FirstAddr";
+			return "Error load bin Gate:$GId; Node:$NId : First adress $parser->FirstAddr";
 		}
 		$parser->NormalizePage(16);
 		
@@ -998,15 +966,15 @@ class mysensor extends module {
 		$crc = crc16($parser->Data);
 		
 		// Sent to cashed
-		$this->node_bins[$NId] = array(
+		$this->node_bins[$GId][$NId] = array(
 			"data" => $parser->Data,
 			"crc" => bin2hex($crc),
 			"bloks" => bin2hex( pack("S", strlen($parser->Data)/16) )
 		);
 		
 		// Send				
-		$data = sprintf("%04x", $NId)."0100".$this->node_bins[$NId]["bloks"].$this->node_bins[$NId]["crc"];
-		$this->cmd( "$NId;0;4;0;1;". $data, true );
+		$data = sprintf("%04x", $NId)."0100".$this->node_bins[$GId][$NId]["bloks"].$this->node_bins[$GId][$NId]["crc"];
+		$this->cmd( $GId, "$NId;0;4;0;1;". $data, true );
 		
 		return true;
 	}
@@ -1016,10 +984,11 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function Stream($arr) {
+	function Stream($gate, $arr) {
 		//$this->getConfig ();
 		
 		// Node
+		$GId = $gate->GId;
 		$NId = $arr[0];		
 		$SubType = $arr[4];
 		$val = $arr[5];
@@ -1028,11 +997,11 @@ class mysensor extends module {
 		// Log				
 		$Ack = $arr[3];
 		$SId = $arr[1];
-		$this->MySensor->AddLog(cLogMessage, ">> 4:Stream; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_STREAM, $SubType)."; Msg:$val");
+		$gate->AddLog(cLogMessage, ">> 4:Stream; Gate:$GIg; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode(C_STREAM, $SubType)."; Msg:$val");
 		
-		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE NID LIKE '".DBSafe( $NId )."';" );
+		$node = SQLSelectOne( "SELECT * FROM msnodes WHERE GID LIKE '".DBSafe( $GId )."' AND NID LIKE '".DBSafe( $NId )."';" );
 		if (!$node['ID'])
-			if (! $this->RegistNewNode( $node, $NId ))
+			if (! $this->RegistNewNode($gate, $node, $NId))
 				return;
 					
 		switch ($SubType) {
@@ -1046,25 +1015,25 @@ class mysensor extends module {
 				$BLl = hexdec( substr( $val, 18, 2 ) );
 				
 				// Test version	
-				$this->MySensor->AddLog(cLogDebug, "CV=$CVer ; BLV=$BLh.$BLl");
+				$gate->AddLog(cLogDebug, "CV=$CVer ; BLV=$BLh.$BLl");
 				
 				$node['BOOTVER'] = "OTA:$BLh.$BLl";
 				SQLUpdate( 'msnodes', $node );
 			
-				$ret = $this->ResponseFW($NId);
+				$ret = $this->ResponseFW($GId, $NId);
 				if ($ret !== true){
-					$this->MySensor->AddLog(cLogError, $ret);
+					$gate->AddLog(cLogError, $ret);
 				}
 				
-				SQLExec ("DELETE FROM msnodestate WHERE NID=".$NId);
+				SQLExec ("DELETE FROM msnodestate WHERE GID=".$GId." AND NID=".$NId);
 				
 				break;
 				
 			// Request FW block
 			case 0x02:
-				$ndata = $this->node_bins[$NId];
+				$ndata = $this->node_bins[$GId][$NId];
 				if (empty($ndata)){
-					$this->MySensor->AddLog(cLogError, "Cashed bin $NId : not found");
+					$gate->AddLog(cLogError, "Cashed bin Gate:$GId Node:$NId - not found");
 					return;
 				}
 				$size = strlen($ndata["data"]);
@@ -1078,33 +1047,33 @@ class mysensor extends module {
 				
 				// Test version
 				if ($CVer != "0100"){
-					$this->MySensor->AddLog(cLogError, "Unknow boot version $NId - $CVer");
+					$gate->AddLog(cLogError, "Unknow boot version Gate:$GId Node:$NId - $CVer");
 					return;
 				}
 				
 				if ($BlockP+16 > $size) {
-					$this->MySensor->AddLog(cLogError, "Out of data $NId : $BlockP");
+					$gate->AddLog(cLogError, "Out of data: Gate:$GId; Node:$NId - $BlockP");
 					return;
 				}
 				$data = sprintf("%04x", $NId)."0100".$CBlok.bin2hex( substr($ndata["data"], $BlockP, 16));
 				
 				usleep(100000);
 				
-				$this->MySensor->send($NId, 0, 4, 0, 3, $data);				
-				$this->MySensor->AddLog(cLogMessage, "<@ 4:Stream; Node:$NId; Sensor:0; Ack:0; Sub:3; Msg:$data");
+				$gate->send($NId, 0, 4, 0, 3, $data);				
+				$gate->AddLog(cLogMessage, "<@ 4:Stream; Gate:$GId; Node:$NId; Sensor:0; Ack:0; Sub:3; Msg:$data");
 				
 				// State
 				if ($BlockP == 0){
-					SQLExec ("DELETE FROM msnodestate WHERE NID=".$NId);
+					SQLExec ("DELETE FROM msnodestate WHERE GID=".$GId." AND NID=".$NId);
 				} else {
 					$state = Round(100-($BlockP*100 / $size), 2)."%";
-					SQLExec ("INSERT INTO msnodestate (NID,state) VALUES ($NId,'".$state."') ON DUPLICATE KEY UPDATE state='".$state."';");
+					SQLExec ("INSERT INTO msnodestate (GID,NID,state) VALUES ($GId,$NId,'".$state."') ON DUPLICATE KEY UPDATE state='".$state."';");
 				}
 				
 				break;
 			
 			default :
-				$this->MySensor->AddLog(cLogError, "Unknow stream command: ID: $NId; Sub:$SubType; Val:$val");
+				$gate->AddLog(cLogError, "Unknow stream command: Gate:$GId Node:$NId; Sub:$SubType; Val:$val");
 				break;
 		}
 	}
@@ -1115,13 +1084,15 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function doSend($NId = -1) {
+	function doSend($gate, $NId = -1) {
 		global $MSType;
+
+		$GId = $gate->GId;
 		
 		if ($NId == -1) {
-			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=0;");
+			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE GID=$GId AND SENDRX=0;");
 		} else {
-			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=1 AND NID=$NId;");
+			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=1 AND GID=$GId AND NID=$NId;");
 		}
 		if (!$rec['ID']) return;
 		
@@ -1133,11 +1104,11 @@ class mysensor extends module {
 		}
 		  
 		if ($expire){
-			$this->MySensor->AddLog(cLogMessage, "Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s"));
+			$gate->AddLog(cLogMessage, "Expire $ID ".date("Y-m-d H:i:s", $rec['EXPIRE'])." <> ".date("Y-m-d H:i:s"));
 
-			$sens=SQLSelectOne("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
+			$sens=SQLSelectOne("SELECT * FROM msnodeval WHERE GID='".$rec['GID']."' AND NID='".$rec['NID']."' AND SID='".$rec['SID']."' AND SUBTYPE='".$rec['SUBTYPE']."';"); 
 			if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
-				$this->MySensor->AddLog(cLogMessage, "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']);
+				$gate->AddLog(cLogMessage, "Expire send set rollback : ".$sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY']."=".$sens['VAL']);
 				// Rollback value if not comin
 				setGlobal($sens['LINKED_OBJECT'].'.'.$sens['LINKED_PROPERTY'], $rec['VAL'], array($this->name => '0'));
 			}
@@ -1145,29 +1116,27 @@ class mysensor extends module {
 			return;
 		}
 		
-		// Send		
-		if ($this->MySensor === false){
-			$this->MySensor->AddLog(cLogError, "Error send: Not set MySensor class");
-			return;
-		}
+		// Send
 		$NId = $rec['NID'];
 		$SId = $rec['SID'];
 		$MType = $rec['MType'];
 		$Ack = $rec['ACK'];
 		$SubType = $rec['SUBTYPE'];
 		$Data = $rec['MESSAGE'];
-		$this->MySensor->send($NId, $SId, $MType, $Ack, $SubType, $Data);
+		$gate->send($NId, $SId, $MType, $Ack, $SubType, $Data);
 		
 		//$sendwait[$rec['NID']] = time();
-		$this->MySensor->AddLog(cLogMessage, "<@ $MType:".$MSType[$MType]."; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode($MType, $SubType)."; Msg:$Data");
+		$gate->AddLog(cLogMessage, "<@ $MType:".$MSType[$MType]."; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode($MType, $SubType)."; Msg:$Data");
 	}
 		
-	function RegistNewNode(&$node, $NId) {
+	function RegistNewNode($gate, &$node, $NId) {		
+
 		$ms_autoid = $this->config['MS_AUTOID'];
 		if ($ms_autoid == "0")
 			return false;
 					
 		// Set new
+		$node['GID'] = $gate->GId;
 		$node['NID'] = $NId;
 		$node['PID'] = 0;
 		$node['TITLE'] = $NId;
@@ -1186,6 +1155,25 @@ class mysensor extends module {
 	 */
 	function install($data = '') {
 		parent::install ();
+		
+		// Move configuration to table		
+		$rec = SQLSelectOne("SELECT * FROM msgates");
+		if (!$rec['ID']) {
+			$this->getConfig();			
+
+			$url = "";
+			if ($this->config['MS_CONTYPE'] == "" || $this->config['MS_CONTYPE'] == "0")
+				$url = $this->config['MS_HOST'].":".$this->config['MS_PORT'];
+			else 
+				$url = $this->config['MS_SERIAL'];
+
+			$data = [];
+			$data["TITLE"] = "Main";
+			$data["GTYPE"] = $this->config['MS_CONTYPE'];
+			$data["URL"] = $url;			
+
+			SQLInsert( 'msgates', $data );
+		}
 	}
 	/**
 	 * dbInstall
@@ -1202,6 +1190,7 @@ class mysensor extends module {
 		
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `mssendstack`
                (`ID`  int(10) unsigned NOT NULL auto_increment,
+			    `GID` int(10) NOT NULL DEFAULT 1,
                 `NID` int(10) NOT NULL,
                 `SID` int(10) NOT NULL,
                 `MType` int(10) NOT NULL,
@@ -1216,17 +1205,33 @@ class mysensor extends module {
 		SQLExec( $sqlQuery );
 		
 		// Node boot state
-		//TODO make
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `msnodestate`
-               (`NID` int(10) NOT NULL,
+               (`GID` int(10) NOT NULL DEFAULT 1,
+				`NID` int(10) NOT NULL,
 				`State` varchar(32) NOT NULL,
 			   PRIMARY KEY (`NID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 		
 		SQLExec( $sqlQuery );
+
+		// msgates - Gates
+		// msnodes - Nodes
+		// msnodeval - Sensors
+		// msnodesens - Presents
+		// msbins - Binares
+		// mssendstack - Steck of send msgs
+		// msnodestate - Node status
 		
 		$data = <<<EOD
+
+	msgates: ID int(10) unsigned NOT NULL auto_increment
+	msgates: TITLE varchar(255) NOT NULL DEFAULT ''
+	msgates: ACTIVE int(3) unsigned NOT NULL DEFAULT '1'
+	msgates: GTYPE int(10) NOT NULL DEFAULT 0
+	msgates: URL varchar(255) NOT NULL DEFAULT ''	
+
 	msnodes: ID int(10) unsigned NOT NULL auto_increment
+	msnodes: GID int(10) NOT NULL DEFAULT 1
 	msnodes: NID int(10) NOT NULL
 	msnodes: PID int(10) NOT NULL
 	msnodes: TITLE varchar(255) NOT NULL DEFAULT ''
@@ -1244,14 +1249,16 @@ class mysensor extends module {
 	msnodes: LASTREBOOT datetime
 	msnodes: DEVTYPE int(10) DEFAULT '0'
 	msnodes: BOOTVER varchar(255) NOT NULL DEFAULT ''
-
+	
 	msnodesens: ID int(10) unsigned NOT NULL auto_increment
+	msnodesens: GID int(10) NOT NULL DEFAULT 1
 	msnodesens: NID int(10) NOT NULL 
 	msnodesens: SID int(10) NOT NULL    
 	msnodesens: SUBTYPE int(10) NOT NULL
 	msnodesens: INFO varchar(255) NOT NULL DEFAULT ''
 
 	msnodeval: ID int(10) unsigned NOT NULL auto_increment
+	msnodeval: GID int(10) NOT NULL DEFAULT 1
 	msnodeval: NID int(10) NOT NULL  
 	msnodeval: SID int(10) NOT NULL  
 	msnodeval: SUBTYPE int(10) NOT NULL  

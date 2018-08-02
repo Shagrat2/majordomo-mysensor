@@ -1,0 +1,56 @@
+<!-- Table 'node' edit -->
+<p align=center>
+    <a href="?tab=gates">&lt;&lt;&lt; <#LANG_BACK#></a>
+   </p>
+   <br/>
+   <div class="col-sm-10" id="main-content">
+   <form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+   [#if OK#]
+   <div class="alert alert-success"><#LANG_DATA_SAVED#></div>
+   [#endif OK#]
+   [#if ERR#]
+   <div class="alert alert-error"><#LANG_FILLOUT_REQURED#></div>
+   [#endif ERR#] 
+   <fieldset>
+   <!-- TITLE (varchar) -->
+   <div class="form-group">
+    <label class="control-label"[#if ERR_TITLE#] style="color:red;font-weight:bold"[#endif#]><#LANG_TITLE#>:(*)</label>
+    <div class="controls"><input type="text" name="title" value="[#TITLE#]" class="form-control input"></div>
+   </div>
+   <!-- GTYPE (varchar) -->
+   <div class="form-group">
+    <label class="control-label"[#if ERR_GTYPE#] style="color:red;font-weight:bold"[#endif#]><#LANG_TYPE#>:(*)</label>
+    <div class="controls">
+        <select name="gtype" class="form-control ">
+            <option value="0" [#if GTYPE="0" #] selected[#endif#]>TCP</option>
+            <option value="1" [#if GTYPE="1" #] selected[#endif#]>Serrial</option>
+        </select>
+    </div>
+   </div>
+   <!-- Active (int) -->
+   <div class="form-group">
+    <label class="control-label">Active:</label>
+    <div class="controls"><input type="checkbox" name="active" value="1" class="form-control input" [#if ACTIVE="1"#]checked[#endif#]></div>
+   </div>
+   <!-- URL (varchar) -->
+   <div class="form-group">
+    <label class="control-label"[#if ERR_FILE#] style="color:red;font-weight:bold"[#endif#]><#LANG_URL#>:(*)</label>
+    <div class="controls"><input type="text" name="url" value="[#URL#]" class="form-control input"></div>
+   </div>
+   <div class="form-actions">
+   [#if ID!=""#]
+   <button type="submit" name="subm" value="<#LANG_SUBMIT#>" class="btn btn-defaul btn-primary"><#LANG_SUBMIT#></button>
+   [#else ID#]
+   <button type="submit" name="subm" value="<#LANG_ADD#>" class="btn btn-defaul btn-primary"><#LANG_ADD#></button>
+   [#endif ID#]
+   <a href="?tab=gates" class="btn btn-default"><#LANG_CANCEL#></a> 
+   <input type="hidden" name="id" value="<#ID#>">
+   <input type="hidden" name="view_mode" value="<#VIEW_MODE#>">
+   <input type="hidden" name="edit_mode" value="<#EDIT_MODE#>">
+   <input type="hidden" name="mode" value="update">
+   <input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
+   <input type="hidden" name="tab" value="<#TAB#>">
+   </div>
+   </fieldset>
+   </form>
+</div>   

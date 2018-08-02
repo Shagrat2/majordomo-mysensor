@@ -11,8 +11,10 @@ include_once('PhpSerial.php');
 class MySensorMasterCom extends MySensorMaster {
   public $Serial;
     
-  function MySensorMasterCom($device){
-    $serial = new phpSerial;
+  function MySensorMasterCom($GId, $device){
+    $this->GId = $GId;
+
+    $serial = new phpSerial;    
     $serial->deviceSet($device);        
 
     $serial->confBaudRate(115200);
@@ -20,7 +22,7 @@ class MySensorMasterCom extends MySensorMaster {
     $serial->confParity("none");
     $serial->confStopBits(1);
     $serial->confFlowControl("none");
-
+    
     $this->Serial = $serial;
   }
   
@@ -32,20 +34,16 @@ class MySensorMasterCom extends MySensorMaster {
   * @return bool
   */
   function connect(){
-	$this->AddLog(cLogDebug, "Connecting COM");
-		
+	  $this->AddLog(cLogDebug, "Connecting COM");		
     $result = $this->Serial->deviceOpen("w+b");
     if ($result === false) {
 		$this->AddLog(cLogError, "serrial.open() failed");
 		return false;
-    } 
+  } 
     
-	$this->AddLog(cLogDebug, "Connected");
-    
-    stream_set_timeout($this->Serial->_dHandle, 0, 250000);    
-		
-    MySensorMaster::connect();
-        
+	$this->AddLog(cLogDebug, "Connected");    
+    stream_set_timeout($this->Serial->_dHandle, 0, 250000);
+    MySensorMaster::connect();        
     return true;            
   }
   
