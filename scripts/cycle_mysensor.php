@@ -25,15 +25,17 @@ echo date("H:i:s") . " running " . basename(__FILE__) . PHP_EOL;
 $gates = array();
 
 $rec = SQLSelect("SELECT * FROM msgates WHERE active=1");
+
 $total=count($rec);
 if ($total) {
 	for($i=0;$i<$total;$i++) {
+	
 		// Make class
 		if ($rec[$i]['GTYPE'] == 1) {
 			require_once("./modules/mysensor/phpMSCom.php");
 
 			$gate = new MySensorMasterCom($rec[$i]['ID'], $rec[$i]['URL']);
-		} else {
+		} else {		
 			require_once("./modules/mysensor/phpMSTcp.php");
 
 			$arr = explode(":", $rec[$i]['URL']);
@@ -46,7 +48,7 @@ if ($total) {
 			
 			$gate = new MySensorMasterTcp($rec[$i]['ID'], $host, $port);		
 		}
-
+		
 		if (!$gate->connect()){
 			continue;
 		}
@@ -63,11 +65,11 @@ if ($total) {
 		));
 
 		//=== Req values ===
-		$rec = SQLSelect("SELECT * FROM msnodeval WHERE GID=".$rec[$i]['ID']." AND req=1;");
-		$total=count($rec);
-		if ($total) {
-			for($i=0;$i<$total;$i++) {
-				// TODO: $ms->cmd($rec[$i]['NID'].";".$rec[$i]['SID'].";2;".$rec[$i]['ACK'].";".$rec[$i]['SUBTYPE'].";");
+		$recReq = SQLSelect("SELECT * FROM msnodeval WHERE GID=".$rec[$i]['ID']." AND req=1;");
+		$totalReq=count($recReq);
+		if ($totalReq) {
+			for($i=0;$i<$totalReq;$i++) {
+				// TODO: $ms->cmd($recReq[$i]['NID'].";".$recReq[$i]['SID'].";2;".$recReq[$i]['ACK'].";".$recReq[$i]['SUBTYPE'].";");
 			}
 		}
 	}	
@@ -84,7 +86,7 @@ $previousMillis = 0;
 while (true){
 	
 	foreach ($gates as $GId => $gate) {				
-		// echo date("Y-m-d H:i:s")." Process: ".$GId."\n";
+		//echo date("Y-m-d H:i:s")." Process: ".$GId."\n";
 	
 		$ret = $gate->proc();
 		if ($ret === false)	{
