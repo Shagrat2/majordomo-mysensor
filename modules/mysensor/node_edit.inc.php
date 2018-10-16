@@ -11,16 +11,17 @@ if ($this->mode=='setvalue') {
 } 
 
 if ($this->mode=='cmd') {
-  global $data;
-  $this->cmd($data);
+  global $gid;
+  global $data;  
+  $this->cmd($gid, $data);
   $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }
 
 if ($this->mode=='resetinfo'){
-	global $data;
+	global $id;
 	
 	$table_name='msnodes';
-	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE NID='$data'");
+	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='id'");
 	$rec['BATTERY'] = "";
 	$rec['BOOTVER'] = "";
 	SQLUpdate($table_name, $rec); // update
@@ -28,10 +29,10 @@ if ($this->mode=='resetinfo'){
 }
 
 if ($this->mode=='respfw'){
-	global $data;
-	$NId = $data;
+  global $nid;
+  global $gid;
 	
-	$ret = $this->ResponseFW($NId);
+	$ret = $this->ResponseFW($gid, $nid);
 	if ($ret !== true){
 		$out['ERR_RESPFW']=1;
 		$out['ERR_RESPFW_TEXT'] = $ret;
@@ -49,14 +50,22 @@ $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 
 if (($this->tab=="sensors") || ($this->tab=="presentation")){
   if ($rec['ID']) {
-    $sensors=SQLSelect("SELECT * FROM msnodeval WHERE NID='".$rec['NID']."' ORDER BY SID");
-    $presentation=SQLSelect("SELECT * FROM msnodesens WHERE NID='".$rec['NID']."' ORDER BY SID");
+    $sensors=SQLSelect("SELECT * FROM msnodeval WHERE GID='".$rec['GID']."' AND NID='".$rec['NID']."' ORDER BY SID");
+    $presentation=SQLSelect("SELECT * FROM msnodesens WHERE GID='".$rec['GID']."' AND NID='".$rec['NID']."' ORDER BY SID");
   }
 }
  
 if ($this->mode=='update') { 
   $ok=1;
   if ($this->tab=='') {
+
+    // GID
+    global $gid;
+    $rec['GID']=$gid;
+    if ($rec['GID']=='') {
+      $out['ERR_GID']=1;
+      $ok=0;
+    }
 
     // NID
     global $nid;    
@@ -75,18 +84,18 @@ if ($this->mode=='update') {
     }
 
     //updating 'LOCATION_ID' (select)
-	global $location_id;
-	$rec['LOCATION_ID']= '0'.$location_id;
-		
-	// Dev type
-	global $devtype;
-	$rec['DEVTYPE'] = $devtype;
-	
-	// FIRMWARE
-	global $firmware;
-	$rec['FIRMWARE'] = '0'.$firmware;
+    global $location_id;
+    $rec['LOCATION_ID']= '0'.$location_id;
+      
+    // Dev type
+    global $devtype;
+    $rec['DEVTYPE'] = $devtype;
+    
+    // FIRMWARE
+    global $firmware;
+    $rec['FIRMWARE'] = '0'.$firmware;
 
-	// Battery
+    // Battery
     $old_bat_object=$rec['BAT_OBJECT'];
     $old_bat_property=$rec['BAT_PROPERTY'];
 
@@ -96,8 +105,8 @@ if ($this->mode=='update') {
     global $bat_property;
     $rec['BAT_PROPERTY']="".$bat_property;
 		
-	// Heartbeat
-	$old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
+    // Heartbeat
+    $old_heartbeat_object=$rec['HEARTBEAT_OBJECT'];
     $old_heartbeat_property=$rec['HEARTBEAT_PROPERTY'];
 
     global $heartbeat_object;
@@ -115,7 +124,7 @@ if ($this->mode=='update') {
         $rec['ID']=SQLInsert($table_name, $rec); // adding new record
       }
 
-	  // Battery
+	    // Battery
       if ($rec['BAT_OBJECT'] && $rec['BAT_PROPERTY']) {
         addLinkedProperty($rec['BAT_OBJECT'], $rec['BAT_PROPERTY'], $this->name);
       }
@@ -123,8 +132,8 @@ if ($this->mode=='update') {
         removeLinkedProperty($old_bat_object, $old_bat_property, $this->name);
       }
 			
-	  // Hearbeat
-	  if ($rec['HEARTBEAT_OBJECT'] && $rec['HEARTBEAT_PROPERTY']) {
+	    // Hearbeat
+      if ($rec['HEARTBEAT_OBJECT'] && $rec['HEARTBEAT_PROPERTY']) {
         addLinkedProperty($rec['HEARTBEAT_OBJECT'], $rec['HEARTBEAT_PROPERTY'], $this->name);
       }
       if ($old_heartbeat_object && $old_heartbeat_property && ($old_heartbeat_object!=$rec['HEARTBEAT_OBJECT'] || $old_heartbeat_property!=$rec['HEARTBEAT_PROPERTY'])) {
@@ -151,30 +160,30 @@ if ($this->mode=='update') {
       if ($rec['ID']) {
         $total=count($sensors);
         for($i=0;$i<$total;$i++) {
-			if ($sensors[$i]['UPDATED'] == 0)
-				$sensors[$i]['UPDATED'] = date('Y-m-d H:i:s'); 
+			    if ($sensors[$i]['UPDATED'] == 0)
+				  $sensors[$i]['UPDATED'] = date('Y-m-d H:i:s'); 
 					
-			global ${'linked_object'.$sensors[$i]['ID']};
-			global ${'linked_property'.$sensors[$i]['ID']};
-          
-			global ${'ack'.$sensors[$i]['ID']};					
-			if (${'ack'.$sensors[$i]['ID']}) {
-				$sensors[$i]['ACK']=1;            
-			} else {
-				$sensors[$i]['ACK']=0;            
-			} 
-					
-			global ${'req'.$sensors[$i]['ID']};
-			if (${'req'.$sensors[$i]['ID']}) {
-				$sensors[$i]['REQ']=1;            
-			} else {
-				$sensors[$i]['REQ']=0;            
-			} 
-			SQLUpdate('msnodeval', $sensors[$i]);					
-          
-			// Battery
-			$old_linked_object=$sensors[$i]['LINKED_OBJECT'];
-			$old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
+          global ${'linked_object'.$sensors[$i]['ID']};
+          global ${'linked_property'.$sensors[$i]['ID']};
+              
+          global ${'ack'.$sensors[$i]['ID']};					
+          if (${'ack'.$sensors[$i]['ID']}) {
+            $sensors[$i]['ACK']=1;            
+          } else {
+            $sensors[$i]['ACK']=0;            
+          } 
+              
+          global ${'req'.$sensors[$i]['ID']};
+          if (${'req'.$sensors[$i]['ID']}) {
+            $sensors[$i]['REQ']=1;            
+          } else {
+            $sensors[$i]['REQ']=0;            
+          } 
+          SQLUpdate('msnodeval', $sensors[$i]);					
+              
+          // Battery
+          $old_linked_object=$sensors[$i]['LINKED_OBJECT'];
+          $old_linked_property=$sensors[$i]['LINKED_PROPERTY'];
           
           if (${'linked_object'.$sensors[$i]['ID']} && ${'linked_property'.$sensors[$i]['ID']}) {
             $sensors[$i]['LINKED_OBJECT']=${'linked_object'.$sensors[$i]['ID']};
@@ -194,7 +203,7 @@ if ($this->mode=='update') {
             removeLinkedProperty($old_linked_object, $old_linked_property, $this->name);          
           }
 					
-		  // Heartheat
+		      // Heartheat
           $old_linked_object=$sensors[$i]['HEARTBEAT_OBJECT'];
           $old_linked_property=$sensors[$i]['HEARTBEAT_PROPERTY'];
           
@@ -221,11 +230,30 @@ if ($this->mode=='update') {
   }
 }
 
-$rec['TITLE'] = (empty($rec['TITLE']))?"[".$rec['NID']."] ".$rec['TITLE']:$rec['TITLE'];
+if ($rec['NID'] != "") {
+  $rec['TITLE'] = (empty($rec['TITLE']))?"[".$rec['NID']."] ".$rec['TITLE']:$rec['TITLE'];
+}
 
 outHash($rec, $out);
   
 if ($this->tab == ""){    
+  //options for 'GID' (select)
+  $tmp=SQLSelect("SELECT ID, TITLE FROM msgates ORDER BY TITLE");
+  $gates_total=count($tmp);
+/*  
+  for($gates_i=0;$gates_i<$gates_total;$gates_i++) {
+    $gates_opt[$tmp[$gates_i]['ID']]=$tmp[$gates_i]['TITLE'];
+  }
+*/  
+  for($i=0;$i<count($tmp);$i++) {
+    if ($rec['GID']==$tmp[$i]['ID']) {
+		$tmp[$i]['SELECTED']=1;
+		$out['GID_TITLE']=$tmp[$i]['TITLE'];
+	}
+    if ($rec['GID']=="" && $tmp[$i]['ID']==1) $tmp[$i]['SELECTED']=1;
+  }
+  $out['GID_OPTIONS']=$tmp;
+  
   //options for 'LOCATION_ID' (select)
   $tmp=SQLSelect("SELECT ID, TITLE FROM locations ORDER BY TITLE");
   $locations_total=count($tmp);
@@ -265,11 +293,11 @@ if ($this->tab == "sensors"){
       $sensors[$k]['PID'] = $id;
         
       foreach($presentation as $itm){
-        if (($itm['NID'] == $rec['NID']) && ($itm['SID'] == $v['SID'])){
+        if (($itm['GID'] == $rec['GID']) && ($itm['NID'] == $rec['NID']) && ($itm['SID'] == $v['SID'])){
           $pres = $itm['SUBTYPE'];
           $sensors[$k]['STITLE'] = $MSPresentation[$pres][0];
           $sensors[$k]['SDESCR'] = $MSPresentation[$pres][1];
-		  $sensors[$k]['NOTE'] = $itm['INFO'];
+		      $sensors[$k]['NOTE'] = $itm['INFO'];
           break;
         }
       }

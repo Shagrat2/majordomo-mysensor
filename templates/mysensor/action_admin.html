@@ -1,8 +1,14 @@
  <!-- action usual -->
  [#if DATA_SOURCE="mysensors" || DATA_SOURCE=""#]
+ 
+ <!-- table gate edit -->
+ [#if VIEW_MODE="gate_edit"#]
+	[#inc edit_gate.html#]
+ [#endif VIEW_MODE#] 
+ 
  <!-- table mysensor search -->
- [#if VIEW_MODE="search_mysensors" || VIEW_MODE=""#]
-  [#inc search_admin.html#]
+ [#if VIEW_MODE="nodes" || VIEW_MODE=""#]
+  [#inc main.html#]
  [#endif VIEW_MODE#]
  <!-- table bin edit -->
  [#if VIEW_MODE="bin_edit"#]

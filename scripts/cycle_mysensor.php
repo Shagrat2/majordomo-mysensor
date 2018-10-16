@@ -21,135 +21,143 @@ $ms->getConfig();
 
 echo date("H:i:s") . " running " . basename(__FILE__) . PHP_EOL;
 
-if ($ms->config['MS_CONTYPE'] == 1){
-	require("./modules/mysensor/phpMSCom.php");
-	
-	$ser = '/dev/ttyMySensorsGateway';
-	if ($ms->config['MS_SERIAL'])
-	{
-		 $ser = $ms->config['MS_SERIAL'];
-	}
-	
-	$ms_client = new MySensorMasterCom($ser);
-} else {
-	require("./modules/mysensor/phpMSTcp.php");
-	
-	$host = 'localhost';
-	if ($ms->config['MS_HOST'])
-	{
-		 $host = $ms->config['MS_HOST'];
-	}
+// Make gates
+$gates = array();
 
-	if ($ms->config['MS_PORT'])
-	{
-		 $port = $ms->config['MS_PORT'];
-	} else {
-		 $port = 5003;
-	} 	
-	
-	$ms_client = new MySensorMasterTcp($host, $port);
-}	
-$ms->MySensor = $ms_client;
+$rec = SQLSelect("SELECT * FROM msgates WHERE active=1");
 
-if (!$ms_client->connect()){
-   exit(1);
-}
-
-$params = array(  
-  "presentation" => "doPresentation",
-  "set" => "doSet",
-  "req" => "doReq",
-  "internal" => "doInternal",    
-  "stream" => "doStream",
-  "sendproc" => "doSend",
-);
-$ms_client->subscribe($params);
-
-//=== Req values ===
-$rec=SQLSelect("SELECT * FROM msnodeval WHERE req=1;");   
 $total=count($rec);
 if ($total) {
 	for($i=0;$i<$total;$i++) {
-		$ms->cmd($rec[$i]['NID'].";".$rec[$i]['SID'].";2;".$rec[$i]['ACK'].";".$rec[$i]['SUBTYPE'].";");		
-	}
+	
+		// Make class
+		if ($rec[$i]['GTYPE'] == 1) {
+			require_once("./modules/mysensor/phpMSCom.php");
+
+			$gate = new MySensorMasterCom($rec[$i]['ID'], $rec[$i]['URL']);
+		} else {		
+			require_once("./modules/mysensor/phpMSTcp.php");
+
+			$arr = explode(":", $rec[$i]['URL']);
+	
+			$host = $arr[0];
+			$port =	$arr[1];		
+			if ($port == ""){
+				$port = 5003;
+			} 	
+			
+			$gate = new MySensorMasterTcp($rec[$i]['ID'], $host, $port);		
+		}
+		
+		if (!$gate->connect()){
+			continue;
+		}
+
+		$gates[ $rec[$i]['ID'] ] = $gate;
+		
+		$gate->subscribe(array(  
+			"presentation" => "doPresentation",
+			"set" => "doSet",
+			"req" => "doReq",
+			"internal" => "doInternal",    
+			"stream" => "doStream",
+			"sendproc" => "doSend",
+		));
+
+		//=== Req values ===
+		$recReq = SQLSelect("SELECT * FROM msnodeval WHERE GID=".$rec[$i]['ID']." AND req=1;");
+		$totalReq=count($recReq);
+		if ($totalReq) {
+			for($i=0;$i<$totalReq;$i++) {
+				// TODO: $ms->cmd($recReq[$i]['NID'].";".$recReq[$i]['SID'].";2;".$recReq[$i]['ACK'].";".$recReq[$i]['SUBTYPE'].";");
+			}
+		}
+	}	
 }   
+
+if (count($gates) == 0) {
+	DebMes("No gates found");
+	$db->Disconnect();
+	exit(1);
+}
 
 //== Cycle ===
 $previousMillis = 0;
-//TODO $sendwait = array()
 while (true){
-	//echo date("Y-m-d H:i:s")." Process\n";
 	
-	$ret = $ms_client->proc();
-	if ($ret === false)
-	{
-		echo "Error process\n";
-		
-		sleep(5);	// Sleep 5 seconds
-		continue;
-	}
-		
-	//echo  date("Y-m-d H:i:s")." system\n";
-
-	$currentMillis = round(microtime(true) * 10000);   
-	if ($currentMillis - $previousMillis > 10000){
-		$previousMillis = $currentMillis;
-
-		setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
-
-		if (file_exists('./reboot') || file_exists('./stop_mysensor') || IsSet($_GET['onetime']))
-		{
-		  $db->Disconnect();
-			echo "Stop cycle\n";
-		  exit;
+	foreach ($gates as $GId => $gate) {				
+		//echo date("Y-m-d H:i:s")." Process: ".$GId."\n";
+	
+		$ret = $gate->proc();
+		if ($ret === false)	{
+			echo "Error process\n";			
+			sleep(5);	// Sleep 5 seconds
+			continue;
 		}
-	} 
-	
+			
+		//echo  date("Y-m-d H:i:s")." system\n";
+
+		$currentMillis = round(microtime(true) * 10000);   
+		if ($currentMillis - $previousMillis > 10000){
+			$previousMillis = $currentMillis;
+
+			// Check reboot
+			if (file_exists('./reboot') || file_exists('./stop_mysensor') || IsSet($_GET['onetime'])){
+
+				// Close all gates
+				foreach ($gates as $GId => $gate) {
+					$gate->disconnect();  
+				}
+
+				$db->Disconnect();
+				echo "Stop cycle\n";
+				exit;
+			}
+		} 	
+	}
+
 	//echo  date("Y-m-d H:i:s")." Sleep\n";
 	usleep(50000);
 	//echo  date("Y-m-d H:i:s")." End\n";
+
+	// Set run state
+	setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
 }
 
-/**
- * Process message
-*/
-function doPresentation($arr)
-{
+function doPresentation($gate, $arr){
 	global $ms;
-	$ms->Presentation($arr);	
+	$ms->Presentation($gate, $arr);	
 }
   
-function doSet($arr)
-{
+function doSet($gate, $arr){
 	global $ms;
-	$ms->Set($arr);
+	$ms->Set($gate, $arr);
 }
 
-function doReq($arr)
-{
+function doReq($gate, $arr){
 	global $ms;
-	return $ms->Req($arr);  
+	return $ms->Req($gate, $arr);  
 }
 
-function doInternal($arr)
-{
+function doInternal($gate, $arr){
 	global $ms;  
-	$ms->Internal($arr); 
+	$ms->Internal($gate, $arr); 
 }
   
-function doStream($arr)
-{
+function doStream($gate, $arr){
 	global $ms;  
-	$ms->Stream($arr);  
+	$ms->Stream($gate, $arr);  
 }
 
-function doSend()
-{
+function doSend($gate){
 	global $ms;
-	$ms->doSend();
+	$ms->doSend($gate);
 }
-	
-$ms_client->close();  
+
+// Close all gates
+foreach ($gates as $GId => $gate) {
+	$gate->disconnect();  
+}
 
 $db->Disconnect(); // closing database connection 
  

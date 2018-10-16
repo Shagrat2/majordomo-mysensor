@@ -263,6 +263,7 @@ abstract class MySensorMaster{
   public $alivetime = 16000; // 16 sec
   public $testtime = 5000; // 5 sec
   private $testsend = false;
+  public $GId;
 
   /**
    * connect
@@ -272,7 +273,7 @@ abstract class MySensorMaster{
    * @return bool
    */
   function connect(){
-	$this->AddLog(cLogDebug, "Connecting main");
+	  $this->AddLog(cLogDebug, "Connecting main");
 		
     // Set time out    
     $this->lastTime = round(microtime(true) * 1000);
@@ -309,10 +310,10 @@ abstract class MySensorMaster{
 	  switch ($level){
 		  case cLogDebug:
 			if($this->debug) echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
-			break;
+			  break;
 		  default:
 		    echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
-			break;
+			  break;
 	  }
   }
   
@@ -325,92 +326,91 @@ abstract class MySensorMaster{
     
    /* proc: the processing loop for an "allways on" client */      
   function proc(){  
-	// Test reconnect    
-	$currentMillis = round(microtime(true) * 1000);		    
-	
-	//---- Send ----
-	if(function_exists($this->subscribe['sendproc'])){
-		$this->AddLog(cLogDebug, "Start send");
-		call_user_func($this->subscribe['sendproc']);
-	}    
+    // Test reconnect    
+    $currentMillis = round(microtime(true) * 1000);		    
+    
+    //---- Send ----
+    if(function_exists($this->subscribe['sendproc'])){
+      $this->AddLog(cLogDebug, "Start send");
+      call_user_func($this->subscribe['sendproc'], $this);
+    }    
 		
     //---- Read ----
-	$this->AddLog(cLogDebug, "Start read");
+	  $this->AddLog(cLogDebug, "Start read");
     $read_data = $this->read();
-	$this->AddLog(cLogDebug, "End read");
+	  $this->AddLog(cLogDebug, "End read");
 
     if ($read_data != ''){
-		// Original data
-		$this->AddLog(cLogDebug, ">>> $read_data");
+      // Original data
+      $this->AddLog(cLogDebug, ">>> $read_data");
 
-		// Reset timer
-		$this->lastTime = $currentMillis;
-		$this->testsend = false;
-		
-		// #Patch
-		if ($read_data[0] == ";") {
-			$read_data = "0".$read_data;
-		}
+      // Reset timer
+      $this->lastTime = $currentMillis;
+      $this->testsend = false;
+      
+      // #Patch
+      if ($read_data[0] == ";") {
+        $read_data = "0".$read_data;
+      }
 
-		$arr = explode(';', $read_data, 6);
-			
-		// Check data format
-		for ($i=0; $i<5; $i++)			
-			if ((is_numeric($arr[$i]) === false) || (is_float($arr[$i]) !== false))
-			{	
-				$this->AddLog(cLogDebug, "### $read_data");
-				return true;
-			}
-			
-		$mType = $arr[2];
-		switch ($mType){
-			case C_PRESENTATION:          
-				if(function_exists($this->subscribe['presentation']))
-					call_user_func($this->subscribe['presentation'],$arr);					
-				break;
-			case C_SET: 
-				if(function_exists($this->subscribe['set']))
-					call_user_func($this->subscribe['set'],$arr);				  
-				break;        
-			case C_REQ:
-				$val='';
-				if(function_exists($this->subscribe['req'])){
-					$val = call_user_func($this->subscribe['req'],$arr);
-					if ($val !== false){
-						$this->send($arr[0], $arr[1], $arr[2], 0, $arr[4], $val);
-					}
-				}                        
+      $arr = explode(';', $read_data, 6);
+        
+      // Check data format
+      for ($i=0; $i<5; $i++)			
+        if ((is_numeric($arr[$i]) === false) || (is_float($arr[$i]) !== false))	{	
+          $this->AddLog(cLogDebug, "### $read_data");
+          return true;
+        }
+        
+      $mType = $arr[2];
+      switch ($mType){
+        case C_PRESENTATION:          
+          if(function_exists($this->subscribe['presentation']))
+            call_user_func($this->subscribe['presentation'], $this, $arr);
+          break;
+        case C_SET: 
+          if(function_exists($this->subscribe['set']))
+            call_user_func($this->subscribe['set'], $this, $arr);
+          break;        
+        case C_REQ:
+          $val='';
+          if(function_exists($this->subscribe['req'])){
+            $val = call_user_func($this->subscribe['req'], $this, $arr);
+            if ($val !== false){
+              $this->send($arr[0], $arr[1], $arr[2], 0, $arr[4], $val);
+            }
+          }                        
 
-				break;  
-			case C_INTERNAL: 
-				// Tester present
-				if (($arr[0] == 0) && ($arr[4] == 2)) break;
-				if(function_exists($this->subscribe['internal']))
-					call_user_func($this->subscribe['internal'],$arr);
-				break;   
-			case C_STREAM: 
-				if(function_exists($this->subscribe['stream']))
-					call_user_func($this->subscribe['stream'],$arr);
-				break; 
-		}                                 
+          break;  
+        case C_INTERNAL: 
+          // Tester present
+          if (($arr[0] == 0) && ($arr[4] == 2)) break;
+          if(function_exists($this->subscribe['internal']))
+            call_user_func($this->subscribe['internal'], $this, $arr);
+          break;   
+        case C_STREAM: 
+          if(function_exists($this->subscribe['stream']))
+            call_user_func($this->subscribe['stream'], $this, $arr);
+          break; 
+      }                                 
     }
     
     // Tester present
     if ($currentMillis - $this->lastTime > $this->testtime && !$this->testsend){
-		$this->AddLog(cLogDebug, "Tester presend");
-		$this->send(0, 0, 3, 0, 2, "Tester present", false);
-		$this->testsend = true;
+      $this->AddLog(cLogDebug, "Tester presend");
+      $this->send(0, 0, 3, 0, 2, "Tester present", false);
+      $this->testsend = true;
     }
 
     // Reconnect
-    if ($currentMillis - $this->lastTime > $this->alivetime){		
-		$this->disconnect();
+    if ($currentMillis - $this->lastTime > $this->alivetime){
+      $this->disconnect();
 
-		$this->AddLog(cLogDebug, "Reconnect");
+      $this->AddLog(cLogDebug, "Reconnect");
 
-		$result = $this->connect();
-		if ($result === false)
-			return false;			
+      $result = $this->connect();
+      if ($result === false)
+        return false;			
     }    
       
     return true;     
