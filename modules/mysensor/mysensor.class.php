@@ -277,10 +277,13 @@ class mysensor extends module {
 			if ($this->view_mode == 'gate_edit') {
 				$this->edit_gate( $out, $this->id );
 			}
+			if ($this->view_mode == 'gate_delete') {
+				$this->delete_gate( $this->id );
+				$this->redirect( "?" );
+			}
 			if ($this->view_mode == 'node_edit') {
 				$this->edit_node( $out, $this->id );
 			}
-
 			if ($this->view_mode == 'node_delete') {
 				$this->delete_ms( $this->id );
 				$this->redirect( "?" );
@@ -380,6 +383,23 @@ class mysensor extends module {
 	function node_sensors(&$out, $id) {
 		require (DIR_MODULES . $this->name . '/sensors_search.inc.php');
 	}
+	
+	/**
+	 * Delete gate
+	 *
+	 * @access public
+	 *        
+	 */
+	function delete_gate($id) {
+		$rec = SQLSelectOne( "SELECT * FROM msgates WHERE ID='$id'" );
+		
+		// some action for related tables
+		SQLExec( "DELETE FROM msnodesens WHERE GID='".$rec['ID']."'" );
+		SQLExec( "DELETE FROM msnodeval WHERE GID='".$rec['ID']."'" );
+		SQLExec( "DELETE FROM msnodes WHERE GID='".$rec['ID']."'" );
+		SQLExec( "DELETE FROM msgates WHERE ID='".$rec['ID']."'" );
+	}
+	
 	/**
 	 * Edit/add
 	 *

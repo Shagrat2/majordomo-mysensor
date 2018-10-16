@@ -246,7 +246,10 @@ if ($this->tab == ""){
   }
 */  
   for($i=0;$i<count($tmp);$i++) {
-    if ($rec['GID']==$tmp[$i]['ID']) $tmp[$i]['SELECTED']=1;
+    if ($rec['GID']==$tmp[$i]['ID']) {
+		$tmp[$i]['SELECTED']=1;
+		$out['GID_TITLE']=$tmp[$i]['TITLE'];
+	}
     if ($rec['GID']=="" && $tmp[$i]['ID']==1) $tmp[$i]['SELECTED']=1;
   }
   $out['GID_OPTIONS']=$tmp;
