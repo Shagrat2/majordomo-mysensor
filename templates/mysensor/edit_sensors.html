@@ -1,6 +1,7 @@
 <br/>
 <p>
 <a href="?view_mode=sensor_add&id=[#ID#]" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
+<a href="?tab=log&filter=Node:[#NID#]" target="_blank" class="btn btn-default btn-sm" title="Log"><i class="glyphicon glyphicon-info-sign"></i></a>
 </p> 
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit">
 <table border=0 align=center cellpadding=3>
@@ -58,7 +59,7 @@
     <td valign="top">[#VAL#]</td>
 	<td valign="top">
 	  <a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SETVALUE#></a><br/>
-	  <a href="?data_source=&view_mode=node_edit&id=[#PID#]&tab=sensors&mode=cmd&data=[#NID#];[#SID#];2;0;[#SUBTYPE#];0"><#LANG_REQUEST#></a><br/>
+	  <a href="?data_source=&view_mode=node_edit&id=[#PID#]&tab=sensors&mode=cmd&gid=[#GID#]&data=[#NID#];[#SID#];2;0;[#SUBTYPE#];0"><#LANG_REQUEST#></a><br/>
 	</td>
 	<td valign="top">
 	  [#if SDEVICE_TYPE!=""#]
