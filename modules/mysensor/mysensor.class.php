@@ -10,6 +10,8 @@
 
 include_once("intelhex.php");
 include_once("crcs.php");
+
+const cOfflineTime = 2*60*60;
  
 class mysensor extends module {
 	public $tryTimeout = 2; // 2 second
@@ -150,28 +152,15 @@ class mysensor extends module {
 			if ($atype == "info") {
 				$arr = array();
 				
-				$res=SQLSelect("SELECT GID, NID, BATTERY FROM msnodes");				
+				$res=SQLSelect(
+					"SELECT msnodes.ID, msnodes.GID, msnodes.NID, msnodes.BATTERY, msnodestate.last, msnodestate.state, ".
+					"(SELECT count(id) FROM mssendstack WHERE msnodes.GID=mssendstack.GID AND msnodes.NID=mssendstack.NID) AS TOTAL ".
+					"FROM msnodes ".
+					"LEFT JOIN msnodestate ON msnodes.gid=msnodestate.gid AND msnodes.nid=msnodestate.nid "
+				);
 				$total=count($res);
-				for($i=0;$i<$total;$i++) {			
-					$info = "";
-					if ($res[$i]['BATTERY'] != ""){
-						$info = "Battery: ".$res[$i]['BATTERY']."%";
-					}
-					
-					// State
-					$rec2 = SQLSelectOne ("SELECT state FROM msnodestate WHERE GID=".$res[$i]["GID"]." AND NID=".$res[$i]["NID"].";");
-					if ($rec2['state']) {
-						if ($info != "") $info .= "<br/>";
-						$info .= "Write: ".$rec2['state'];
-					}
-					
-					// Message stack
-					$rec2 = SQLSelectOne ("SELECT count(id) as TOTAL FROM mssendstack WHERE GID=".$res[$i]["GID"]." AND NID=".$res[$i]["NID"].";");
-					if ($rec2['TOTAL']) {
-						if ($info != "") $info .= "<br/>";
-						$info .= "Messages: ".$rec2['TOTAL'];
-					}
-
+				for($i=0;$i<$total;$i++) {
+					$info = nodeInfo($res[$i]);
 					$arr[] = array("I"=>$res[$i]["ID"], "D"=>$info);
 				}
 				echo json_encode($arr);				
@@ -573,6 +562,8 @@ class mysensor extends module {
 				SQLUpdate( 'msnodesens', $sens );
 			}
 		}
+		
+		$this->updateNState($GId, $NId, false);
 	}
 	/**
 	 * Receive Set
@@ -623,6 +614,8 @@ class mysensor extends module {
 		if ($sens['LINKED_OBJECT'] && $sens['LINKED_PROPERTY']) {
 			setGlobal( $sens['LINKED_OBJECT'] . '.' . $sens['LINKED_PROPERTY'], $val, array($this->name => '0') );
 		}
+		
+		$this->updateNState($GId, $NId, false);
 	}
 	/**
 	 * Title
@@ -697,7 +690,7 @@ class mysensor extends module {
 	 * @access public
 	 *        
 	 */
-	function req($gate, $arr) {
+	function Req($gate, $arr) {
 		
 		// Node
 		$GId = $gate->GId;
@@ -734,6 +727,8 @@ class mysensor extends module {
 		}
 		
 		$this->cmd( $GId, "$NId;$SId;$mType;" . $sens['ACK'] . ";$SubType;" . $val, true );
+		
+		$this->updateNState($GId, $NId, false);
 		return false;
 	}
 	/**
@@ -953,6 +948,8 @@ class mysensor extends module {
 			// 9 - LOG_MESSAGE
 			// @@@ 14 - GATEWAY_READY
 		}
+	
+		$this->updateNState($GId, $NId, false);
 	}
 	
 	/**
@@ -1013,6 +1010,7 @@ class mysensor extends module {
 		$SubType = $arr[4];
 		$val = $arr[5];
 		if ($NId == "")	return;
+		$nstate = false;
 		
 		// Log				
 		$Ack = $arr[3];
@@ -1045,7 +1043,7 @@ class mysensor extends module {
 					$gate->AddLog(cLogError, $ret);
 				}
 				
-				SQLExec ("DELETE FROM msnodestate WHERE GID=".$GId." AND NID=".$NId);
+				$nstate = "";
 				
 				break;
 				
@@ -1083,11 +1081,9 @@ class mysensor extends module {
 				$gate->AddLog(cLogMessage, "<@ 4:Stream; Gate:$GId; Node:$NId; Sensor:0; Ack:0; Sub:3; Msg:$data");
 				
 				// State
-				if ($BlockP == 0){
-					SQLExec ("DELETE FROM msnodestate WHERE GID=".$GId." AND NID=".$NId);
-				} else {
-					$state = Round(100-($BlockP*100 / $size), 2)."%";
-					SQLExec ("INSERT INTO msnodestate (GID,NID,state) VALUES ($GId,$NId,'".$state."') ON DUPLICATE KEY UPDATE state='".$state."';");
+				$nstate = "";
+				if ($BlockP != 0){
+					$nstate = Round(100-($BlockP*100 / $size), 2)."%";
 				}
 				
 				break;
@@ -1096,6 +1092,8 @@ class mysensor extends module {
 				$gate->AddLog(cLogError, "Unknow stream command: Gate:$GId Node:$NId; Sub:$SubType; Val:$val");
 				break;
 		}
+		
+		$this->updateNState($GId, $NId, $nstate);
 	}
 	
 	/**
@@ -1195,6 +1193,15 @@ class mysensor extends module {
 			SQLInsert( 'msgates', $data );
 		}
 	}
+		
+	function updateNState($GId, $NId, $state) {
+		$time = time();
+		if ($state === false) {
+			SQLExec ("INSERT INTO msnodestate (GID,NID,state,last) VALUES ($GId,$NId,'".$state."', '".$time."' ) ON DUPLICATE KEY UPDATE state='".$state."', last='".$time."';");
+		} else {
+			SQLExec ("INSERT INTO msnodestate (GID,NID,state,last) VALUES ($GId,$NId,'', '".$time."' ) ON DUPLICATE KEY UPDATE last='".$time."';");
+		}
+	}
 	/**
 	 * dbInstall
 	 *
@@ -1225,10 +1232,13 @@ class mysensor extends module {
 		SQLExec( $sqlQuery );
 		
 		// Node boot state
+		SQLExec( "DROP TABLE IF EXISTS `msnodestate`;" );
+		
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `msnodestate`
                (`GID` int(10) NOT NULL DEFAULT 1,
 				`NID` int(10) NOT NULL,
 				`State` varchar(32) NOT NULL,
+				`last` BIGINT NOT NULL,
 			   PRIMARY KEY (`NID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 		
@@ -1305,6 +1315,70 @@ EOD;
 		SQLExec("ALTER TABLE `msbins` CHANGE `BIN` `BIN` LONGBLOB");
 	}
 	// --------------------------------------------------------------------
+}
+
+function nodeInfo($res) {
+	$info = "";
+	
+	// Battery
+	if ($res['BATTERY'] != ""){
+		//$bclass = "label-success";
+		//$info .= "Battery: <span class=\"label $bclass\">".$res['BATTERY']."%</span>";
+		
+		$bicon = '';
+		$bcolor = '';
+		switch ($new_value) {
+		case ($new_value >= 80):
+			$bicon = 'battery-full';
+			$bcolor = 'green';
+			break;
+		case ($new_value >= 60):
+			$bicon = 'battery-three-quarters';
+			$bcolor = 'green';
+			break;
+		case ($new_value >= 40):
+			$bicon = 'battery-half';
+			$bcolor = 'green';
+			break;
+		case ($new_value >= 20):
+			$bicon = 'battery-quarter';
+			$bcolor = 'orange';
+			break;
+		default:
+			$bicon = 'battery-empty';
+			$bcolor = 'red';
+			break;
+		}
+		$info .= "<i class=\"fa fa-$bicon\" style=\"color:$bcolor\"></i>".$res['BATTERY']."%";
+	}
+	
+	// State
+	if ($res['state']) {
+		if ($info != "") $info .= "<br/>";
+		$info .= "Write: ".$res['state'];
+	}
+	
+	// Message stack
+	if ($res['TOTAL']) {
+		if ($info != "") $info .= "<br/>";
+		$info .= "Messages: ".$res['TOTAL'];
+	}
+
+	// Last
+	$iclass = "label-danger";
+	if ($res['last'] == "") {
+		$itime = "Offline";
+	} else {
+		$itime = $res['last'];		
+		if (time()-$itime < cOfflineTime) {
+			$iclass = "label-success";				
+		}
+		$itime = getPassedText($itime);
+	}
+	if ($info != "") $info .= "<br/>";
+	$info .= "<span class=\"label $iclass\">$itime</span>";
+	
+	return $info;
 }
 
 ?>
