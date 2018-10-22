@@ -1,5 +1,7 @@
 <?php
 
+  include_once("mysensor.class.php");
+
   global $session;
   global $node_bins;
     
@@ -61,14 +63,19 @@
   }
   
   // SEARCH RESULTS  
-  $res=SQLSelect("SELECT msnodes.*, msgates.title AS gtitle FROM msnodes LEFT JOIN msgates on msnodes.gid=msgates.id WHERE $qry ORDER BY ".$sortby_mysensor);
+  $res=SQLSelect(
+	"SELECT msnodes.*, msgates.title AS gtitle, msnodestate.last, ".
+	"(SELECT count(id) FROM mssendstack WHERE msnodes.GID=mssendstack.GID AND msnodes.NID=mssendstack.NID) AS TOTAL ".
+	"FROM msnodes ".
+	"LEFT JOIN msgates ON msnodes.gid=msgates.id ".
+	"LEFT JOIN msnodestate ON msnodes.gid=msnodestate.gid AND msnodes.nid=msnodestate.nid ".
+	"WHERE $qry ORDER BY ".$sortby_mysensor);
   if ($res[0]['ID']) {
     colorizeArray($res);
     $total=count($res);
     for($i=0;$i<$total;$i++) {
 	
-		$DevType = "";
-		
+		$DevType = "";		
 		if ($res[$i]['BOOTVER'] != ""){
 			$DevType .= $res[$i]['BOOTVER']."<br/>";
 		}
@@ -80,15 +87,8 @@
 			$DevType .= "Power";
 		
 		$res[$i]['DEVTYPE'] = $DevType;
-		
-		// Battery		
-		$info = "";
-		
-		if ($res[$i]['BATTERY'] != ""){
-			$info .= "Battery: ".$res[$i]['BATTERY'];
-		}
 
-		$res[$i]['INFO'] .= $info;
+		$res[$i]['INFO'] .= nodeInfo($res[$i]);
     }
     $out['RESULT']=$res;
   }  
