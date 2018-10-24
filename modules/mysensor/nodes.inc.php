@@ -76,18 +76,18 @@
     for($i=0;$i<$total;$i++) {
 	
 		$DevType = "";		
-		if ($res[$i]['BOOTVER'] != ""){
-			$DevType .= $res[$i]['BOOTVER']."<br/>";
-		}
-
+		
 		// some action for every record if required		 
 		if ($res[$i]['DEVTYPE'] == 1)
-			$DevType .= "Battery";
+			$DevType .= "<i class=\"fa fa-battery-full\"></i>&nbsp;";
 		else
-			$DevType .= "Power";
-		
-		$res[$i]['DEVTYPE'] = $DevType;
+			$DevType .= "<i class=\"fa fa-plug\"></i>&nbsp;";
 
+		if ($res[$i]['BOOTVER'] != ""){
+			$DevType .= $res[$i]['BOOTVER'];
+		}
+		
+		$res[$i]['DEVINFO'] = $DevType;
 		$res[$i]['INFO'] .= nodeInfo($res[$i]);
     }
     $out['RESULT']=$res;

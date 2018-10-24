@@ -153,7 +153,7 @@ class mysensor extends module {
 				$arr = array();
 				
 				$res=SQLSelect(
-					"SELECT msnodes.ID, msnodes.GID, msnodes.NID, msnodes.BATTERY, msnodestate.last, msnodestate.state, ".
+					"SELECT msnodes.ID, msnodes.GID, msnodes.NID, msnodes.BATTERY, msnodes.devtype, msnodestate.last, msnodestate.state, ".
 					"(SELECT count(id) FROM mssendstack WHERE msnodes.GID=mssendstack.GID AND msnodes.NID=mssendstack.NID) AS TOTAL ".
 					"FROM msnodes ".
 					"LEFT JOIN msnodestate ON msnodes.gid=msnodestate.gid AND msnodes.nid=msnodestate.nid "
@@ -1320,36 +1320,43 @@ EOD;
 function nodeInfo($res) {
 	$info = "";
 	
+	//$info .= "DT: ".print_r($res, true)."<br/>";
+	
 	// Battery
-	if ($res['BATTERY'] != ""){
-		//$bclass = "label-success";
-		//$info .= "Battery: <span class=\"label $bclass\">".$res['BATTERY']."%</span>";
+	if ($res['devtype'] == 1){
+		$blevel = $res['BATTERY'];
 		
-		$bicon = '';
-		$bcolor = '';
-		switch ($new_value) {
-		case ($new_value >= 80):
-			$bicon = 'battery-full';
-			$bcolor = 'green';
-			break;
-		case ($new_value >= 60):
-			$bicon = 'battery-three-quarters';
-			$bcolor = 'green';
-			break;
-		case ($new_value >= 40):
-			$bicon = 'battery-half';
-			$bcolor = 'green';
-			break;
-		case ($new_value >= 20):
-			$bicon = 'battery-quarter';
-			$bcolor = 'orange';
-			break;
-		default:
-			$bicon = 'battery-empty';
-			$bcolor = 'red';
-			break;
+		$battery = $res['BATTERY'];
+		$bicon = 'ban';
+		$bcolor = 'black';
+		if ($blevel != null){
+			$battery .= "%";
+			
+			switch ($blevel) {
+			case ($blevel >= 80):
+				$bicon = 'battery-full fa-rotate-270';
+				$bcolor = 'green';
+				break;
+			case ($blevel >= 60):
+				$bicon = 'battery-three-quarters fa-rotate-270';
+				$bcolor = 'green';
+				break;
+			case ($blevel >= 40):
+				$bicon = 'battery-half fa-rotate-270';
+				$bcolor = 'green';
+				break;
+			case ($blevel >= 20):
+				$bicon = 'battery-quarter fa-rotate-270';
+				$bcolor = 'orange';
+				break;
+			default:
+				$bicon = 'battery-empty fa-rotate-270';
+				$bcolor = 'red';
+				break;
+			}
 		}
-		$info .= "<i class=\"fa fa-$bicon\" style=\"color:$bcolor\"></i>".$res['BATTERY']."%";
+
+		$info .= "<i class=\"fa fa-$bicon\" style=\"color:$bcolor\" title=\"Battery\"></i>".$battery;
 	}
 	
 	// State
