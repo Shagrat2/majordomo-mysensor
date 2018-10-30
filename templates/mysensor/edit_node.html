@@ -19,10 +19,15 @@
 <div class="form-group">
   <label class="control-label"[#if ERR_GID#] style="color:red;font-weight:bold"[#endif#]><#LANG_GATE#>:</label>
   <div class="controls">
-    <select name="gid" class="form-control input" [#if GID!=""#]disabled[#endif !GID#]>
+  [#if GID=""#]
+    <select name="gid" class="form-control input">
      [#begin GID_OPTIONS#]<option value="[#ID#]"[#if SELECTED#] selected[#endif#]>[#TITLE#]
      [#end GID_OPTIONS#]
     </select>
+  [#else#]
+	<input type="text" value="[#GID_TITLE#]" class="form-control input" disabled>
+	<input type="hidden" name="gid" value="[#GID#]">
+  [#endif !GID#]
    </div>
 </div> 
 <!-- NID (int(10)) -->

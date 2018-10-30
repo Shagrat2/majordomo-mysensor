@@ -1,9 +1,11 @@
 <!-- table mysensor search -->
-<div class="float-right">
-	<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about">About&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign icon-white"></span>
-	</button>
+<div>
+	<a href="http://mysensors.ru" target="_blank"><img src="/templates/mysensor/MySensorsLogo.png"></a>&nbsp;
+	<a class="btn btn-primary" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a>
+	<div class="float-right">
+		<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#about">About&nbsp;&nbsp;<span class="glyphicon glyphicon-info-sign icon-white"></span></button>
+	</div>
 </div>
-
 <div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="about1" aria-hidden="true">
 <!-- <div id="about" class="modal hide"> -->
 	<div class="modal-dialog">
@@ -14,9 +16,12 @@
 			</div>
 			<div class="modal-body">
 				<p> Module supported MySensor gateway.<br>
-				<a href="http://majordomo.smartliving.ru/forum/viewtopic.php?f=5&t=2404&p=23022#p23022" target="_blank">Forum</a>.<br>
+					<a href="http://majordomo.smartliving.ru/forum/viewtopic.php?f=5&t=2404&p=23022#p23022" target="_blank">Forum</a>.<br>
 				</p>
-				<p class="float-left"></p>
+				<p class="float-left">Поддержать автора материально:<br>
+					Yandex: 410016722116303<br>					
+					PayPal: ivan@jad.ru<br>
+				</p>
 			</div>
 			
 			<div class="modal-footer">
@@ -27,55 +32,50 @@
 	</div>
 </div>
 
-<div>
- MySensor  <a class="btn btn-default" href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a>
- <span id="cyclestate" class="label [#if CYCLERUN == 1#]label-success[#else#]label-danger[#endif#]" title="Статус цикла">[#if CYCLERUN == 1#]Цикл запущен[#else#]Цикл остановлен[#endif#]</span> 
-</div>
 <div style="display:none" id='api_settings'>
-&nbsp;
+	<br>
 	<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
 		<fieldset>	
-		<div class="form-group">
-		<label class="control-label">
-		<#LANG_MEASURE#>:
-		</label>
-		<div class="controls">
-			<select name="ms_measure" class="input">    
-				<option value="M"[#if MS_MEASURE=="M"#] selected[#endif#]>Metric</option>
-				<option value="I"[#if MS_MEASURE=="I"#] selected[#endif#]>Imperial</option>   
-			</select>
-		</div>
-		</div>
+			<div class="form-group">
+			<label class="control-label">
+			<#LANG_MEASURE#>:
+			</label>
+			<div class="controls">
+				<select name="ms_measure" class="input">    
+					<option value="M"[#if MS_MEASURE=="M"#] selected[#endif#]>Metric</option>
+					<option value="I"[#if MS_MEASURE=="I"#] selected[#endif#]>Imperial</option>   
+				</select>
+			</div>
+			</div>
 
-		<div class="form-group">
-		<label class="control-label">
-		<#LANG_AUTOID#>:
-		</label>
-		<div class="controls">
-			<label class="radio"><input type="radio" name="ms_autoid" value="1"[#if MS_AUTOID="1"#] checked[#endif#]>Auto</label>
-			<label class="radio"><input type="radio" name="ms_autoid" value="0"[#if MS_AUTOID!="1"#] checked[#endif#]>Off</label> 
-			<label class="radio"><input type="radio" name="ms_autoid" value="2"[#if MS_AUTOID=="2"#] checked[#endif#]>Manual</label> 
-		</div>
-		</div>
+			<div class="form-group">
+			<label class="control-label">
+			<#LANG_AUTOID#>:
+			</label>
+			<div class="controls">
+				<label class="radio"><input type="radio" name="ms_autoid" value="1"[#if MS_AUTOID="1"#] checked[#endif#]>Auto</label>
+				<label class="radio"><input type="radio" name="ms_autoid" value="0"[#if MS_AUTOID!="1"#] checked[#endif#]>Off</label> 
+				<label class="radio"><input type="radio" name="ms_autoid" value="2"[#if MS_AUTOID=="2"#] checked[#endif#]>Manual</label> 
+			</div>
+			</div>
 
-		<div class="form-group">
-		<label class="control-label"[#if ERR_MS_NEXTID#] style="color:red;font-weight:bold"[#endif#]>
-		<#LANG_NEXTID#>:
-		(*)
-		</label>
-		<div class="controls"><input type="text" name="ms_nextid" value="<#MS_NEXTID#>" class="input"></div>
-		</div>
+			<div class="form-group">
+			<label class="control-label"[#if ERR_MS_NEXTID#] style="color:red;font-weight:bold"[#endif#]>
+			<#LANG_NEXTID#>:
+			(*)
+			</label>
+			<div class="controls"><input type="text" name="ms_nextid" value="<#MS_NEXTID#>" class="input"></div>
+			</div>
 
-		<div class="form-actions">
-		<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_UPDATE#></button>
-		<input type="hidden" name="view_mode" value="update_settings">
-		<input type="hidden" name="mode" value="update">
-		</div>
+			<div class="form-actions">
+			<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_UPDATE#></button>
+			<input type="hidden" name="view_mode" value="update_settings">
+			<input type="hidden" name="mode" value="update">
+			</div>
 		</fieldset>
 	</form>	
 </div>
-<br/>
-
+<p>[#module name="xray" action="service" cycle="mysensor"#]</p>
 <ul class="nav nav-tabs">
  <li [#if TAB=="gates"#] class="active"[#endif#]><a href="?tab=gates"><#LANG_GATES#></a></li>
  <li [#if TAB=="" || TAB=="nodes"#] class="active"[#endif#]><a href="?tab=nodes"><#LANG_NODES#></a></li>
