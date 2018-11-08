@@ -30,7 +30,7 @@ class mysensor extends module {
 	 */
 	function mysensor() {		
 		$this->name = "mysensor";
-		$this->title = "MySensor";
+		$this->title = "MySensors";
 		$this->module_category = "<#LANG_SECTION_DEVICES#>";
 		$this->checkInstalled ();
 	}
@@ -1195,11 +1195,13 @@ class mysensor extends module {
 	}
 		
 	function updateNState($GId, $NId, $state) {
+		echo "NID: ".$NId."; State:".$state."\n";
+		
 		$time = time();
 		if ($state === false) {
-			SQLExec ("INSERT INTO msnodestate (GID,NID,state,last) VALUES ($GId,$NId,'".$state."', '".$time."' ) ON DUPLICATE KEY UPDATE state='".$state."', last='".$time."';");
+			SQLExec ("INSERT INTO msnodestate (GID,NID,last) VALUES ($GId,$NId,'".$time."' ) ON DUPLICATE KEY UPDATE last='".$time."';");
 		} else {
-			SQLExec ("INSERT INTO msnodestate (GID,NID,state,last) VALUES ($GId,$NId,'', '".$time."' ) ON DUPLICATE KEY UPDATE last='".$time."';");
+			SQLExec ("INSERT INTO msnodestate (GID,NID,state,last) VALUES ($GId,$NId,'".$state."', '".$time."' ) ON DUPLICATE KEY UPDATE state='".$state."', last='".$time."';");
 		}
 	}
 	/**
