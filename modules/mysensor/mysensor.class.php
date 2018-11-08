@@ -1195,8 +1195,6 @@ class mysensor extends module {
 	}
 		
 	function updateNState($GId, $NId, $state) {
-		echo "NID: ".$NId."; State:".$state."\n";
-		
 		$time = time();
 		if ($state === false) {
 			SQLExec ("INSERT INTO msnodestate (GID,NID,last) VALUES ($GId,$NId,'".$time."' ) ON DUPLICATE KEY UPDATE last='".$time."';");
