@@ -1323,39 +1323,39 @@ function nodeInfo($res) {
 	//$info .= "DT: ".print_r($res, true)."<br/>";
 	
 	// Battery
-	if ($res['devtype'] == 1){
-		$blevel = $res['BATTERY'];
+	$blevel = $res['BATTERY'];
+	
+	$battery = $res['BATTERY'];
+	$bicon = '';//'ban';
+	$bcolor = 'black';
+	if ($blevel != null){
+		$battery .= "%";
 		
-		$battery = $res['BATTERY'];
-		$bicon = 'ban';
-		$bcolor = 'black';
-		if ($blevel != null){
-			$battery .= "%";
-			
-			switch ($blevel) {
-			case ($blevel >= 80):
-				$bicon = 'battery-full fa-rotate-270';
-				$bcolor = 'green';
-				break;
-			case ($blevel >= 60):
-				$bicon = 'battery-three-quarters fa-rotate-270';
-				$bcolor = 'green';
-				break;
-			case ($blevel >= 40):
-				$bicon = 'battery-half fa-rotate-270';
-				$bcolor = 'green';
-				break;
-			case ($blevel >= 20):
-				$bicon = 'battery-quarter fa-rotate-270';
-				$bcolor = 'orange';
-				break;
-			default:
-				$bicon = 'battery-empty fa-rotate-270';
-				$bcolor = 'red';
-				break;
-			}
+		switch ($blevel) {
+		case ($blevel >= 80):
+			$bicon = 'battery-full fa-rotate-270';
+			$bcolor = 'green';
+			break;
+		case ($blevel >= 60):
+			$bicon = 'battery-three-quarters fa-rotate-270';
+			$bcolor = 'green';
+			break;
+		case ($blevel >= 40):
+			$bicon = 'battery-half fa-rotate-270';
+			$bcolor = 'green';
+			break;
+		case ($blevel >= 20):
+			$bicon = 'battery-quarter fa-rotate-270';
+			$bcolor = 'orange';
+			break;
+		default:
+			$bicon = 'battery-empty fa-rotate-270';
+			$bcolor = 'red';
+			break;
 		}
+	}
 
+	if ($bicon != ""){
 		$info .= "<i class=\"fa fa-$bicon\" style=\"color:$bcolor\" title=\"Battery\"></i>".$battery;
 	}
 	
