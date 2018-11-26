@@ -1380,7 +1380,11 @@ function nodeInfo($res) {
 		if (time()-$itime < cOfflineTime) {
 			$iclass = "label-success";				
 		}
-		$itime = getPassedText($itime);
+		if (function_exists('getPassedText')){
+		  $itime = getPassedText($itime);
+		} else {
+		  $itime = date('d.m.Y H:i',$itime);
+		}
 	}
 	if ($info != "") $info .= "<br/>";
 	$info .= "<span class=\"label $iclass\">$itime</span>";
