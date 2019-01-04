@@ -541,12 +541,27 @@ class mysensor extends module {
 			
 		// Arduino Node
 		if ($SId == 255) {
-			$node['PROT'] = $arr[5];
+
+			switch ($SubType) {
+			case S_ARDUINO_NODE:
+				$node['REPEATER'] = 0;
+				$node['PROT'] = $arr[5];
+				break;
+
+			case S_ARDUINO_REPEATER_NODE:
+				$node['REPEATER'] = 1;
+				$node['PROT'] = $arr[5];
+				break;
+
+			default :
+				return;
+			}
 			
 			if ($node['LASTREBOOT'] == 0)
 				$node['LASTREBOOT'] = date( 'Y-m-d H:i:s' );
 			
 			SQLUpdate( 'msnodes', $node );
+			
 		} else {
 			// Sensor
 			$sens = SQLSelectOne( "SELECT * FROM msnodesens WHERE GID=$GId AND NID LIKE '".DBSafe($NId)."' AND SID LIKE '".DBSafe($SId)."' AND SUBTYPE LIKE '".DBSafe( $SubType )."';" );
@@ -1075,7 +1090,7 @@ class mysensor extends module {
 				}
 				$data = sprintf("%04x", $NId)."0100".$CBlok.bin2hex( substr($ndata["data"], $BlockP, 16));
 				
-				usleep(100000);
+				// usleep(100000);
 				
 				$gate->send($NId, 0, 4, 0, 3, $data);				
 				$gate->AddLog(cLogMessage, "<@ 4:Stream; Gate:$GId; Node:$NId; Sensor:0; Ack:0; Sub:3; Msg:$data");
@@ -1279,6 +1294,7 @@ class mysensor extends module {
 	msnodes: LASTREBOOT datetime
 	msnodes: DEVTYPE int(10) DEFAULT '0'
 	msnodes: BOOTVER varchar(255) NOT NULL DEFAULT ''
+	msnodes: REPEATER int(10) DEFAULT '0'
 	
 	msnodesens: ID int(10) unsigned NOT NULL auto_increment
 	msnodesens: GID int(10) NOT NULL DEFAULT 1
