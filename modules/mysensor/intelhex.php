@@ -99,14 +99,15 @@ $data = file_get_contents("Lighting.ino.hex");
 
 $cnv = new IntelHex;
 $cnv->Parse($data);
-$cnv->NormalizePage(16);
+$cnv->NormalizePage(32);
 
 $size = strlen($cnv->Data);
 echo "Last error: ".$cnv->LastError."<br/>\n";
 echo "First adress: ".dechex($cnv->FirstAddr)."<br/>\n";
 echo "Size: ".$size."<br/>\n";
-echo "CRC16: ". bin2hex(crc16($cnv->Data))."<br/>\n";
+//echo "CRC16: ". bin2hex(crc16($cnv->Data))."<br/>\n";
 //echo bin2hex($cnv->Data)."<br/>\n";
+
 
 echo "<code>";
 for ($i=0; $i<strlen($cnv->Data); $i++){
@@ -116,7 +117,10 @@ for ($i=0; $i<strlen($cnv->Data); $i++){
 }
 echo "</code>";
 
+file_put_contents("Lighting.ino.bin", $cnv->Data);
+
+
 echo "<br>\nEnd";
 */
-	
+
 ?>

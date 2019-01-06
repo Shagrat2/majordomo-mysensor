@@ -39,7 +39,7 @@ if ($this->mode=='update') {
 		$ok=0;
 		$out['ERR_FILE']=1;
 	}
-	$parser->NormalizePage(16);
+	$parser->NormalizePage(32);
 
 	// Make CRC MySensors
 	$crc = crc16($parser->Data);

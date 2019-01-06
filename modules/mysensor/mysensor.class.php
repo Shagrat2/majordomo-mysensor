@@ -992,7 +992,7 @@ class mysensor extends module {
 		if ($parser->FirstAddr != 0){
 			return "Error load bin Gate:$GId; Node:$NId : First adress $parser->FirstAddr";
 		}
-		$parser->NormalizePage(16);
+		$parser->NormalizePage(32);
 		
 		// Make CRC15
 		$crc = crc16($parser->Data);
