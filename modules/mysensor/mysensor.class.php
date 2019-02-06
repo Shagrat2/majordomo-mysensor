@@ -170,37 +170,41 @@ class mysensor extends module {
 			$limit = 50;
 			
 			// Find last midifed
+			$LastModified = array();
+			$res_lines = array ();
+			
 			$filename = ROOT . 'cms/debmes/log_*-cycle_mysensor.php.txt';
 			foreach( glob( $filename ) as $file ) {
 				$LastModified[] = filemtime( $file );
 				$FileName[] = $file;
 			}
 			$files = array_multisort( $LastModified, SORT_NUMERIC, SORT_ASC, $FileName );
-			$lastIndex = count( $LastModified ) - 1;
-			
-			// Open file
-			$data = LoadFile( $FileName[$lastIndex] );
-			
-			$lines = explode( "\n", $data );
-			$lines = array_reverse( $lines );
-			$res_lines = array ();
-			$total = count( $lines );
-			$added = 0;
-			for($i = 0; $i < $total; $i ++) {
-				if (trim( $lines[$i] ) == '') {
-					continue;
-				}
+			if (count($LastModified) != 0){
+				$lastIndex = count( $LastModified ) - 1;
 				
-				if ($filter && preg_match( '/' . preg_quote( $filter ) . '/is', $lines[$i] )) {
-					$res_lines[] = $lines[$i];
-					$added ++;
-				} elseif (! $filter) {
-					$res_lines[] = $lines[$i];
-					$added ++;
-				}
+				// Open file
+				$data = LoadFile( $FileName[$lastIndex] );
 				
-				if ($added >= $limit) {
-					break;
+				$lines = explode( "\n", $data );
+				$lines = array_reverse( $lines );				
+				$total = count( $lines );
+				$added = 0;
+				for($i = 0; $i < $total; $i ++) {
+					if (trim( $lines[$i] ) == '') {
+						continue;
+					}
+					
+					if ($filter && preg_match( '/' . preg_quote( $filter ) . '/is', $lines[$i] )) {
+						$res_lines[] = $lines[$i];
+						$added ++;
+					} elseif (! $filter) {
+						$res_lines[] = $lines[$i];
+						$added ++;
+					}
+					
+					if ($added >= $limit) {
+						break;
+					}
 				}
 			}
 			
