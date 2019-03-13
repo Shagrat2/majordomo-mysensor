@@ -314,10 +314,10 @@ abstract class MySensorMaster{
 	
 	  switch ($level){
 		  case cLogDebug:
-			if($this->debug) echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
+			if($this->debug) echo date("H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
 			  break;
 		  default:
-		    echo date("Y-m-d H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
+		    echo date("H:i:s", $sec)." ".sprintf('%03d', $usec*1000)." $data\n";
 			  break;
 	  }
   }

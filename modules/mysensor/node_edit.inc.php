@@ -21,7 +21,7 @@ if ($this->mode=='resetinfo'){
 	global $id;
 	
 	$table_name='msnodes';
-	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='id'");
+	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 	$rec['BATTERY'] = "";
 	$rec['BOOTVER'] = "";
 	SQLUpdate($table_name, $rec); // update
