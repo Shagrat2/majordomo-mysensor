@@ -146,30 +146,30 @@
 [#module name="linkedobject" object_field="bat_object" property_field="bat_property"#] 
 [#module name="linkedobject" object_field="heartbeat_object" property_field="heartbeat_property"#] 
 <hr/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=resetinfo&id=[#ID#]" class="btn btn-default"><#LANG_RESETINFO#></a> - <#LANG_RESET_INFO#><br/><br/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;18;0" class="btn btn-default"><#LANG_HEARTBEAT#></a> - <#LANG_HEARTBEAT_INFO#><br/><br/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;19;0" class="btn btn-default"><#LANG_PRESENTATION#></a> - <#LANG_PRESENTATION_INFO#><br/><br/>
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#>
+<a href="?view_mode=[#VIEW_MODE#]&mode=resetinfo&id=[#ID#]&gid=[#GID#]&nid=[#NID#]" class="btn btn-default"><#LANG_RESETINFO#></a> - <#LANG_RESET_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&id=[#ID#]&data=[#NID#];0;3;0;18;0" class="btn btn-default"><#LANG_HEARTBEAT#></a> - <#LANG_HEARTBEAT_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&id=[#ID#]&data=[#NID#];0;3;0;19;0" class="btn btn-default"><#LANG_PRESENTATION#></a> - <#LANG_PRESENTATION_INFO#><br/><br/>
+<a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&id=[#ID#]&data=[#NID#];0;3;0;13;0" class="btn btn-default"><#LANG_REBOOT#></a> - <#LANG_REBOOT_INFO#>
 <br><br>
 <div>OTA:
-<a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=respfw&gid=[#GID#]&nid=[#NID#]" class="btn btn-default">Response FW</a>
+<a href="?view_mode=[#VIEW_MODE#]&mode=respfw&id=[#ID#]&gid=[#GID#]&nid=[#NID#]" class="btn btn-default">Response FW</a>
 </div><br>
 <div>Debug:
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;28;0;F" class="btn btn-default">Frequency (mHz)</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;28;0;V" class="btn btn-default">Voltage (mV)</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;28;0;B" class="btn btn-default">FreeMemory (B)</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;28;0;R" class="btn btn-default">Routing table</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];0;3;0;28;0;E" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">!!Clean eprom!!</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];0;3;0;28;0;F" class="btn btn-default">Frequency (mHz)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];0;3;0;28;0;V" class="btn btn-default">Voltage (mV)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];0;3;0;28;0;B" class="btn btn-default">FreeMemory (B)</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];0;3;0;28;0;R" class="btn btn-default">Routing table</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];0;3;0;28;0;E" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">!!Clean eprom!!</a>
 </div><br>
 <div><a href="https://github.com/mysensors/NodeManager" target="_blank">NodeManager:</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;BATTERY" class="btn btn-default">BATTERY</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;HELLO" class="btn btn-default">HELLO</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;REBOOT" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">REBOOT</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;CLEAR" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">CLEAR</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;VERSION" class="btn btn-default">VERSION</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;BATTERY" class="btn btn-default">BATTERY</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;HELLO" class="btn btn-default">HELLO</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;REBOOT" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">REBOOT</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;CLEAR" class="btn btn-default" onClick="return confirm('<#ARE_YOU_SURE#>')">CLEAR</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;VERSION" class="btn btn-default">VERSION</a>
  <a href="#" class="btn btn-default" disabled>Change ID</a>
  <a href="#" class="btn btn-default" disabled>Set the wait/sleep interval</a>
  <a href="#" class="btn btn-default" disabled>Set mode</a>
- <a href="?view_mode=[#VIEW_MODE#]&id=[#ID#]&mode=cmd&gid=[#GID#]&data=[#NID#];200;2;0;48;AWAKE" class="btn btn-default">AWAKE</a>
+ <a href="?view_mode=[#VIEW_MODE#]&mode=cmd&id=[#ID#]&gid=[#GID#]&data=[#NID#];200;2;0;48;AWAKE" class="btn btn-default">AWAKE</a>
 </div>
 </div>

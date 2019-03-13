@@ -171,11 +171,11 @@ class mysensor extends module {
 			
 			// Find last midifed
 			$LastModified = array();
+			$res_lines = array();
 			$FileName = array();
-			$res_lines = array ();
 			
-			$patern = ROOT . 'cms/debmes/log_*-cycle_mysensor.php.txt';
-			foreach( glob( $patern ) as $file ) {
+			$FilePatern = ROOT . 'cms/debmes/log_*-cycle_mysensor.php.txt';
+			foreach( glob( $FilePatern ) as $file ) {
 				$LastModified[] = filemtime( $file );
 				$FileName[] = $file;
 			}
@@ -1128,7 +1128,7 @@ class mysensor extends module {
 		$GId = $gate->GId;
 		
 		if ($NId == -1) {
-			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE GID=$GId AND SENDRX=0;");
+			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=0 AND GID=$GId;");
 		} else {
 			$rec=SQLSelectOne("SELECT * FROM mssendstack WHERE SENDRX=1 AND GID=$GId AND NID=$NId;");
 		}
@@ -1163,7 +1163,6 @@ class mysensor extends module {
 		$Data = $rec['MESSAGE'];
 		$gate->send($NId, $SId, $MType, $Ack, $SubType, $Data);
 		
-		//$sendwait[$rec['NID']] = time();
 		$gate->AddLog(cLogMessage, "<@ $MType:".$MSType[$MType]."; Gate:$GId; Node:$NId; Sensor:$SId; Ack:$Ack; Sub:$SubType:".SubTypeDecode($MType, $SubType)."; Msg:$Data");
 	}
 		
