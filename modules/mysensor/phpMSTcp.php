@@ -35,7 +35,8 @@ class MySensorMasterTCP extends MySensorMaster {
     socket_set_block($this->sock);
     
     //socket_set_option($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 200000));
-    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));		
+    //socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 250000));		
+    socket_set_option($this->sock, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 0, "usec" => 50000));
     socket_set_option($this->sock, SOL_SOCKET, SO_KEEPALIVE, 1);
     
     // Connect the socket

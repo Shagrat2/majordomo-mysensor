@@ -1,7 +1,7 @@
 <br/>
 <p>
 <a href="?view_mode=sensor_add&id=[#ID#]" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD_NEW_RECORD#></a>
-<a href="?tab=log&filter=Node:[#NID#]" target="_blank" class="btn btn-default btn-sm" title="Log"><i class="glyphicon glyphicon-info-sign"></i></a>
+<a href="?tab=log&id=[#ID#]&gid=[#GID#]&nid=[#NID#]&filter=Gate:[#GID#]; Node:[#NID#];" target="_blank" class="btn btn-default" title="Log"><i class="glyphicon glyphicon-info-sign"></i></a>
 </p> 
 <form action="?" method="post" enctype="multipart/form-data" name="frmEdit">
 <table border=0 align=center cellpadding=3>
@@ -39,11 +39,11 @@
    <tr>
     <td valign="top"><b><#LANG_SENSOR#></b></td>	
     <td valign="top"><b><#LANG_TYPE#></b></td>
-	<td valign="top"><b><#LANG_MORE_INFO#></b></td>
+  	<td valign="top"><b><#LANG_MORE_INFO#></b></td>
     <td valign="top"><b><#LANG_UPDATED#></b></td>   
     <td valign="top"><b><#LANG_VALUE#></b></td>
-	<td valign="top">&nbsp;</td>
-	<td valign="top"><b><#LANG_DEVICE#></b></td>
+	  <td valign="top">&nbsp;</td>
+	  <td valign="top"><b><#LANG_DEVICE#></b></td>
     <td valign="top"><b><#LANG_LINKED_OBJECT#></b></td>
     <td valign="top"><b><#LANG_LINKED_PROPERTY#></b></td>
     <td valign="top"><b>ACK</b></td>
@@ -54,20 +54,16 @@
    <tr>
     <td valign="top" [#if SDESCR!=""#]title="[#SDESCR#]"[#endif#]><b>[#SID#]</b>[#if STITLE!=""#]<br/>[#STITLE#][#endif#]</td>
     <td valign="top" [#if SUBDESCR!=""#]title="[#SUBDESCR#]"[#endif#]>[#SUBTYPE#][#if SUBTITLE!=""#]<br/>[#SUBTITLE#][#endif#]</td>
-	<td valign="top">[#NOTE#]</td>
+	  <td valign="top">[#NOTE#]</td>
     <td valign="top">[#UPDATED#]</td>
     <td valign="top">[#VAL#]</td>
-	<td valign="top">
-	  <a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SETVALUE#></a><br/>
-	  <a href="?data_source=&view_mode=node_edit&id=[#PID#]&tab=sensors&mode=cmd&gid=[#GID#]&data=[#NID#];[#SID#];2;0;[#SUBTYPE#];0"><#LANG_REQUEST#></a><br/>
-	</td>
-	<td valign="top">
-	  [#if SDEVICE_TYPE!=""#]
-		[#module name="devices" action="link" type="<#SENSORS.SDEVICE_TYPE#>" prefix="Mysensors" source_table="msnodeval" source_table_id="<#SENSORS.ID#>" linked_object="<#SENSORS.LINKED_OBJECT#>"#]
-	  [#else#]
-		&nbsp;
-	  [#endif#]
-	</td>
+	  <td valign="top">
+      <a href="#" onClick="return setProperty('[#ID#]', '[#VALUE#]')"><#LANG_SETVALUE#></a><br/>
+      <a href="?data_source=&view_mode=node_edit&id=[#PID#]&tab=sensors&mode=cmd&gid=[#GID#]&data=[#NID#];[#SID#];2;0;[#SUBTYPE#];0"><#LANG_REQUEST#></a><br/>
+    </td>
+    <td valign="top">     
+      [#module name="devices" action="link" type="<#SENSORS.SDEVICE_TYPE#>" prefix="Mysensors" source_table="msnodeval" source_table_id="<#SENSORS.ID#>" linked_object="<#SENSORS.LINKED_OBJECT#>"#]
+    </td>
     <td valign="top"><input type="text" name="linked_object[#ID#]" id="linked_object[#ID#]" value="[#LINKED_OBJECT#]"></td>
     <td valign="top"><input type="text" name="linked_property[#ID#]" id="linked_property[#ID#]" value="[#LINKED_PROPERTY#]">
     <td valign="top"><input type="checkbox" name="ack[#ID#]" value="1"[#if ACK="1"#] checked[#endif#]></td>
