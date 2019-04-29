@@ -997,7 +997,7 @@ class mysensor extends module {
 		if ($parser->FirstAddr != 0){
 			return "Error load bin Gate:$GId; Node:$NId : First adress $parser->FirstAddr";
 		}
-		$parser->NormalizePage(32);
+		$parser->NormalizePage(cNormalPage);
 		
 		// Make CRC15
 		$crc = crc16($parser->Data);
@@ -1044,8 +1044,8 @@ class mysensor extends module {
 					
 		switch ($SubType) {
 			// Request new FW, payload contains current FW details
-			case 0x00:
-				// Type				
+			case 0x00:				
+				// $NID = substr( $val, 1, 4 );
 				$CVer = substr( $val, 4, 4 );
 				$CBloks = hexdec( substr( $val, 8, 4 ) );
 				$CCrc = hexdec( substr( $val, 12, 4 ) );
@@ -1098,7 +1098,7 @@ class mysensor extends module {
 				// usleep(100000);
 				
 				$gate->send($NId, 0, 4, 0, 3, $data);				
-				$gate->AddLog(cLogMessage, "<@ 4:Stream; Gate:$GId; Node:$NId; Sensor:0; Ack:0; Sub:3; Msg:$data");
+				$gate->AddLog(cLogMessage, "<@ 4:Stream; Gate:$GId; Node:$NId; Sensor:0; Ack:0; Sub:3:ST_FIRMWARE_RESPONSE; Msg:$data");
 				
 				// State
 				$nstate = "";
@@ -1250,7 +1250,7 @@ class mysensor extends module {
 		
 		SQLExec( $sqlQuery );
 		
-		// Node boot state
+		// Nodestate
 		SQLExec( "DROP TABLE IF EXISTS `msnodestate`;" );
 		
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `msnodestate`
@@ -1350,28 +1350,22 @@ function nodeInfo($res) {
 	$bcolor = 'black';
 	if ($blevel != null){
 		$battery .= "%";
-		
-		switch ($blevel) {
-		case ($blevel >= 80):
+				
+		if ($blevel >= 80) {
 			$bicon = 'battery-full fa-rotate-270';
 			$bcolor = 'green';
-			break;
-		case ($blevel >= 60):
+		} else if ($blevel >= 60) {
 			$bicon = 'battery-three-quarters fa-rotate-270';
 			$bcolor = 'green';
-			break;
-		case ($blevel >= 40):
+		} else if ($blevel >= 40) {
 			$bicon = 'battery-half fa-rotate-270';
 			$bcolor = 'green';
-			break;
-		case ($blevel >= 20):
+		} else if ($blevel >= 20) {
 			$bicon = 'battery-quarter fa-rotate-270';
 			$bcolor = 'orange';
-			break;
-		default:
+		} else {
 			$bicon = 'battery-empty fa-rotate-270';
 			$bcolor = 'red';
-			break;
 		}
 	}
 

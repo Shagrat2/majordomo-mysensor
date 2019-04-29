@@ -18,14 +18,21 @@ if ($this->mode=='cmd') {
 }
 
 if ($this->mode=='resetinfo'){
-	global $id;
-	
+  global $id;
+  global $gid;
+  global $nid;
+  
+  // msnodes
 	$table_name='msnodes';
 	$rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
 	$rec['BATTERY'] = "";
 	$rec['BOOTVER'] = "";
 	SQLUpdate($table_name, $rec); // update
-	$this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
+    
+  // msnodestate
+  SQLExec( "DELETE FROM msnodestate WHERE GID='$gid' AND NID='$nid'" );
+
+  $this->redirect("?id=".$id."&view_mode=".$this->view_mode."&edit_mode=".$this->edit_mode."&tab=".$this->tab);
 }
 
 if ($this->mode=='respfw'){
@@ -305,8 +312,13 @@ if ($this->tab == "sensors"){
       $subtype = $v['SUBTYPE'];        
       $sensors[$k]['SUBTITLE'] = $MSProperty[ $subtype ][0];
       $sensors[$k]['SUBDESCR'] = $MSProperty[ $subtype ][1];
+	  
+	  $subType = $MSProperty[$sensors[$k]['SUBTYPE']][2];
+	  if ($subType == ''){
+		  $subType = 'sensor_general';
+	  }
 	  	  
-	  $sensors[$k]['SDEVICE_TYPE'] = $MSProperty[$sensors[$k]['SUBTYPE']][2];
+	  $sensors[$k]['SDEVICE_TYPE'] = $subType;
     }
   }    
     

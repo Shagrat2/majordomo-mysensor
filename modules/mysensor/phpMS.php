@@ -101,7 +101,7 @@ $MSProperty = array(
   34 => Array("V_FLOW", "Flow of water (in meter)", "sensor_general"),
   35 => Array("V_VOLUME", "Water volume", "counter"),
   36 => Array("V_LOCK_STATUS", "Set or get lock status. 1=Locked, 0=Unlocked"),
-  37 => Array("V_LEVEL", "Used for sending level-value"),
+  37 => Array("V_LEVEL", "Used for sending level-value", "sensor_general"),
   38 => Array("V_VOLTAGE", "Voltage level", "sensor_voltage"),
   39 => Array("V_CURRENT", "Current level", "sensor_current"),
   40 => Array("V_RGB", 'RGB value transmitted as ASCII hex string (I.e "ff0000" for red)', "rgb"),
@@ -218,6 +218,8 @@ const	I_POST_SLEEP_NOTIFICATION	= 33;	// Message sent after node woke up (if ena
 const	cLogDebug = 0; // Debug
 const cLogError = 1; // Error
 const	cLogMessage = 2; // Message
+
+const cNormalPage = 32; // Memory page size
 
 function SubTypeDecode($mtype, $mssubtype){
 	global $MSPresentation;

@@ -1,5 +1,10 @@
+[#if NOTHASLOG!=""#]
+<br/><div class="alert alert-danger" role="alert">For show logs. Append to config.php <code>Define('LOG_CYCLES',1);</code><br/>And restart MajorDomo cycles.</div>
+[#endif HASLOG#]
+[#if NID!=""#]
+<br/><div><a href="?&data_source=<#DATA_SOURCE#>&view_mode=node_edit&id=[#ID#]]&tab=sensors">&lt;&lt;&lt; <#LANG_BACK#> Gate:[#GID#] Node:[#NID#]</a><div></div><br/>
+[#endif NID#]
 [#if ACTION!="context"#]
-
 <table border="1" align="center" cellspacing="3" cellpadding="5" width="100%">
  <tr>
   <td valign="top" colspan=7>
@@ -50,7 +55,6 @@
  checkAllStates();
 </script>
 [#endif ACTION#]
-
 [#if ACTION="context"#]
 <b>Related: <#LANG_HCB#>related<#LANG_HCE#></b>
 <div id='contextBody'>...</div>
