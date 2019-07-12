@@ -1256,7 +1256,7 @@ class mysensor extends module {
 		$sqlQuery = "CREATE TABLE IF NOT EXISTS `msnodestate`
                (`GID` int(10) NOT NULL DEFAULT 1,
 				`NID` int(10) NOT NULL,
-				`State` varchar(32) NOT NULL,
+				`State` varchar(32) NULL DEFAULT NULL,
 				`last` BIGINT NOT NULL,
 			   PRIMARY KEY (`NID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
