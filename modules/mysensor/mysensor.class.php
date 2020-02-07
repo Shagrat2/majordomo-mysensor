@@ -1258,7 +1258,7 @@ class mysensor extends module {
 				`NID` int(10) NOT NULL,
 				`State` varchar(32) NULL DEFAULT NULL,
 				`last` BIGINT NOT NULL,
-			   PRIMARY KEY (`NID`)
+			   PRIMARY KEY (`NID`,`GID`)
                ) ENGINE = MEMORY DEFAULT CHARSET=utf8;";
 		
 		SQLExec( $sqlQuery );
